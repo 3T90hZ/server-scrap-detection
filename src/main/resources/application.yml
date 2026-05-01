@@ -1,0 +1,28 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: scrap-detection
+
+  # ==================== MySQL Database Configuration ====================
+  datasource:
+    url: jdbc:mysql://localhost:3306/internet_cafe?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8
+    username: root
+    password: Tranthanh01@
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  # JPA / Hibernate settings
+  jpa:
+    hibernate:
+      ddl-auto: update        # Options: none, validate, update, create, create-drop
+    show-sql: true            # Set to false in production
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+
+# Swagger / OpenAPI
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
