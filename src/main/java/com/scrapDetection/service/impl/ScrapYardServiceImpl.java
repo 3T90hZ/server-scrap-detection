@@ -3,6 +3,7 @@ package com.scrapDetection.service.impl;
 import com.scrapDetection.dto.scrapyard.ScrapYardRequestDTO;
 import com.scrapDetection.dto.scrapyard.ScrapYardResponseDTO;
 import com.scrapDetection.entity.ScrapYard;
+import com.scrapDetection.exception.ResourceAlreadyExistsException;
 import com.scrapDetection.exception.ResourceNotFoundException;
 import com.scrapDetection.mapper.ScrapYardMapper;
 import com.scrapDetection.repository.ScrapYardRepository;
@@ -25,6 +26,15 @@ public class ScrapYardServiceImpl implements ScrapYardService {
 
     @Override
     public ScrapYardResponseDTO createScrapYard(ScrapYardRequestDTO requestDTO) {
+        requestDTO.setPhoneNumbers(requestDTO.getPhoneNumbers().trim());
+        if (scrapYardRepository.existsByPhoneNumbers(requestDTO.getPhoneNumbers())) {
+            throw new ResourceAlreadyExistsException("Scrap Yard", "phoneNumbers", requestDTO.getPhoneNumbers());
+        }
+
+        if(scrapYardRepository.existsByAddress(requestDTO.getAddress())) {
+            throw new ResourceAlreadyExistsException("Scrap Yard", "address", requestDTO.getAddress());
+        }
+
         ScrapYard scrapYard = scrapYardMapper.toEntity(requestDTO);
 
         if (scrapYard.getStatus() == null || scrapYard.getStatus().isBlank()) {
@@ -70,6 +80,15 @@ public class ScrapYardServiceImpl implements ScrapYardService {
         ScrapYard existingYard = scrapYardRepository.findById(yardId)
                 .orElseThrow(() -> new ResourceNotFoundException("Scrap Yard", yardId));
 
+        requestDTO.setPhoneNumbers(requestDTO.getPhoneNumbers().trim());
+
+        if(scrapYardRepository.existsByAddress(requestDTO.getAddress())) {
+            throw new  ResourceAlreadyExistsException("Scrap Yard", "address", requestDTO.getAddress());
+        }
+
+        if(scrapYardRepository.existsByPhoneNumbers(requestDTO.getPhoneNumbers())) {
+            throw new ResourceNotFoundException("Scrap Yard", "phoneNumbers", requestDTO.getPhoneNumbers());
+        }
         // Update entity from DTO
         scrapYardMapper.updateEntityFromDTO(requestDTO, existingYard);
 

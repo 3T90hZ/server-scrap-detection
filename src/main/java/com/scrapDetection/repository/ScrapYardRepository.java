@@ -11,5 +11,9 @@ public interface ScrapYardRepository extends JpaRepository<ScrapYard, Long> {
 
     List<ScrapYard> findByStatus(String status);
 
+    boolean existsByPhoneNumbers(String phoneNumbers);
+
     boolean existsByAddress(String address);
+
+    boolean existsByPhoneNumbersAndYardIdNot(String phoneNumbers, Long yardId);
 }

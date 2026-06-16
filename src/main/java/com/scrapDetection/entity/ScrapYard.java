@@ -23,7 +23,7 @@ public class ScrapYard {
     @Column(name = "yard_id")
     private Long yardId;
 
-    @Column(name = "phone_numbers")
+    @Column(name = "phone_numbers", unique = true, nullable = false)
     private String phoneNumbers;
 
     @Column(nullable = false)
