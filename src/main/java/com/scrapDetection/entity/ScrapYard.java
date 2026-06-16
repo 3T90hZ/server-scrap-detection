@@ -20,6 +20,7 @@ public class ScrapYard {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "yard_id")
     private Long yardId;
 
     @Column(name = "phone_numbers")
@@ -46,6 +47,6 @@ public class ScrapYard {
     @OneToMany(mappedBy = "scrapYard", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Device> devices = new HashSet<>();
 
-    @OneToMany(mappedBy = "scrapYard", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "scrapYard", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Account> accounts = new HashSet<>();
 }

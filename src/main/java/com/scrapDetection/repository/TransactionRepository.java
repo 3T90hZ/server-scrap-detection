@@ -2,6 +2,8 @@ package com.scrapDetection.repository;
 
 import com.scrapDetection.entity.Transaction;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -12,11 +14,14 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     List<Transaction> findByCustomerAccountId(Long customerId);
 
-    List<Transaction> findByOwnerOrStaffAccountId(Long staffId);
+    @Query("SELECT t FROM Transaction t WHERE t.ownerOrStaff.accountId = :staffId")
+    List<Transaction> findByOwnerOrStaffAccountId(@Param("staffId") Long staffId);
 
     List<Transaction> findByMaterialMaterialId(Long materialId);
 
     List<Transaction> findByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
 
-    List<Transaction> findByScrapYardYardId(Long yardId); // You may need a custom query if not directly mapped
+    List<Transaction> findByMaterialScrapYardYardId(Long yardId);
+
+    List<Transaction> findByMaterialScrapYardYardIdOrderByCreatedAtDesc(Long yardId);
 }

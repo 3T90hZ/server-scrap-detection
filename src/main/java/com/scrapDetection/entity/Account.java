@@ -20,10 +20,12 @@ public class Account {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "account_id")
     private Long accountId;
 
-    @Column(name = "yard_id", nullable = true)
-    private Long yardId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "yard_id", referencedColumnName = "yard_id", nullable = true)
+    private ScrapYard scrapYard;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

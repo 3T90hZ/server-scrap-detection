@@ -17,7 +17,7 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
     List<Account> findByRole(Role role);
 
-    List<Account> findByYardId(Long yardId);
+    List<Account> findByScrapYardYardId(Long yardId);
 
     List<Account> findByStatus(String status);
 }
