@@ -1,6 +1,7 @@
 package com.scrapDetection.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -29,16 +30,19 @@ public class Account {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Role role; // ADMIN, YARD_OWNER, STAFF
+    private Role role; // ADMIN, YARD_OWNER, STAFF, CUSTOMER
 
     @Column(name = "account_name", nullable = false, unique = true)
     private String accountName;
 
+    @Column(name = "phone_numbers")
+    private String phoneNumbers;
+
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 
-    @Column(name = "phone_numbers")
-    private String phoneNumbers; // comma-separated or JSON
+    @Column(name = "email", unique = true)
+    private String email;
 
     @Column(nullable = false)
     private String status;

@@ -16,4 +16,7 @@ public interface SessionRepository extends JpaRepository<Session, Long> {
     List<Session> findByAccountAccountId(Long accountId);
 
     void deleteByExpiredAtBefore(LocalDateTime now);
+
+    void deleteByAccountAccountId(Long accountId);
+
 }

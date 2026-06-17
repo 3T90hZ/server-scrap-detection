@@ -11,13 +11,28 @@ import java.util.Optional;
 @Repository
 public interface AccountRepository extends JpaRepository<Account, Long> {
 
-    Optional<Account> findByAccountName(String accountName);
+    // Primary login method - Find by Phone Number
+    Optional<Account> findByPhoneNumbers(String phoneNumbers);
 
-    boolean existsByAccountName(String accountName);
+    // Uniqueness checks
+    boolean existsByPhoneNumbers(String phoneNumbers);
 
-    List<Account> findByRole(Role role);
+    boolean existsByEmail(String email);
 
     List<Account> findByScrapYardYardId(Long yardId);
 
+    List<Account> findByScrapYardYardIdAndRole(Long yardId, Role role);
+
+    // Status-based queries
     List<Account> findByStatus(String status);
+
+    // Combined queries
+    List<Account> findByScrapYardYardIdAndStatus(Long yardId, String status);
+
+    Optional<Account> findByPhoneNumbersAndStatus(String phoneNumbers, String status);
+
+    // For password reset
+    Optional<Account> findByEmail(String email);
+
+    Optional<Account> findByPhoneNumbersOrEmail(String phoneNumbers, String email);
 }
