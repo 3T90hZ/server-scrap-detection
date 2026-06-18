@@ -15,6 +15,7 @@ public class ScrapYardMapper {
         if (dto == null) return null;
 
         ScrapYard scrapYard = new ScrapYard();
+        scrapYard.setYardName(dto.getYardName());
         scrapYard.setAddress(dto.getAddress());
         scrapYard.setPhoneNumbers(dto.getPhoneNumbers());
         scrapYard.setStatus(dto.getStatus());
@@ -26,6 +27,7 @@ public class ScrapYardMapper {
 
         return ScrapYardResponseDTO.builder()
                 .yardId(entity.getYardId())
+                .yardName(entity.getYardName())
                 .address(entity.getAddress())
                 .phoneNumbers(entity.getPhoneNumbers())
                 .status(entity.getStatus())
@@ -42,6 +44,9 @@ public class ScrapYardMapper {
 
     // For partial updates
     public void updateEntityFromDTO(ScrapYardRequestDTO dto, ScrapYard entity) {
+        if (dto.getYardName() != null) {
+            entity.setYardName(dto.getYardName());
+        }
         if (dto.getAddress() != null) {
             entity.setAddress(dto.getAddress());
         }

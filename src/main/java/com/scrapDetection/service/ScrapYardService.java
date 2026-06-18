@@ -20,6 +20,9 @@ public interface ScrapYardService {
     // Find ScrapYard by ID
     ScrapYardResponseDTO getScrapYardById(Long yardId);
 
+    // Find ScrapYard by name
+    ScrapYardResponseDTO getScrapYardByName(String yardName);     // ← NEW
+
     // Get all ScrapYards
     List<ScrapYardResponseDTO> getAllScrapYards();
 
@@ -28,6 +31,9 @@ public interface ScrapYardService {
 
     // Find ScrapYards by status
     List<ScrapYardResponseDTO> getScrapYardsByStatus(String status);
+
+    // Find ScrapYard by name
+    List<ScrapYardResponseDTO> searchScrapYardsByName(String yardName); // ← NEW
 
     // Delete ScrapYard by ID
     void deleteScrapYard(Long yardId);

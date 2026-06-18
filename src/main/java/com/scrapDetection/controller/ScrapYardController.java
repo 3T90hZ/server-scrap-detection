@@ -67,6 +67,22 @@ public class ScrapYardController {
         return ResponseEntity.ok(response);
     }
 
+    // Find ScrapYard by name
+    @GetMapping("/name/{yardName}")
+    public ResponseEntity<ScrapYardResponseDTO> getScrapYardByName(@PathVariable String yardName) {
+        ScrapYardResponseDTO response = scrapYardService.getScrapYardByName(yardName);
+        return ResponseEntity.ok(response);
+    }
+
+    // Find ScrapYard by name (partial match)
+    @GetMapping("/search")
+    public ResponseEntity<List<ScrapYardResponseDTO>> searchScrapYards(
+            @RequestParam String name) {
+
+        List<ScrapYardResponseDTO> response = scrapYardService.searchScrapYardsByName(name);
+        return ResponseEntity.ok(response);
+    }
+
     /**
      * DELETE - Delete scrapyard
      */

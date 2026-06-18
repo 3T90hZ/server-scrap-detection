@@ -27,6 +27,10 @@ public class ScrapYardServiceImpl implements ScrapYardService {
     @Override
     public ScrapYardResponseDTO createScrapYard(ScrapYardRequestDTO requestDTO) {
         requestDTO.setPhoneNumbers(requestDTO.getPhoneNumbers().trim());
+        if (scrapYardRepository.existsByYardName(requestDTO.getYardName())) {
+            throw new ResourceAlreadyExistsException("Scrap Yard", "yardName", requestDTO.getYardName());
+        }
+
         if (scrapYardRepository.existsByPhoneNumbers(requestDTO.getPhoneNumbers())) {
             throw new ResourceAlreadyExistsException("Scrap Yard", "phoneNumbers", requestDTO.getPhoneNumbers());
         }
@@ -102,6 +106,20 @@ public class ScrapYardServiceImpl implements ScrapYardService {
             throw new ResourceNotFoundException("Scrap Yard", yardId);
         }
         scrapYardRepository.deleteById(yardId);
+    }
+
+    @Override
+    public ScrapYardResponseDTO getScrapYardByName(String yardName) {
+        ScrapYard scrapYard = scrapYardRepository.findByYardName(yardName)
+                .orElseThrow(() -> new ResourceNotFoundException("Scrap Yard", "yardName", yardName));
+
+        return scrapYardMapper.toResponseDTO(scrapYard);
+    }
+
+    @Override
+    public List<ScrapYardResponseDTO> searchScrapYardsByName(String yardName) {
+        List<ScrapYard> yards = scrapYardRepository.findByYardNameContainingIgnoreCase(yardName);
+        return scrapYardMapper.toResponseDTOList(yards);
     }
 
     @Override

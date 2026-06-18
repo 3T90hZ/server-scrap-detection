@@ -14,6 +14,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ScrapYardRequestDTO {
 
+    @NotBlank(message = "Yard name is required")
+    @Size(min = 3, max = 150, message = "Yard name must be between 3 and 150 characters")
+    private String yardName;
+
     @NotBlank(message = "Address is required")
     @Size(max = 500, message = "Address cannot exceed 500 characters")
     private String address;

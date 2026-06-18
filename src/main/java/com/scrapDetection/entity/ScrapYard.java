@@ -23,6 +23,9 @@ public class ScrapYard {
     @Column(name = "yard_id")
     private Long yardId;
 
+    @Column(name = "yard_name", nullable = false, unique = true, length = 150)
+    private String yardName;
+
     @Column(name = "phone_numbers", unique = true, nullable = false)
     private String phoneNumbers;
 

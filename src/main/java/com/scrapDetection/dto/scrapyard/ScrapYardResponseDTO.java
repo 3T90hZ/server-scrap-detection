@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 public class ScrapYardResponseDTO {
 
     private Long yardId;
+    private String yardName;
     private String address;
     private String phoneNumbers;
     private String status;
