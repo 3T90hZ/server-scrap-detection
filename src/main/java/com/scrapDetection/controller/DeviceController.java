@@ -2,7 +2,6 @@ package com.scrapDetection.controller;
 
 import com.scrapDetection.dto.device.DeviceRequestDTO;
 import com.scrapDetection.dto.device.DeviceResponseDTO;
-import com.scrapDetection.service.AccountService;
 import com.scrapDetection.service.DeviceService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +19,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DeviceController {
     private final DeviceService deviceService;
-    private final AccountService accountService;
-
     // Create new device
     @PreAuthorize("hasRole('YARD_OWNER')")
     @PostMapping

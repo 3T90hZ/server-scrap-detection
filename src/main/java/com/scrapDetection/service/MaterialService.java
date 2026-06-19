@@ -32,7 +32,4 @@ public interface MaterialService {
 
     // Yard Owner: Delete material
     void deleteMaterial(Long materialId);
-
-    // Check if material exists
-    boolean existsById(Long materialId);
 }

@@ -93,12 +93,6 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public Page<TransactionResponseDTO> getAllTransactions(Pageable pageable) {
-        Page<Transaction> page = transactionRepository.findAll(pageable);
-        return page.map(transactionMapper::toResponseDTO);
-    }
-
-    @Override
     public List<TransactionSummaryDTO> getTransactionSummaries() {
         List<Transaction> transactions = transactionRepository.findAll();
         return transactionMapper.toSummaryDTOList(transactions);
@@ -110,5 +104,5 @@ public class TransactionServiceImpl implements TransactionService {
         return transactionMapper.toResponseDTOList(transactions);
     }
 
-    
+
 }

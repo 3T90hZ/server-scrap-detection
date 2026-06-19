@@ -3,7 +3,6 @@ package com.scrapDetection.service.impl;
 import com.scrapDetection.dto.material.MaterialRequestDTO;
 import com.scrapDetection.dto.material.MaterialResponseDTO;
 import com.scrapDetection.entity.Material;
-import com.scrapDetection.entity.ScrapYard;
 import com.scrapDetection.exception.InvalidRequestException;
 import com.scrapDetection.exception.ResourceNotFoundException;
 import com.scrapDetection.mapper.MaterialMapper;
@@ -100,11 +99,6 @@ public class MaterialServiceImpl implements MaterialService {
         validateYardOwnership(material);
 
         materialRepository.deleteById(materialId);
-    }
-
-    @Override
-    public boolean existsById(Long materialId) {
-        return materialRepository.existsById(materialId);
     }
 
     // ==================== Private Helper ====================

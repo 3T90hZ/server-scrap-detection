@@ -2,13 +2,10 @@ package com.scrapDetection.service;
 
 import com.scrapDetection.dto.scrapyard.ScrapYardRequestDTO;
 import com.scrapDetection.dto.scrapyard.ScrapYardResponseDTO;
-import com.scrapDetection.entity.ScrapYard;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
-import java.util.Optional;
-
 public interface ScrapYardService {
 
     // Create a new ScrapYard
@@ -37,7 +34,4 @@ public interface ScrapYardService {
 
     // Delete ScrapYard by ID
     void deleteScrapYard(Long yardId);
-
-    // Check if ScrapYard exists by ID
-    boolean existsById(Long yardId);
 }

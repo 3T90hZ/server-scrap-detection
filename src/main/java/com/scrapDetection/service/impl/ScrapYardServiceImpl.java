@@ -121,10 +121,4 @@ public class ScrapYardServiceImpl implements ScrapYardService {
         List<ScrapYard> yards = scrapYardRepository.findByYardNameContainingIgnoreCase(yardName);
         return scrapYardMapper.toResponseDTOList(yards);
     }
-
-    @Override
-    @Transactional(readOnly = true)
-    public boolean existsById(Long yardId) {
-        return scrapYardRepository.existsById(yardId);
-    }
 }

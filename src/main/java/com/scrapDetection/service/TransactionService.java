@@ -3,8 +3,6 @@ package com.scrapDetection.service;
 import com.scrapDetection.dto.transaction.TransactionRequestDTO;
 import com.scrapDetection.dto.transaction.TransactionResponseDTO;
 import com.scrapDetection.dto.transaction.TransactionSummaryDTO;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,7 +25,7 @@ public interface TransactionService {
     List<TransactionResponseDTO> getTransactionsByStaff(Long staffId);
 
     // Get transactions with pagination
-    Page<TransactionResponseDTO> getAllTransactions(Pageable pageable);
+    //Page<TransactionResponseDTO> getAllTransactions(Pageable pageable);
 
     // Get transaction summary (lighter version)
     List<TransactionSummaryDTO> getTransactionSummaries();

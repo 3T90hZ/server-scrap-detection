@@ -29,7 +29,7 @@ public class Account {
     private ScrapYard scrapYard;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "role", nullable = false, length = 20)
     private Role role; // ADMIN, YARD_OWNER, STAFF, CUSTOMER
 
     @Column(name = "account_name", nullable = false, unique = true)
@@ -44,7 +44,7 @@ public class Account {
     @Column(name = "email", unique = true)
     private String email;
 
-    @Column(nullable = false)
+    @Column(name = "status", nullable = false, length = 20)
     private String status;
 
     @CreationTimestamp

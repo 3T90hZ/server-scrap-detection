@@ -26,6 +26,7 @@ public interface AccountService {
 
     // Password Reset
     void requestPasswordReset(PasswordResetRequestDTO request);
+
     AuthResponseDTO resetPassword(PasswordResetConfirmDTO request);
 
     // Utility
