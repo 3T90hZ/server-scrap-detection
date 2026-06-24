@@ -7,7 +7,7 @@ import lombok.Setter;
 
 import java.util.List;
 
-/**
+/*
  Payload received from the Raspberry Pi after a weight-triggered inference.
 
   Example JSON:
@@ -41,14 +41,14 @@ public class DetectionRequestDTO {
     @JsonProperty("weight_above_base_g")
     private Double weightAboveBaseG;
 
-    private List<DetectionItem> detections;
+    private List<DetectionItemDTO> detections;
 
     // ── Nested DTO ────────────────────────────────────────────────────────────
 
     @Getter
     @Setter
     @NoArgsConstructor
-    public static class DetectionItem {
+    public static class DetectionItemDTO {
 
         @JsonProperty("class_name")
         private String className;
