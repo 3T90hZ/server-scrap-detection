@@ -3,121 +3,76 @@ package com.scrapDetection.service.impl;
 import com.scrapDetection.dto.detection.DetectionRequestDTO;
 import com.scrapDetection.dto.detection.DetectionRequestDTO.DetectionItemDTO;
 import com.scrapDetection.dto.detection.DetectionResponseDTO;
-import com.scrapDetection.entity.Material;
-import com.scrapDetection.entity.Transaction;
 import com.scrapDetection.mapper.DetectionMapper;
-import com.scrapDetection.repository.MaterialRepository;
-import com.scrapDetection.repository.TransactionRepository;
 import com.scrapDetection.service.DetectionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 
 /*
- Logic for Pi detection events.
- V1 version
- 1. From the detections list, pick the one with the highest confidence.
- 2. Look up the Material whose itemName matches that class_name
-    (case-insensitive).
- 3. Create a Transaction with:
-      - material  → matched Material
-      - weight    → weight_g from the payload
-      - customer  → null  (nullable in v1; staff/owner confirms later)
- 4. Return a DetectionResponse with the new transactionId and unit price.
- Error cases
- - Payload has no detections         → error response (no transaction saved)
- - class_name not in materials table → error response (no transaction saved)
-   Both cases return HTTP 200 with status="error" so the Pi can log them
-   without crashing. The controller maps them to 422 for clarity.
+  V1 — receive and log only, no DB writes.
+
+  Flow:
+    1. Validate the payload has at least one detection item.
+    2. Pick the detection with the highest confidence.
+    3. Log everything clearly so the backend console confirms the Pi is talking.
+    4. Return a success response — no Transaction, no Material lookup.
+
+  Business logic (Transaction creation, Material matching, etc.)
+  will be handled by a separate API that calls this data as input.
  */
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional
-
 public class DetectionServiceImpl implements DetectionService {
-    private final MaterialRepository materialRepository;
-    private final TransactionRepository transactionRepository;
     private final DetectionMapper detectionMapper;
 
     @Override
-    public DetectionResponseDTO processDetection (
-            DetectionRequestDTO requestDTO) {
+    public DetectionResponseDTO processDetection(DetectionRequestDTO requestDTO) {
 
         List<DetectionItemDTO> detections = requestDTO.getDetections();
 
-        // Validate payload
+        // ── 1. Validate ───────────────────────────────────────────────────────
         if (detections == null || detections.isEmpty()) {
-
-            log.warn(
-                    "[DetectionService] Payload contained no detections. timestamp={}",
+            log.warn("[DetectionService] Received payload with no detections — timestamp={}",
                     requestDTO.getTimestamp());
-
-            return detectionMapper.toErrorResponse(
-                    "Payload contained no detections.");
+            return detectionMapper.toErrorResponse("Payload contained no detections.");
         }
 
-        // Pick the highest confidence detection
-        DetectionItemDTO bestDetection = detections.stream()
-                .filter(d -> d.getClassName() != null
-                        && d.getConfidence() != null)
-                .max(Comparator.comparingDouble(
-                        DetectionItemDTO::getConfidence))
+        // ── 2. Pick highest-confidence detection ──────────────────────────────
+        DetectionItemDTO best = detections.stream()
+                .filter(d -> d.getClassName() != null && d.getConfidence() != null)
+                .max(Comparator.comparingDouble(DetectionItemDTO::getConfidence))
                 .orElse(null);
 
-        if (bestDetection == null) {
-
-            log.warn(
-                    "[DetectionService] Detection items missing class_name/confidence");
-
+        if (best == null) {
+            log.warn("[DetectionService] All detection items were missing class_name or confidence.");
             return detectionMapper.toErrorResponse(
                     "Detection items had no valid class_name / confidence.");
         }
 
-        log.info(
-                "[DetectionService] Best detection: class={} confidence={} weight={}",
-                bestDetection.getClassName(),
-                bestDetection.getConfidence(),
-                requestDTO.getWeightG());
+        // ── 3. Log receipt ────────────────────────────────────────────────────
+        log.info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        log.info("[DetectionService] Payload received from Pi");
+        log.info("  timestamp       : {}", requestDTO.getTimestamp());
+        log.info("  weight_g        : {} g",  requestDTO.getWeightG());
+        log.info("  total detections: {}", detections.size());
+        log.info("  best class      : {}", best.getClassName());
+        log.info("  best confidence : {}", best.getConfidence());
+        log.info("  weight_above_ref: {} g", requestDTO.getWeightAboveRefG());
+        log.info("  weight_above_base:{} g", requestDTO.getWeightAboveBaseG());
+        log.info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 
-        // Find material
-        Optional<Material> materialOpt =
-                materialRepository.findFirstByItemNameIgnoreCase(
-                        bestDetection.getClassName());
-
-        if (materialOpt.isEmpty()) {
-
-            log.warn(
-                    "[DetectionService] No material found for class_name={}",
-                    bestDetection.getClassName());
-
-            return detectionMapper.toErrorResponse(
-                    "No material found matching class name: "
-                            + bestDetection.getClassName());
-        }
-
-        Material material = materialOpt.get();
-
-        // Create transaction
-        Transaction transaction =
-                detectionMapper.toEntity(requestDTO, material);
-
-        Transaction savedTransaction =
-                transactionRepository.save(transaction);
-
-        log.info(
-                "[DetectionService] Transaction #{} created",
-                savedTransaction.getTransactionId());
-
-        return detectionMapper.toSuccessResponse(
-                savedTransaction,
-                material);
+        // ── 4. Return success — no DB write ───────────────────────────────────
+        return detectionMapper.toReceivedResponse(
+                best.getClassName(),
+                best.getConfidence(),
+                requestDTO.getWeightG()
+        );
     }
 }
 

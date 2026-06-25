@@ -25,7 +25,7 @@ public class Transaction {
 
     //customer nullable for now to run detection pi api
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "customer", referencedColumnName = "account_id", nullable = true)
+    @JoinColumn(name = "customer", referencedColumnName = "account_id", nullable = false)
     private Account customer;
 
     @ManyToOne(fetch = FetchType.LAZY)

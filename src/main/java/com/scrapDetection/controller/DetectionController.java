@@ -9,14 +9,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /*
- Endpoint
-   POST /api/detections
- Auth (v1)
-   Public — no JWT required.
- *
- Success  → 201 Created  + DetectionResponse(status="ok", transactionId, ...)
- No match → 422 Unprocessable  + DetectionResponse(status="error", message)
- Bad JSON → 400 Bad Request    (handled by Spring automatically)
+  POST /api/detections
+    + 200 OK            payload received and logged successfully
+    + 422 Unprocessable payload was well-formed JSON but invalid content
+                         (no detections, missing fields, etc.)
+    + 400 Bad Request   malformed JSON (handled automatically by Spring)
  */
 
 @Slf4j
@@ -26,13 +23,6 @@ import org.springframework.web.bind.annotation.*;
 public class DetectionController {
     private final DetectionService detectionService;
 
-    /*
-     Receive a detection payload from the Pi and create a pending transaction.
-
-     The Pi sends this automatically after every stable weight + inference
-     event (see api_client.py → send_event()).
-     */
-
     @PostMapping
     public ResponseEntity<DetectionResponseDTO> receiveDetection(
             @RequestBody DetectionRequestDTO request) {
@@ -41,16 +31,13 @@ public class DetectionController {
                         + "timestamp={} weight_g={} detections={}",
                 request.getTimestamp(),
                 request.getWeightG(),
-                request.getDetections() == null ? 0
-                        : request.getDetections().size());
+                request.getDetections() == null ? 0 : request.getDetections().size());
 
         DetectionResponseDTO response = detectionService.processDetection(request);
 
-        if ("ok".equals(response.getStatus())) {
-            return ResponseEntity.status(201).body(response);
+        if ("received".equals(response.getStatus())) {
+            return ResponseEntity.ok(response);
         } else {
-            // 422: the request was well-formed but the business logic couldn't
-            // process it (unknown material, empty detections, etc.)
             return ResponseEntity.unprocessableEntity().body(response);
         }
     }
