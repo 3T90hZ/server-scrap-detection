@@ -18,6 +18,8 @@ public class ScrapYardResponseDTO {
     private String address;
     private String phoneNumbers;
     private String status;
+    private LocalDateTime openHour;
+    private LocalDateTime closeHour;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

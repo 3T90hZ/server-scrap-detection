@@ -19,6 +19,8 @@ public class ScrapYardMapper {
         scrapYard.setAddress(dto.getAddress());
         scrapYard.setPhoneNumbers(dto.getPhoneNumbers());
         scrapYard.setStatus(dto.getStatus());
+        scrapYard.setOpenHour(dto.getOpenHour());
+        scrapYard.setCloseHour(dto.getCloseHour());
         return scrapYard;
     }
 
@@ -31,6 +33,8 @@ public class ScrapYardMapper {
                 .address(entity.getAddress())
                 .phoneNumbers(entity.getPhoneNumbers())
                 .status(entity.getStatus())
+                .openHour(entity.getOpenHour())
+                .closeHour((entity.getCloseHour()))
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .build();
@@ -55,6 +59,12 @@ public class ScrapYardMapper {
         }
         if (dto.getStatus() != null) {
             entity.setStatus(dto.getStatus());
+        }
+        if (dto.getOpenHour()!= null){
+            entity.setOpenHour(dto.getOpenHour());
+        }
+        if (dto.getCloseHour()!= null){
+            entity.setCloseHour(dto.getOpenHour());
         }
     }
 }

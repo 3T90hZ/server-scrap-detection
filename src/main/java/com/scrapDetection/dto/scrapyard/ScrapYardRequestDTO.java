@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -29,4 +31,10 @@ public class ScrapYardRequestDTO {
 
     @NotBlank(message = "Status is required")
     private String status;
+
+    @NotBlank(message = "Open hour is required")
+    private LocalDateTime openHour;
+
+    @NotBlank(message = "Open hour is required")
+    private LocalDateTime closeHour;
 }

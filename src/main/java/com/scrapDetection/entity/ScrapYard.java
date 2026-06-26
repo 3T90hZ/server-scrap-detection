@@ -35,6 +35,12 @@ public class ScrapYard {
     @Column(nullable = false)
     private String status;
 
+    @Column(name = "open_hour")
+    private LocalDateTime openHour;
+
+    @Column(name = "close_hour")
+    private LocalDateTime closeHour;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
