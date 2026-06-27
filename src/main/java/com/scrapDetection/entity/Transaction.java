@@ -23,6 +23,7 @@ public class Transaction {
     @JoinColumn(name = "material_id", nullable = false)
     private Material material;
 
+    //customer nullable for now to run detection pi api
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer", referencedColumnName = "account_id", nullable = false)
     private Account customer;
