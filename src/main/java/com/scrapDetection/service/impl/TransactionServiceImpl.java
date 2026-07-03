@@ -51,7 +51,7 @@ public class TransactionServiceImpl implements TransactionService {
         Transaction transaction = transactionMapper.toEntity(requestDTO);
         transaction.setMaterial(material);
         transaction.setCustomer(currentUser);           // Customer is the one making the transaction
-        transaction.setOwnerOrStaff(currentUser);       // Staff/Owner processing the transaction
+        transaction.setCreatedBy(currentUser);       // Staff/Owner processing the transaction
 
         Transaction savedTransaction = transactionRepository.save(transaction);
 
@@ -75,21 +75,21 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public List<TransactionResponseDTO> getTransactionsByCustomer(Long customerId) {
+    public List<TransactionSummaryDTO> getTransactionsByCustomer(Long customerId) {
         List<Transaction> transactions = transactionRepository.findByCustomerAccountId(customerId);
-        return transactionMapper.toResponseDTOList(transactions);
+        return transactionMapper.toSummaryDTOList(transactions);
     }
 
     @Override
-    public List<TransactionResponseDTO> getTransactionsByYard(Long yardId) {
+    public List<TransactionSummaryDTO> getTransactionsByYard(Long yardId) {
         List<Transaction> transactions = transactionRepository.findByMaterialScrapYardYardId(yardId);
-        return transactionMapper.toResponseDTOList(transactions);
+        return transactionMapper.toSummaryDTOList(transactions);
     }
 
     @Override
-    public List<TransactionResponseDTO> getTransactionsByStaff(Long staffId) {
-        List<Transaction> transactions = transactionRepository.findByOwnerOrStaffAccountId(staffId);
-        return transactionMapper.toResponseDTOList(transactions);
+    public List<TransactionSummaryDTO> getTransactionsByStaff(Long staffId) {
+        List<Transaction> transactions = transactionRepository.findByCreated_byAccountId(staffId);
+        return transactionMapper.toSummaryDTOList(transactions);
     }
 
     @Override

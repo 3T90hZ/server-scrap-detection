@@ -62,6 +62,6 @@ public class Account {
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
     private Set<Transaction> customerTransactions = new HashSet<>();
 
-    @OneToMany(mappedBy = "ownerOrStaff", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
     private Set<Transaction> staffTransactions = new HashSet<>();
 }

@@ -16,13 +16,13 @@ public interface TransactionService {
     TransactionResponseDTO getTransactionById(Long transactionId);
 
     // Get all transactions for a customer
-    List<TransactionResponseDTO> getTransactionsByCustomer(Long customerId);
+    List<TransactionSummaryDTO> getTransactionsByCustomer(Long customerId);
 
     // Get all transactions in a yard
-    List<TransactionResponseDTO> getTransactionsByYard(Long yardId);
+    List<TransactionSummaryDTO> getTransactionsByYard(Long yardId);
 
     // Get transactions handled by a specific staff
-    List<TransactionResponseDTO> getTransactionsByStaff(Long staffId);
+    List<TransactionSummaryDTO> getTransactionsByStaff(Long staffId);
 
     // Get transactions with pagination
     //Page<TransactionResponseDTO> getAllTransactions(Pageable pageable);
