@@ -2,7 +2,6 @@ package com.scrapDetection.mapper;
 
 import com.scrapDetection.dto.account.*;
 import com.scrapDetection.entity.Account;
-import com.scrapDetection.entity.Role;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

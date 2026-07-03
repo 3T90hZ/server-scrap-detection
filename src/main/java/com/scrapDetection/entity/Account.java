@@ -25,7 +25,7 @@ public class Account {
     private Long accountId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "yard_id", referencedColumnName = "yard_id", nullable = true)
+    @JoinColumn(name = "yard_id", referencedColumnName = "yard_id")
     private ScrapYard scrapYard;
 
     @Enumerated(EnumType.STRING)
