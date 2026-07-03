@@ -24,16 +24,16 @@ public class SessionServiceImpl implements SessionService {
 
     @Override
     public Session createSession(Account account, String jwtToken) {
+        String tokenHash = jwtService.getTokenHash(jwtToken);
         // Invalidate all previous sessions for this user (single device login policy)
         invalidateAllSessions(account.getAccountId());
-
-        String tokenHash = jwtService.getTokenHash(jwtToken);
 
         Session session = new Session();
         session.setAccount(account);
         session.setJwtTokenHash(tokenHash);
         session.setExpiredAt(LocalDateTime.now().plusHours(24)); // 24 hours
 
+        System.out.println("saving session");
         return sessionRepository.save(session);
     }
 

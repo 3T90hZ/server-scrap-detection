@@ -42,6 +42,7 @@ public class Account {
     private String passwordHash;
 
     @Column(name = "email", unique = true)
+    @Email()
     private String email;
 
     @Column(name = "status", nullable = false, length = 20)
