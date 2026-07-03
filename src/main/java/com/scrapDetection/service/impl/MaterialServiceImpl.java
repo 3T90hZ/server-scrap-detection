@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -39,6 +40,8 @@ public class MaterialServiceImpl implements MaterialService {
 
         // Assign material to current user's yard
         material.setScrapYard(currentUser.getScrapYard());
+        material.setStatus("ACTIVE");
+
 
         Material savedMaterial = materialRepository.save(material);
         return materialMapper.toResponseDTO(savedMaterial);
@@ -53,7 +56,7 @@ public class MaterialServiceImpl implements MaterialService {
         validateYardOwnership(existingMaterial);
 
         materialMapper.updateEntityFromDTO(requestDTO, existingMaterial);
-
+        existingMaterial.setUpdatedAt(LocalDateTime.now());
         Material updatedMaterial = materialRepository.save(existingMaterial);
         return materialMapper.toResponseDTO(updatedMaterial);
     }
