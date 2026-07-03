@@ -17,7 +17,9 @@ public class MaterialMapper {
         Material material = new Material();
         material.setItemName(dto.getItemName());
         material.setItemPrice(dto.getItemPrice());
+        material.setUnit(dto.getUnit());
         material.setStatus(dto.getStatus());
+        material.setIcon(dto.getIcon());
         return material;
     }
 
@@ -29,6 +31,8 @@ public class MaterialMapper {
                 .yardId(entity.getScrapYard() != null ? entity.getScrapYard().getYardId() : null)
                 .itemName(entity.getItemName())
                 .itemPrice(entity.getItemPrice())
+                .unit(entity.getUnit())
+                .icon(entity.getIcon())
                 .status(entity.getStatus())
                 .updatedAt(entity.getUpdatedAt())
                 .build();
@@ -41,14 +45,20 @@ public class MaterialMapper {
     }
 
     public void updateEntityFromDTO(MaterialRequestDTO dto, Material entity) {
-        if (dto.getItemName() != null) {
+        if (dto.getItemName().equals(entity.getItemName())) {
             entity.setItemName(dto.getItemName());
         }
-        if (dto.getItemPrice() != null) {
+        if (dto.getItemPrice().equals(entity.getItemPrice())) {
             entity.setItemPrice(dto.getItemPrice());
         }
-        if (dto.getStatus() != null) {
+        if (dto.getStatus().equals(entity.getStatus())) {
             entity.setStatus(dto.getStatus());
+        }
+        if (dto.getUnit().equals(entity.getUnit())) {
+            entity.setUnit(dto.getUnit());
+        }
+        if (dto.getIcon().equals(entity.getIcon())) {
+            entity.setIcon(dto.getIcon());
         }
     }
 }

@@ -23,6 +23,12 @@ public class MaterialRequestDTO {
     @Positive(message = "Price must be positive")
     private Double itemPrice;
 
-    @NotBlank(message = "Status is required")
-    private String status; // e.g., AVAILABLE, OUT_OF_STOCK, DISCONTINUED
+    @NotBlank(message = "Unit is required")
+    private String unit;
+
+    private String status; // ACTIVE/INACTIVE
+
+    @NotBlank
+    private String icon;
+
 }

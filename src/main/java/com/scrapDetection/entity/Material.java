@@ -28,12 +28,17 @@ public class Material {
     @Column(nullable = false)
     private String status;
 
+    @Column(name = "icon",nullable = false)
+    private String icon;
+
     @Column(name = "item_name", nullable = false)
     private String itemName;
 
     @Column(name = "item_price", nullable = false)
     private Double itemPrice;
 
+    @Column(name = "unit", nullable = false)
+    private String unit;
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
