@@ -58,6 +58,7 @@ public class AccountMapper {
                 .role(account.getRole() != null ? account.getRole().name() : null)
                 .status(account.getStatus())
                 .token(token)
+                .expiresAt(account.getCreatedAt().plusHours(24))
                 .build();
     }
 
