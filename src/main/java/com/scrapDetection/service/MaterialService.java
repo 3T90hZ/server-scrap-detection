@@ -19,17 +19,19 @@ public interface MaterialService {
     MaterialResponseDTO getMaterialById(Long materialId);
 
     // Get all materials in a specific yard
-    List<MaterialResponseDTO> getMaterialsByYardId(Long yardId);
+    List<MaterialResponseDTO> getMaterialsByYardIdAndStatus(Long yardId, String status);
 
     // Get all materials with pagination
-    Page<MaterialResponseDTO> getAllMaterials(Pageable pageable);
+    Page<MaterialResponseDTO> getAllActiveMaterials(Pageable pageable);
 
     // Search materials by item name (for customers)
-    List<MaterialResponseDTO> searchMaterialsByName(String itemName);
+    List<MaterialResponseDTO> searchActiveMaterialsByName(String itemName);
 
     // Get materials by status
     List<MaterialResponseDTO> getMaterialsByStatus(String status);
 
     // Yard Owner: Delete material
-    void deleteMaterial(Long materialId);
+    void deleteMaterial(Long id);
+
+    List<MaterialResponseDTO> searchMaterialsInYardByName(Long yardId, String keyword);
 }

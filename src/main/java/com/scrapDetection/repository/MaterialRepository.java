@@ -10,11 +10,16 @@ import java.util.Optional;
 @Repository
 public interface MaterialRepository extends JpaRepository<Material, Long> {
 
-    List<Material> findByScrapYardYardId(Long yardId);
+    List<Material> findByScrapYardYardIdAndStatus(Long yardId, String status);
 
     List<Material> findByStatus(String status);
 
-    List<Material> findByItemNameContainingIgnoreCase(String itemName);
+    List<Material> findByItemNameContainingIgnoreCaseAndStatus(String keyword, String status);
 
     Optional<Material> findFirstByItemNameIgnoreCase(String itemName);
+
+    List<Material> findByScrapYardYardIdAndItemNameContainingIgnoreCase(
+            Long yardId,
+            String keyword
+    );
 }

@@ -26,7 +26,7 @@ public class Material {
     private ScrapYard scrapYard;
 
     @Column(nullable = false)
-    private String status;
+    private String status; // ACTIVE/INACTIVE
 
     @Column(name = "icon",nullable = false)
     private String icon;
