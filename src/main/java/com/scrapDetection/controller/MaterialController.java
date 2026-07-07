@@ -59,7 +59,7 @@ public class MaterialController {
      * YARD OWNER - Get All active Materials in Their Own Yard
      */
     @PreAuthorize("hasRole('YARD_OWNER')")
-    @GetMapping("/my-yard")
+    @GetMapping("/my-yard-Inactive")
     public ResponseEntity<List<MaterialResponseDTO>> getMyYardInactiveMaterials() {
         Long yardId = getCurrentUserYardId();
         List<MaterialResponseDTO> materials = materialService.getMaterialsByYardIdAndStatus(yardId, "INACTIVE");
@@ -67,7 +67,7 @@ public class MaterialController {
     }
 
     @PreAuthorize("hasRole('YARD_OWNER')")
-    @GetMapping("/my-yard")
+    @GetMapping("/my-yard-active")
     public ResponseEntity<List<MaterialResponseDTO>> getMyYardActiveMaterials() {
         Long yardId = getCurrentUserYardId();
         List<MaterialResponseDTO> materials = materialService.getMaterialsByYardIdAndStatus(yardId, "ACTIVE");
