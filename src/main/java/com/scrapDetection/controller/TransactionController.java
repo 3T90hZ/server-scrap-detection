@@ -32,35 +32,28 @@ public class TransactionController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    // Get transactions by id
-    @GetMapping("/{transactionId}")
-    public ResponseEntity<TransactionResponseDTO> getTransactionById(@PathVariable Long transactionId) {
-        TransactionResponseDTO response = transactionService.getTransactionById(transactionId);
-        return ResponseEntity.ok(response);
-    }
-
-    // Get transactions in owner's/staff's yard
-    @PreAuthorize("hasAnyRole('STAFF', 'YARD_OWNER')")
+    // Get transactions in owner's yard
+    @PreAuthorize("hasRole('YARD_OWNER')")
     @GetMapping("/my-yard")
-    public ResponseEntity<List<TransactionResponseDTO>> getMyYardTransactions() {
+    public ResponseEntity<List<TransactionSummaryDTO>> getMyYardTransactions() {
         Long yardId = getCurrentUserYardId();
-        List<TransactionResponseDTO> response = transactionService.getTransactionsByYard(yardId);
+        List<TransactionSummaryDTO> response = transactionService.getTransactionsByYard(yardId);
         return ResponseEntity.ok(response);
     }
 
-    // Get owner's/staff's transactions
-    @PreAuthorize("hasAnyRole('STAFF', 'YARD_OWNER')")
+    // Get staff's transactions
+    @PreAuthorize("hasRole('STAFF')")
     @GetMapping("/my-transactions")
-    public ResponseEntity<List<TransactionResponseDTO>> getMyTransactions() {
+    public ResponseEntity<List<TransactionSummaryDTO>> getMyTransactions() {
         Long currentUserId = getCurrentUserId();
-        List<TransactionResponseDTO> response = transactionService.getTransactionsByStaff(currentUserId);
+        List<TransactionSummaryDTO> response = transactionService.getTransactionsByStaff(currentUserId);
         return ResponseEntity.ok(response);
     }
 
     // Get all transaction by customer
     @GetMapping("/customer/{customerId}")
-    public ResponseEntity<List<TransactionResponseDTO>> getTransactionsByCustomer(@PathVariable Long customerId) {
-        List<TransactionResponseDTO> response = transactionService.getTransactionsByCustomer(customerId);
+    public ResponseEntity<List<TransactionSummaryDTO>> getTransactionsByCustomer(@PathVariable Long customerId) {
+        List<TransactionSummaryDTO> response = transactionService.getTransactionsByCustomer(customerId);
         return ResponseEntity.ok(response);
     }
 

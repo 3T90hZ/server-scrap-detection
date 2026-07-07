@@ -29,8 +29,8 @@ public class Transaction {
     private Account customer;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner_or_staff", referencedColumnName = "account_id")
-    private Account ownerOrStaff;
+    @JoinColumn(name = "created_by", referencedColumnName = "account_id")
+    private Account createdBy;
 
     @Column(nullable = false)
     private Double weight;

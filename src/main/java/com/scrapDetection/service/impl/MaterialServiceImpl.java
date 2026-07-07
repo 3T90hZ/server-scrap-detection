@@ -7,6 +7,7 @@ import com.scrapDetection.exception.InvalidRequestException;
 import com.scrapDetection.exception.ResourceNotFoundException;
 import com.scrapDetection.mapper.MaterialMapper;
 import com.scrapDetection.repository.MaterialRepository;
+import com.scrapDetection.repository.TransactionRepository;
 import com.scrapDetection.service.AccountService;
 import com.scrapDetection.service.MaterialService;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -24,7 +26,8 @@ public class MaterialServiceImpl implements MaterialService {
 
     private final MaterialRepository materialRepository;
     private final MaterialMapper materialMapper;
-    private final AccountService accountService;   // Injected to get current user
+    private final AccountService accountService;
+    private final TransactionRepository transactionRepository;
 
     @Override
     public MaterialResponseDTO createMaterial(MaterialRequestDTO requestDTO) {
@@ -39,6 +42,8 @@ public class MaterialServiceImpl implements MaterialService {
 
         // Assign material to current user's yard
         material.setScrapYard(currentUser.getScrapYard());
+        material.setStatus("ACTIVE");
+
 
         Material savedMaterial = materialRepository.save(material);
         return materialMapper.toResponseDTO(savedMaterial);
@@ -53,7 +58,7 @@ public class MaterialServiceImpl implements MaterialService {
         validateYardOwnership(existingMaterial);
 
         materialMapper.updateEntityFromDTO(requestDTO, existingMaterial);
-
+        existingMaterial.setUpdatedAt(LocalDateTime.now());
         Material updatedMaterial = materialRepository.save(existingMaterial);
         return materialMapper.toResponseDTO(updatedMaterial);
     }
@@ -67,20 +72,26 @@ public class MaterialServiceImpl implements MaterialService {
     }
 
     @Override
-    public List<MaterialResponseDTO> getMaterialsByYardId(Long yardId) {
-        List<Material> materials = materialRepository.findByScrapYardYardId(yardId);
+    public List<MaterialResponseDTO> getMaterialsByYardIdAndStatus(Long yardId, String status) {
+        List<Material> materials = materialRepository.findByScrapYardYardIdAndStatus(yardId, status);
         return materialMapper.toResponseDTOList(materials);
     }
 
     @Override
-    public Page<MaterialResponseDTO> getAllMaterials(Pageable pageable) {
+    public Page<MaterialResponseDTO> getAllActiveMaterials(Pageable pageable) {
         Page<Material> materialPage = materialRepository.findAll(pageable);
         return materialPage.map(materialMapper::toResponseDTO);
     }
 
     @Override
-    public List<MaterialResponseDTO> searchMaterialsByName(String itemName) {
-        List<Material> materials = materialRepository.findByItemNameContainingIgnoreCase(itemName);
+    public List<MaterialResponseDTO> searchActiveMaterialsByName(String itemName) {
+        List<Material> materials = materialRepository.findByItemNameContainingIgnoreCaseAndStatus(itemName, "ACTIVE");
+        return materialMapper.toResponseDTOList(materials);
+    }
+
+    @Override
+    public List<MaterialResponseDTO> searchMaterialsInYardByName(Long yardId, String keyword){
+        List<Material> materials = materialRepository.findByScrapYardYardIdAndItemNameContainingIgnoreCase(yardId, keyword);
         return materialMapper.toResponseDTOList(materials);
     }
 
@@ -91,14 +102,21 @@ public class MaterialServiceImpl implements MaterialService {
     }
 
     @Override
-    public void deleteMaterial(Long materialId) {
-        Material material = materialRepository.findById(materialId)
-                .orElseThrow(() -> new ResourceNotFoundException("Material", materialId));
+    public void deleteMaterial(Long id) {
+        Material material = materialRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Material", id));
 
         // Yard Ownership Check
         validateYardOwnership(material);
 
-        materialRepository.deleteById(materialId);
+        if(transactionRepository.findByMaterialMaterialId(id) == null){
+            materialRepository.deleteById(id);
+        }
+        else{
+            material.setUpdatedAt(LocalDateTime.now());
+            material.setStatus("INACTIVE");
+            materialRepository.save(material);
+        }
     }
 
     // ==================== Private Helper ====================

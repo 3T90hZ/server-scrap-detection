@@ -2,7 +2,6 @@ package com.scrapDetection.mapper;
 
 import com.scrapDetection.dto.account.*;
 import com.scrapDetection.entity.Account;
-import com.scrapDetection.entity.Role;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -58,6 +57,7 @@ public class AccountMapper {
                 .role(account.getRole() != null ? account.getRole().name() : null)
                 .status(account.getStatus())
                 .token(token)
+                .expiresAt(account.getCreatedAt().plusHours(24))
                 .build();
     }
 

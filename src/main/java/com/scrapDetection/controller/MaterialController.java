@@ -6,8 +6,6 @@ import com.scrapDetection.service.AccountService;
 import com.scrapDetection.service.MaterialService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -58,13 +56,21 @@ public class MaterialController {
     }
 
     /**
-     * YARD OWNER - Get All Materials in Their Own Yard
+     * YARD OWNER - Get All active Materials in Their Own Yard
      */
     @PreAuthorize("hasRole('YARD_OWNER')")
-    @GetMapping("/my-yard")
-    public ResponseEntity<List<MaterialResponseDTO>> getMyYardMaterials() {
+    @GetMapping("/my-yard-Inactive")
+    public ResponseEntity<List<MaterialResponseDTO>> getMyYardInactiveMaterials() {
         Long yardId = getCurrentUserYardId();
-        List<MaterialResponseDTO> materials = materialService.getMaterialsByYardId(yardId);
+        List<MaterialResponseDTO> materials = materialService.getMaterialsByYardIdAndStatus(yardId, "INACTIVE");
+        return ResponseEntity.ok(materials);
+    }
+
+    @PreAuthorize("hasRole('YARD_OWNER')")
+    @GetMapping("/my-yard-active")
+    public ResponseEntity<List<MaterialResponseDTO>> getMyYardActiveMaterials() {
+        Long yardId = getCurrentUserYardId();
+        List<MaterialResponseDTO> materials = materialService.getMaterialsByYardIdAndStatus(yardId, "ACTIVE");
         return ResponseEntity.ok(materials);
     }
 
@@ -73,16 +79,26 @@ public class MaterialController {
      */
     @GetMapping("/yard/{yardId}")
     public ResponseEntity<List<MaterialResponseDTO>> getMaterialsByYard(@PathVariable Long yardId) {
-        List<MaterialResponseDTO> materials = materialService.getMaterialsByYardId(yardId);
+        List<MaterialResponseDTO> materials = materialService.getMaterialsByYardIdAndStatus(yardId, "ACTIVE");
         return ResponseEntity.ok(materials);
     }
 
-    // Search Materials by Name
+    // Search Materials by Name (for customers)
     @GetMapping("/search")
     public ResponseEntity<List<MaterialResponseDTO>> searchMaterials(
             @RequestParam String name) {
 
-        List<MaterialResponseDTO> materials = materialService.searchMaterialsByName(name);
+        List<MaterialResponseDTO> materials = materialService.searchActiveMaterialsByName(name);
+        return ResponseEntity.ok(materials);
+    }
+
+    // Search Materials by Name (for yard owner)
+    @PreAuthorize("hasRole('YARD_OWNER')")
+    @GetMapping("/search-in-yard")
+    public ResponseEntity<List<MaterialResponseDTO>> searchYardMaterials(
+            @RequestParam String name) {
+        Long yardId = getCurrentUserYardId();
+        List<MaterialResponseDTO> materials = materialService.searchMaterialsInYardByName(yardId, name);
         return ResponseEntity.ok(materials);
     }
 
@@ -92,13 +108,6 @@ public class MaterialController {
             @PathVariable String status) {
 
         List<MaterialResponseDTO> materials = materialService.getMaterialsByStatus(status);
-        return ResponseEntity.ok(materials);
-    }
-
-    // Get All Materials with Pagination
-    @GetMapping
-    public ResponseEntity<Page<MaterialResponseDTO>> getAllMaterials(Pageable pageable) {
-        Page<MaterialResponseDTO> materials = materialService.getAllMaterials(pageable);
         return ResponseEntity.ok(materials);
     }
 

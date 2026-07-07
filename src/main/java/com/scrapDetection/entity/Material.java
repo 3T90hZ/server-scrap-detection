@@ -26,7 +26,10 @@ public class Material {
     private ScrapYard scrapYard;
 
     @Column(nullable = false)
-    private String status;
+    private String status; // ACTIVE/INACTIVE
+
+    @Column(name = "icon",nullable = false)
+    private String icon;
 
     @Column(name = "item_name", nullable = false)
     private String itemName;
@@ -34,6 +37,8 @@ public class Material {
     @Column(name = "item_price", nullable = false)
     private Double itemPrice;
 
+    @Column(name = "unit", nullable = false)
+    private String unit;
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;

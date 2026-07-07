@@ -25,7 +25,7 @@ public class Account {
     private Long accountId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "yard_id", referencedColumnName = "yard_id", nullable = true)
+    @JoinColumn(name = "yard_id", referencedColumnName = "yard_id")
     private ScrapYard scrapYard;
 
     @Enumerated(EnumType.STRING)
@@ -42,6 +42,7 @@ public class Account {
     private String passwordHash;
 
     @Column(name = "email", unique = true)
+    @Email()
     private String email;
 
     @Column(name = "status", nullable = false, length = 20)
@@ -62,6 +63,6 @@ public class Account {
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
     private Set<Transaction> customerTransactions = new HashSet<>();
 
-    @OneToMany(mappedBy = "ownerOrStaff", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
     private Set<Transaction> staffTransactions = new HashSet<>();
 }

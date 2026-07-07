@@ -35,8 +35,8 @@ public class TransactionMapper {
                 .totalWorth(total != null ? total.getTotalWorth() : null)
                 .customerId(entity.getCustomer().getAccountId())
                 .customerName(entity.getCustomer().getAccountName())
-                .ownerOrStaffId(entity.getOwnerOrStaff() != null ? entity.getOwnerOrStaff().getAccountId() : null)
-                .staffName(entity.getOwnerOrStaff() != null ? entity.getOwnerOrStaff().getAccountName() : null)
+                .ownerOrStaffId(entity.getCreatedBy() != null ? entity.getCreatedBy().getAccountId() : null)
+                .staffName(entity.getCreatedBy() != null ? entity.getCreatedBy().getAccountName() : null)
                 .yardId(entity.getMaterial().getScrapYard().getYardId())
                 .yardName(entity.getMaterial().getScrapYard().getYardName())
                 .createdAt(entity.getCreatedAt())
@@ -52,6 +52,7 @@ public class TransactionMapper {
                 .weight(entity.getWeight())
                 .totalWorth(entity.getTransactionTotal() != null ? entity.getTransactionTotal().getTotalWorth() : null)
                 .customerName(entity.getCustomer().getAccountName())
+                .createdBy(entity.getCreatedBy().getAccountName())
                 .createdAt(entity.getCreatedAt())
                 .build();
     }
