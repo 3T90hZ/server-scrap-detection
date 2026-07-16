@@ -57,6 +57,27 @@ public class AccountServiceImpl implements AccountService {
         if (!passwordEncoder.matches(request.getPassword(), account.getPasswordHash())) {
             throw new InvalidRequestException("Invalid phone number or password");
         }
+        if(account.getStatus().equals("INACTIVE")){
+            throw new InvalidRequestException("The account is locked!");
+        }
+
+        String token = jwtService.generateToken(account);
+        sessionService.createSession(account, token);
+
+        return accountMapper.toAuthResponse(account, token);
+    }
+
+    @Override
+    public AuthResponseDTO adminLogin(LoginRequestDTO request) {
+        Account account = accountRepository.findByPhoneNumbersAndStatus(request.getPhoneNumbers(), "ACTIVE")
+                .orElseThrow(() -> new ResourceNotFoundException("Account", "phoneNumbers", request.getPhoneNumbers()));
+
+        if (!passwordEncoder.matches(request.getPassword(), account.getPasswordHash())) {
+            throw new InvalidRequestException("Invalid phone number or password");
+        }
+        if(account.getRole() != Role.ADMIN){
+            throw new InvalidRequestException("No access");
+        }
 
         String token = jwtService.generateToken(account);
         sessionService.createSession(account, token);
@@ -133,7 +154,7 @@ public class AccountServiceImpl implements AccountService {
 
             throw new ResourceAlreadyExistsException("Account", "phoneNumbers", request.getPhoneNumbers());
         }
-
+        request.setPassword(passwordEncoder.encode(request.getPassword()));
         accountMapper.updateEntityFromDTO(request, existing);
         Account updated = accountRepository.save(existing);
 
@@ -155,13 +176,13 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public List<Account> getAllStaffByYardOwner() {
+    public List<AccountInfoResponseDTO> getAllStaffByYardOwner() {
         Account current = getCurrentUser();
         if (current.getScrapYard() == null) {
             throw new InvalidRequestException("Current user is not associated with any scrap yard");
         }
-        return accountRepository.findByScrapYardYardIdAndRole(
-                current.getScrapYard().getYardId(), Role.STAFF);
+        List<Account> accounts = accountRepository.findByScrapYardYardIdAndRole(current.getScrapYard().getYardId(), Role.STAFF);
+        return accountMapper.toAccountInfoResponseList(accounts);
     }
 
     @Override

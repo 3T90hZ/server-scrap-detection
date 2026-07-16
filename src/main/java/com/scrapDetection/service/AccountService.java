@@ -13,6 +13,8 @@ public interface AccountService {
     // Authentication
     AuthResponseDTO login(LoginRequestDTO request);
 
+    AuthResponseDTO adminLogin(LoginRequestDTO request);
+
     // Admin Operations
     AuthResponseDTO createYardOwner(YardOwnerCreateRequestDTO request);
 
@@ -30,7 +32,7 @@ public interface AccountService {
     AuthResponseDTO resetPassword(PasswordResetConfirmDTO request);
 
     // Utility
-    List<Account> getAllStaffByYardOwner();
+    List<AccountInfoResponseDTO> getAllStaffByYardOwner();
     void deactivateAccount(Long accountId);
 
     void logout(String token);
