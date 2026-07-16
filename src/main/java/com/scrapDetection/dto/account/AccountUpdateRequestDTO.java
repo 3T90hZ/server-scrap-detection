@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AccountUpdateRequestDTO {
 
+
     @Size(min = 4, max = 50)
     private String accountName;
 
@@ -23,5 +24,7 @@ public class AccountUpdateRequestDTO {
     @Email
     private String email;
 
+    @Size(min= 6)
+    private String password;
     private String status;   // ACTIVE, INACTIVE, etc.
 }
