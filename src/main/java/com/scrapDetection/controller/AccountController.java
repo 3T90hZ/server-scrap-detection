@@ -3,6 +3,7 @@ package com.scrapDetection.controller;
 import com.scrapDetection.dto.account.AccountInfoResponseDTO;
 import com.scrapDetection.dto.account.AccountUpdateRequestDTO;
 import com.scrapDetection.dto.account.AuthResponseDTO;
+import com.scrapDetection.dto.account.ChangeAccountStatusRequestDTO;
 import com.scrapDetection.entity.Account;
 import com.scrapDetection.service.AccountService;
 import jakarta.validation.Valid;
@@ -25,13 +26,6 @@ public class AccountController {
         List<AccountInfoResponseDTO> staff = accountService.getAllStaffByYardOwner();
         return ResponseEntity.ok(staff);
     }
-    @PreAuthorize("hasRole('YARD_OWNER')")
-    @PutMapping()
-    public ResponseEntity<AuthResponseDTO> updateStaffAccount(@Valid @RequestBody AccountUpdateRequestDTO request) {
-        Long currentUserId = getCurrentUserId();
-        AuthResponseDTO response = accountService.updateAccount(currentUserId, request);
-        return ResponseEntity.ok(response);
-    }
 
 
     @PreAuthorize("isAuthenticated()")
@@ -39,6 +33,14 @@ public class AccountController {
     public ResponseEntity<AuthResponseDTO> updateAccount(@Valid @RequestBody AccountUpdateRequestDTO request) {
         Long currentUserId = getCurrentUserId();
         AuthResponseDTO response = accountService.updateAccount(currentUserId, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PutMapping("/status")
+    public ResponseEntity<AccountInfoResponseDTO> updateAccountStatus(@Valid @RequestBody ChangeAccountStatusRequestDTO request) {
+        Long currentUserId = getCurrentUserId();
+        AccountInfoResponseDTO response = accountService.updateAccountStatus(currentUserId, request);
         return ResponseEntity.ok(response);
     }
 

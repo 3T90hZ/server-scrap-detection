@@ -29,8 +29,6 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     // Combined queries
     List<Account> findByScrapYardYardIdAndStatus(Long yardId, String status);
 
-    Optional<Account> findByPhoneNumbersAndStatus(String phoneNumbers, String status);
-
     // For password reset
     Optional<Account> findByEmail(String email);
 

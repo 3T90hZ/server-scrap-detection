@@ -45,9 +45,6 @@ public class AccountMapper {
         if (dto.getPassword() != null) {
             entity.setPasswordHash(dto.getPassword());
         }
-        if (dto.getStatus() != null) {
-            entity.setStatus(dto.getStatus());
-        }
     }
 
     public AuthResponseDTO toAuthResponse(Account account, String token) {

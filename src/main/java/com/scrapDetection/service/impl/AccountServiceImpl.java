@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -51,7 +52,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public AuthResponseDTO login(LoginRequestDTO request) {
-        Account account = accountRepository.findByPhoneNumbersAndStatus(request.getPhoneNumbers(), "ACTIVE")
+        Account account = accountRepository.findByPhoneNumbers(request.getPhoneNumbers())
                 .orElseThrow(() -> new ResourceNotFoundException("Account", "phoneNumbers", request.getPhoneNumbers()));
 
         if (!passwordEncoder.matches(request.getPassword(), account.getPasswordHash())) {
@@ -69,7 +70,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public AuthResponseDTO adminLogin(LoginRequestDTO request) {
-        Account account = accountRepository.findByPhoneNumbersAndStatus(request.getPhoneNumbers(), "ACTIVE")
+        Account account = accountRepository.findByPhoneNumbers(request.getPhoneNumbers())
                 .orElseThrow(() -> new ResourceNotFoundException("Account", "phoneNumbers", request.getPhoneNumbers()));
 
         if (!passwordEncoder.matches(request.getPassword(), account.getPasswordHash())) {
@@ -186,12 +187,27 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public void deactivateAccount(Long accountId) {
-        Account account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new ResourceNotFoundException("Account", accountId));
+    public AccountInfoResponseDTO updateAccountStatus(Long currentAccountId,ChangeAccountStatusRequestDTO dto) {
+        Account account = accountRepository.findById(dto.getAccountId())
+                .orElseThrow(() -> new ResourceNotFoundException("Account", dto.getAccountId()));
+        Account currentAccount = accountRepository.findById(currentAccountId)
+                .orElseThrow(() -> new ResourceNotFoundException("Account", currentAccountId));
 
-        account.setStatus("INACTIVE");
-        accountRepository.save(account);
+        if(currentAccount.getRole() == Role.YARD_OWNER){
+            if(!Objects.equals(account.getScrapYard().getYardId(), currentAccount.getScrapYard().getYardId())){
+                throw new InvalidRequestException("No permission");
+            }
+        }
+        else {
+            if(currentAccount.getRole() != Role.ADMIN && !dto.getAccountId().equals(currentAccountId)){
+                throw new InvalidRequestException("No permission");
+            }
+            if(currentAccount.getRole() == Role.ADMIN && dto.getAccountId().equals(currentAccountId)){
+                throw new InvalidRequestException("No permission");
+            }
+        }
+        account.setStatus(dto.getStatus());
+        return accountMapper.toAccountInfoResponse(accountRepository.save(account));
     }
 
     @Override

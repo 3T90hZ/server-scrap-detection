@@ -33,7 +33,7 @@ public interface AccountService {
 
     // Utility
     List<AccountInfoResponseDTO> getAllStaffByYardOwner();
-    void deactivateAccount(Long accountId);
+    public AccountInfoResponseDTO updateAccountStatus(Long currentAccountId,ChangeAccountStatusRequestDTO dto);
 
     void logout(String token);
 }
