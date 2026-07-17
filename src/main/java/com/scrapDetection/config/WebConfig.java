@@ -12,6 +12,8 @@ public class WebConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
                 .allowedOrigins(
+                        "http://localhost:3000",           // Next.js
+                        "http://127.0.0.1:3000",           // Alternative localhost
                         "http://localhost:8080",           // Swagger UI
                         "http://10.0.2.2:8080",            // Android Emulator
                         "http://localhost:19006",          // Expo Web
