@@ -3,6 +3,7 @@ package com.scrapDetection.service.impl;
 import com.scrapDetection.dto.material.MaterialRequestDTO;
 import com.scrapDetection.dto.material.MaterialResponseDTO;
 import com.scrapDetection.entity.Material;
+import com.scrapDetection.entity.Transaction;
 import com.scrapDetection.exception.InvalidRequestException;
 import com.scrapDetection.exception.ResourceNotFoundException;
 import com.scrapDetection.mapper.MaterialMapper;
@@ -109,7 +110,9 @@ public class MaterialServiceImpl implements MaterialService {
         // Yard Ownership Check
         validateYardOwnership(material);
 
-        if(transactionRepository.findByMaterialMaterialId(id) == null){
+        List<Transaction> transactions = transactionRepository.findByMaterialMaterialId(id);
+
+        if (transactions.isEmpty()) {
             materialRepository.deleteById(id);
         }
         else{
