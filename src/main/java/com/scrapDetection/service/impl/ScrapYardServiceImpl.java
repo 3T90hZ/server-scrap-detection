@@ -2,6 +2,7 @@ package com.scrapDetection.service.impl;
 
 import com.scrapDetection.dto.scrapyard.ScrapYardRequestDTO;
 import com.scrapDetection.dto.scrapyard.ScrapYardResponseDTO;
+import com.scrapDetection.dto.scrapyard.ScrapYardStatusRequestDTO;
 import com.scrapDetection.entity.ScrapYard;
 import com.scrapDetection.exception.ResourceAlreadyExistsException;
 import com.scrapDetection.exception.ResourceNotFoundException;
@@ -95,6 +96,17 @@ public class ScrapYardServiceImpl implements ScrapYardService {
         }
         // Update entity from DTO
         scrapYardMapper.updateEntityFromDTO(requestDTO, existingYard);
+
+        ScrapYard updatedYard = scrapYardRepository.save(existingYard);
+        return scrapYardMapper.toResponseDTO(updatedYard);
+    }
+
+    @Override
+    public ScrapYardResponseDTO updateScrapYardStatus(ScrapYardStatusRequestDTO requestDTO) {
+        ScrapYard existingYard = scrapYardRepository.findById(requestDTO.getYardId())
+                .orElseThrow(() -> new ResourceNotFoundException("Scrap Yard", requestDTO.getYardId()));
+
+        existingYard.setStatus(requestDTO.getStatus());
 
         ScrapYard updatedYard = scrapYardRepository.save(existingYard);
         return scrapYardMapper.toResponseDTO(updatedYard);

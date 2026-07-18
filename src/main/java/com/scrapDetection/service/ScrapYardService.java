@@ -2,6 +2,7 @@ package com.scrapDetection.service;
 
 import com.scrapDetection.dto.scrapyard.ScrapYardRequestDTO;
 import com.scrapDetection.dto.scrapyard.ScrapYardResponseDTO;
+import com.scrapDetection.dto.scrapyard.ScrapYardStatusRequestDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -31,6 +32,8 @@ public interface ScrapYardService {
 
     // Find ScrapYard by name
     List<ScrapYardResponseDTO> searchScrapYardsByName(String yardName); // ← NEW
+
+    ScrapYardResponseDTO updateScrapYardStatus(ScrapYardStatusRequestDTO requestDTO);
 
     // Delete ScrapYard by ID
     void deleteScrapYard(Long yardId);
