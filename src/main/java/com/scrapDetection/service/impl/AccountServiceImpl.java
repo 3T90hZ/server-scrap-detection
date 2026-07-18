@@ -3,6 +3,7 @@ package com.scrapDetection.service.impl;
 import com.scrapDetection.dto.account.*;
 import com.scrapDetection.entity.Account;
 import com.scrapDetection.entity.Role;
+import com.scrapDetection.entity.ScrapYard;
 import com.scrapDetection.exception.InvalidRequestException;
 import com.scrapDetection.exception.ResourceAlreadyExistsException;
 import com.scrapDetection.exception.ResourceNotFoundException;
@@ -55,6 +56,12 @@ public class AccountServiceImpl implements AccountService {
         Account account = accountRepository.findByPhoneNumbers(request.getPhoneNumbers())
                 .orElseThrow(() -> new ResourceNotFoundException("Account", "phoneNumbers", request.getPhoneNumbers()));
 
+        if(account.getScrapYard() != null){
+            ScrapYard scrapYard = scrapYardRepository.getReferenceById(account.getScrapYard().getYardId());
+            if( scrapYard.getStatus().equals("INACTIVE") || scrapYard.getStatus().equals("Pending")){
+                throw new InvalidRequestException("Yard is not activated");
+            }
+        }
         if (!passwordEncoder.matches(request.getPassword(), account.getPasswordHash())) {
             throw new InvalidRequestException("Invalid phone number or password");
         }
