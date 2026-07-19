@@ -2,16 +2,20 @@ package com.scrapDetection.service.impl;
 
 import com.scrapDetection.dto.account.*;
 import com.scrapDetection.entity.Account;
+import com.scrapDetection.entity.PasswordResetToken;
 import com.scrapDetection.entity.Role;
 import com.scrapDetection.entity.ScrapYard;
 import com.scrapDetection.exception.InvalidRequestException;
+import com.scrapDetection.exception.InvalidTokenException;
 import com.scrapDetection.exception.ResourceAlreadyExistsException;
 import com.scrapDetection.exception.ResourceNotFoundException;
 import com.scrapDetection.mapper.AccountMapper;
 import com.scrapDetection.repository.AccountRepository;
+import com.scrapDetection.repository.PasswordResetTokenRepository;
 import com.scrapDetection.repository.ScrapYardRepository;
 import com.scrapDetection.security.jwt.JwtService;
 import com.scrapDetection.service.AccountService;
+import com.scrapDetection.service.EmailService;
 import com.scrapDetection.service.SessionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,8 +23,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +39,10 @@ public class AccountServiceImpl implements AccountService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final SessionService sessionService;
+    private final PasswordResetTokenRepository tokenRepository;
+    private final EmailService emailService;
+
+    private static final int TOKEN_EXPIRY_MINUTES = 60;
 
     @Override
     public AuthResponseDTO registerCustomer(CustomerRegisterRequestDTO request) {
@@ -171,16 +181,61 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void requestPasswordReset(PasswordResetRequestDTO request) {
-        if (request.getPhoneNumbers() == null && request.getEmail() == null) {
+        if ((request.getPhoneNumbers() == null || request.getPhoneNumbers().trim().isEmpty()) &&
+                (request.getEmail() == null || request.getEmail().trim().isEmpty())) {
             throw new InvalidRequestException("Phone number or email is required");
         }
-        // TODO: Implement OTP logic later
+
+        // Email-based password reset
+        if (request.getEmail() != null && !request.getEmail().trim().isEmpty()) {
+            Account account = accountRepository.findByEmail(request.getEmail())
+                    .orElseThrow(() -> new ResourceNotFoundException("No account found with email: " + request.getEmail()));
+
+            // Invalidate old tokens
+            tokenRepository.deleteByAccount(account);
+
+            // Create new token
+            String token = UUID.randomUUID().toString();
+            PasswordResetToken resetToken = PasswordResetToken.builder()
+                    .token(token)
+                    .account(account)
+                    .expiryDate(LocalDateTime.now().plusMinutes(TOKEN_EXPIRY_MINUTES))
+                    .build();
+
+            tokenRepository.save(resetToken);
+
+            emailService.sendPasswordResetEmail(account.getEmail(), token);
+        }
+
+        // TODO: Phone OTP
+        if (request.getPhoneNumbers() != null && !request.getPhoneNumbers().trim().isEmpty()) {
+
+        }
     }
 
     @Override
     public AuthResponseDTO resetPassword(PasswordResetConfirmDTO request) {
-        // TODO: Implement full reset logic with token verification
-        throw new UnsupportedOperationException("Password reset flow to be implemented");
+        PasswordResetToken resetToken = tokenRepository.findByToken(request.getResetToken())
+                .orElseThrow(() -> new InvalidTokenException("Invalid or expired reset token"));
+
+        if (resetToken.isExpired()) {
+            tokenRepository.delete(resetToken);
+            throw new InvalidTokenException("Reset token has expired. Please request a new one.");
+        }
+
+        Account account = resetToken.getAccount();
+
+        // Update password
+        account.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
+        accountRepository.save(account);
+
+        // Invalidate old sessions (optional but recommended)
+        sessionService.invalidateAllSessions(account.getAccountId());
+
+        // Clean up token
+        tokenRepository.delete(resetToken);
+
+        return accountMapper.toAuthResponse(account, null);
     }
 
     @Override

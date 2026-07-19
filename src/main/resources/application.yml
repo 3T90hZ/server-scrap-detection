@@ -23,3 +23,22 @@ spring:
     swagger-ui:
       path: /swagger-ui.html
       enabled: true
+  mail:
+    host: ${SMTP_HOST:smtp-relay.brevo.com}
+    port: ${SMTP_PORT:587}
+    username: ${SMTP_USERNAME}
+    password: ${SMTP_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+    default-encoding: UTF-8
+
+app:
+  frontend:
+    base-url: ${APP_FRONTEND_BASE_URL:https://frontend-domain.com}
