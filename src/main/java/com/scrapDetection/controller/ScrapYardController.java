@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -59,7 +60,7 @@ public class ScrapYardController {
         return ResponseEntity.ok(response);
     }
 
-    // UPDATE - Update scrapyard
+    @PreAuthorize("hasAnyRole('YARD_OWNER','ADMIN')")
     @PutMapping("/{yardId}")
     public ResponseEntity<ScrapYardResponseDTO> updateScrapYard(
             @PathVariable Long yardId,
@@ -70,6 +71,7 @@ public class ScrapYardController {
     }
 
     // UPDATE - Update scrapyard status
+    @PreAuthorize("hasAnyRole('YARD_OWNER','ADMIN')")
     @PutMapping("/{yardId}/status")
     public ResponseEntity<ScrapYardResponseDTO> updateScrapYardStatus(
             @PathVariable Long yardId,
@@ -98,6 +100,7 @@ public class ScrapYardController {
     /**
      * DELETE - Delete scrapyard
      */
+    @PreAuthorize("hasAnyRole('YARD_OWNER','ADMIN')")
     @DeleteMapping("/{yardId}")
     public ResponseEntity<Void> deleteScrapYard(@PathVariable Long yardId) {
         scrapYardService.deleteScrapYard(yardId);
