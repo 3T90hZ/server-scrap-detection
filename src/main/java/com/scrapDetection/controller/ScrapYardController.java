@@ -2,6 +2,7 @@ package com.scrapDetection.controller;
 
 import com.scrapDetection.dto.scrapyard.ScrapYardRequestDTO;
 import com.scrapDetection.dto.scrapyard.ScrapYardResponseDTO;
+import com.scrapDetection.dto.scrapyard.ScrapYardStatusRequestDTO;
 import com.scrapDetection.service.ScrapYardService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +31,8 @@ public class ScrapYardController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    // READ - Get scrapyard by ID@GetMapping("/{yardId}")
+    // READ - Get scrapyard by ID
+    @GetMapping("/{yardId}")
     public ResponseEntity<ScrapYardResponseDTO> getScrapYardById(@PathVariable Long yardId) {
         ScrapYardResponseDTO response = scrapYardService.getScrapYardById(yardId);
         return ResponseEntity.ok(response);
@@ -64,6 +66,16 @@ public class ScrapYardController {
             @Valid @RequestBody ScrapYardRequestDTO requestDTO) {
 
         ScrapYardResponseDTO response = scrapYardService.updateScrapYard(yardId, requestDTO);
+        return ResponseEntity.ok(response);
+    }
+
+    // UPDATE - Update scrapyard status
+    @PutMapping("/{yardId}/status")
+    public ResponseEntity<ScrapYardResponseDTO> updateScrapYardStatus(
+            @PathVariable Long yardId,
+            @Valid @RequestBody ScrapYardStatusRequestDTO requestDTO) {
+
+        ScrapYardResponseDTO response = scrapYardService.updateScrapYardStatus(requestDTO);
         return ResponseEntity.ok(response);
     }
 
