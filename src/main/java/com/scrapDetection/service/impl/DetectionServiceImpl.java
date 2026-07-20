@@ -21,6 +21,10 @@ import java.util.List;
     3. Log everything clearly so the backend console confirms the Pi is talking.
     4. Return a success response — no Transaction, no Material lookup.
 
+  Note: weight_g is baseline-relative on the Pi side, i.e. the actual
+  weight of whatever is currently on the scale (Pi subtracts its own idle
+  baseline before sending) — not a raw zero-referenced sensor reading.
+
   Business logic (Transaction creation, Material matching, etc.)
   will be handled by a separate API that calls this data as input.
  */
@@ -64,7 +68,6 @@ public class DetectionServiceImpl implements DetectionService {
         log.info("  best class      : {}", best.getClassName());
         log.info("  best confidence : {}", best.getConfidence());
         log.info("  weight_above_ref: {} g", requestDTO.getWeightAboveRefG());
-        log.info("  weight_above_base:{} g", requestDTO.getWeightAboveBaseG());
         log.info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 
         // ── 4. Return success — no DB write ───────────────────────────────────
@@ -75,4 +78,3 @@ public class DetectionServiceImpl implements DetectionService {
         );
     }
 }
-
