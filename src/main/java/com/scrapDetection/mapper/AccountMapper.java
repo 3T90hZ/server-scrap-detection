@@ -1,7 +1,6 @@
 package com.scrapDetection.mapper;
 
 import com.scrapDetection.dto.account.*;
-import com.scrapDetection.dto.scrapyard.ScrapYardRequestDTO;
 import com.scrapDetection.entity.Account;
 import org.springframework.stereotype.Component;
 

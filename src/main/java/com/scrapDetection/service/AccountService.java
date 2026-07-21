@@ -31,7 +31,7 @@ public interface AccountService {
 
     // Utility
     List<AccountInfoResponseDTO> getAllStaffByYardOwner();
-    public AccountInfoResponseDTO updateAccountStatus(Long currentAccountId,ChangeAccountStatusRequestDTO dto);
+    AccountInfoResponseDTO updateAccountStatus(Long currentAccountId,ChangeAccountStatusRequestDTO dto);
 
     void logout(String token);
 

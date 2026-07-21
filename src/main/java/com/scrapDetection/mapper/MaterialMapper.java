@@ -45,19 +45,19 @@ public class MaterialMapper {
     }
 
     public void updateEntityFromDTO(MaterialRequestDTO dto, Material entity) {
-        if (dto.getItemName().equals(entity.getItemName())) {
+        if (!dto.getItemName().equals(entity.getItemName())) {
             entity.setItemName(dto.getItemName());
         }
-        if (dto.getItemPrice().equals(entity.getItemPrice())) {
+        if (!dto.getItemPrice().equals(entity.getItemPrice())) {
             entity.setItemPrice(dto.getItemPrice());
         }
-        if (dto.getStatus().equals(entity.getStatus())) {
+        if (!dto.getStatus().equals(entity.getStatus())) {
             entity.setStatus(dto.getStatus());
         }
-        if (dto.getUnit().equals(entity.getUnit())) {
+        if (!dto.getUnit().equals(entity.getUnit())) {
             entity.setUnit(dto.getUnit());
         }
-        if (dto.getIcon().equals(entity.getIcon())) {
+        if (!dto.getIcon().equals(entity.getIcon())) {
             entity.setIcon(dto.getIcon());
         }
     }
