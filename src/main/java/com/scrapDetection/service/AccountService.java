@@ -2,24 +2,22 @@ package com.scrapDetection.service;
 
 import com.scrapDetection.dto.account.*;
 import com.scrapDetection.entity.Account;
+import com.scrapDetection.entity.Role;
 
 import java.util.List;
 
 public interface AccountService {
 
     // Customer
-    AuthResponseDTO registerCustomer(CustomerRegisterRequestDTO request);
+    AuthResponseDTO registerCustomer(CreateAccountRequestDTO request);
 
     // Authentication
     AuthResponseDTO login(LoginRequestDTO request);
 
     AuthResponseDTO adminLogin(LoginRequestDTO request);
 
-    // Admin Operations
-    AuthResponseDTO createYardOwner(YardOwnerCreateRequestDTO request);
-
     // Yard Owner Operations
-    AuthResponseDTO createStaff(StaffCreateRequestDTO request);
+    AuthResponseDTO createStaff(CreateAccountRequestDTO request);
 
     Account getCurrentUser(); // For security context
 
@@ -36,4 +34,6 @@ public interface AccountService {
     public AccountInfoResponseDTO updateAccountStatus(Long currentAccountId,ChangeAccountStatusRequestDTO dto);
 
     void logout(String token);
+
+    void changeRole(Long yardId, Role fromRole, Role toRole);
 }

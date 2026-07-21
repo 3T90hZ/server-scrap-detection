@@ -1,6 +1,7 @@
 package com.scrapDetection.mapper;
 
 import com.scrapDetection.dto.account.*;
+import com.scrapDetection.dto.scrapyard.ScrapYardRequestDTO;
 import com.scrapDetection.entity.Account;
 import org.springframework.stereotype.Component;
 
@@ -8,23 +9,7 @@ import java.util.List;
 @Component
 public class AccountMapper {
 
-    public Account toEntity(CustomerRegisterRequestDTO dto) {
-        Account account = new Account();
-        account.setAccountName(dto.getAccountName());
-        account.setPhoneNumbers(dto.getPhoneNumbers());
-        account.setEmail(dto.getEmail());
-        return account;
-    }
-
-    public Account toEntity(YardOwnerCreateRequestDTO dto) {
-        Account account = new Account();
-        account.setAccountName(dto.getAccountName());
-        account.setPhoneNumbers(dto.getPhoneNumbers());
-        account.setEmail(dto.getEmail());
-        return account;
-    }
-
-    public Account toEntity(StaffCreateRequestDTO dto) {
+    public Account toEntity(CreateAccountRequestDTO dto) {
         Account account = new Account();
         account.setAccountName(dto.getAccountName());
         account.setPhoneNumbers(dto.getPhoneNumbers());

@@ -32,7 +32,7 @@ public class Account {
     @Column(name = "role", nullable = false, length = 20)
     private Role role; // ADMIN, YARD_OWNER, STAFF, CUSTOMER
 
-    @Column(name = "account_name", nullable = false, unique = true)
+    @Column(name = "account_name", nullable = false, unique = false)
     private String accountName;
 
     @Column(name = "phone_numbers")
