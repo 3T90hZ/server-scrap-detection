@@ -3,11 +3,13 @@ package com.scrapDetection.service.impl;
 import com.scrapDetection.dto.scrapyard.ScrapYardRequestDTO;
 import com.scrapDetection.dto.scrapyard.ScrapYardResponseDTO;
 import com.scrapDetection.dto.scrapyard.ScrapYardStatusRequestDTO;
+import com.scrapDetection.entity.Role;
 import com.scrapDetection.entity.ScrapYard;
 import com.scrapDetection.exception.ResourceAlreadyExistsException;
 import com.scrapDetection.exception.ResourceNotFoundException;
 import com.scrapDetection.mapper.ScrapYardMapper;
 import com.scrapDetection.repository.ScrapYardRepository;
+import com.scrapDetection.service.AccountService;
 import com.scrapDetection.service.ScrapYardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,9 +26,10 @@ public class ScrapYardServiceImpl implements ScrapYardService {
 
     private final ScrapYardRepository scrapYardRepository;
     private final ScrapYardMapper scrapYardMapper;
+    private final AccountService accountService;
 
     @Override
-    public ScrapYardResponseDTO createScrapYard(ScrapYardRequestDTO requestDTO) {
+    public ScrapYardResponseDTO createScrapYardRequest(ScrapYardRequestDTO requestDTO) {
         requestDTO.setPhoneNumbers(requestDTO.getPhoneNumbers().trim());
         if (scrapYardRepository.existsByYardName(requestDTO.getYardName())) {
             throw new ResourceAlreadyExistsException("Scrap Yard", "yardName", requestDTO.getYardName());
@@ -40,12 +43,17 @@ public class ScrapYardServiceImpl implements ScrapYardService {
             throw new ResourceAlreadyExistsException("Scrap Yard", "address", requestDTO.getAddress());
         }
 
+        if (scrapYardRepository.existsByPhoneNumbers(requestDTO.getYardOwnerPhoneNumber())) {
+            throw new ResourceAlreadyExistsException("Account", "phoneNumbers", requestDTO.getPhoneNumbers());
+        }
+
         ScrapYard scrapYard = scrapYardMapper.toEntity(requestDTO);
 
         if (scrapYard.getStatus() == null || scrapYard.getStatus().isBlank()) {
-            scrapYard.setStatus("ACTIVE");
+            scrapYard.setStatus("PENDING");
         }
 
+        accountService.registerCustomer(scrapYardMapper.scrapYardToAccountRequest(requestDTO));
         ScrapYard savedYard = scrapYardRepository.save(scrapYard);
         return scrapYardMapper.toResponseDTO(savedYard);
     }
@@ -107,6 +115,10 @@ public class ScrapYardServiceImpl implements ScrapYardService {
                 .orElseThrow(() -> new ResourceNotFoundException("Scrap Yard", requestDTO.getYardId()));
 
         existingYard.setStatus(requestDTO.getStatus());
+
+        if(existingYard.getStatus().equals("PENDING") && requestDTO.getStatus().equals("ACTIVE")){
+            accountService.changeRole(existingYard.getYardId(), Role.CUSTOMER, Role.ADMIN);
+        }
 
         ScrapYard updatedYard = scrapYardRepository.save(existingYard);
         return scrapYardMapper.toResponseDTO(updatedYard);

@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CustomerRegisterRequestDTO {
+public class CreateAccountRequestDTO {
 
     @NotBlank(message = "Display name (account name) is required")
     @Size(min = 3, max = 50, message = "Display name must be between 3 and 50 characters")

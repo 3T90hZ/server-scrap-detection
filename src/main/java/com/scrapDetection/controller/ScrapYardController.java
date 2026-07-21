@@ -24,11 +24,10 @@ public class ScrapYardController {
 
     // CREATE - Create a new scrapyard
 
-    @PostMapping
-    public ResponseEntity<ScrapYardResponseDTO> createScrapYard(
+    @PostMapping("/request")
+    public ResponseEntity<ScrapYardResponseDTO> createScrapYardRequest(
             @Valid @RequestBody ScrapYardRequestDTO requestDTO) {
-
-        ScrapYardResponseDTO response = scrapYardService.createScrapYard(requestDTO);
+        ScrapYardResponseDTO response = scrapYardService.createScrapYardRequest(requestDTO);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 

@@ -10,7 +10,7 @@ import java.util.List;
 public interface ScrapYardService {
 
     // Create a new ScrapYard
-    ScrapYardResponseDTO createScrapYard(ScrapYardRequestDTO requestDTO);
+    ScrapYardResponseDTO createScrapYardRequest(ScrapYardRequestDTO requestDTO);
 
     // Update an existing ScrapYard
     ScrapYardResponseDTO updateScrapYard(Long yardId, ScrapYardRequestDTO requestDTO);
