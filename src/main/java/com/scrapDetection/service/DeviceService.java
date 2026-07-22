@@ -2,6 +2,7 @@ package com.scrapDetection.service;
 
 import com.scrapDetection.dto.device.DeviceRequestDTO;
 import com.scrapDetection.dto.device.DeviceResponseDTO;
+import com.scrapDetection.entity.DeviceStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -31,4 +32,11 @@ public interface DeviceService {
 
     // Check if device exists
     boolean existsById(Long deviceId);
+
+    // Regenerate the device's API key — invalidates the old one immediately.
+    // Returns the new raw key exactly once, in DeviceResponseDTO.apiKey.
+    DeviceResponseDTO regenerateApiKey(Long deviceId);
+
+    // Change device status (ACTIVE / REVOKED / DISABLED) without deleting it.
+    DeviceResponseDTO updateStatus(Long deviceId, DeviceStatus status);
 }
