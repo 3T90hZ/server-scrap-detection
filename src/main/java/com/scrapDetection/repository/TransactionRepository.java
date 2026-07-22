@@ -22,6 +22,4 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     List<Transaction> findByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
 
     List<Transaction> findByMaterialScrapYardYardId(Long yardId);
-
-    List<Transaction> findByMaterialScrapYardYardIdOrderByCreatedAtDesc(Long yardId);
 }
