@@ -39,6 +39,10 @@ public class Material {
 
     @Column(name = "unit", nullable = false)
     private String unit;
+
+    @Column(name = "stock")
+    private Double stock;
+
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
