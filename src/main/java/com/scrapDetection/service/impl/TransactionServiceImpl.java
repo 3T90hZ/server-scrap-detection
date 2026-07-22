@@ -10,6 +10,7 @@ import com.scrapDetection.entity.TransactionTotal;
 import com.scrapDetection.exception.InvalidRequestException;
 import com.scrapDetection.exception.ResourceNotFoundException;
 import com.scrapDetection.mapper.TransactionMapper;
+import com.scrapDetection.repository.AccountRepository;
 import com.scrapDetection.repository.MaterialRepository;
 import com.scrapDetection.repository.TransactionRepository;
 import com.scrapDetection.service.AccountService;
@@ -26,6 +27,7 @@ import java.util.List;
 @Transactional
 public class TransactionServiceImpl implements TransactionService {
 
+    private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
     private final MaterialRepository materialRepository;
     private final AccountService accountService;
@@ -48,10 +50,16 @@ public class TransactionServiceImpl implements TransactionService {
         // Create transaction
         Transaction transaction = transactionMapper.toEntity(requestDTO);
         transaction.setMaterial(material);
-        transaction.setCustomer(currentUser);           // Customer is the one making the transaction
-        transaction.setCreatedBy(currentUser);       // Staff/Owner processing the transaction
+        if(requestDTO.getCustomerId() != null){
+            transaction.setCustomer(accountRepository.getReferenceById(requestDTO.getCustomerId()));
+        }
+        transaction.setCreatedBy(currentUser);
 
         Transaction savedTransaction = transactionRepository.save(transaction);
+
+        // Change stock
+        material.setStock(material.getStock() + requestDTO.getWeight());
+        materialRepository.save(material);
 
         // Create TransactionTotal
         TransactionTotal total = new TransactionTotal();
