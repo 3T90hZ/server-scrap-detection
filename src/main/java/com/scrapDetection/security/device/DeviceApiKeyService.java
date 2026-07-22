@@ -10,7 +10,7 @@ import java.util.Base64;
 import java.util.HexFormat;
 
 @Service
-public class Deviceapikeyservice {
+public class DeviceApiKeyService {
 
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
     private static final int KEY_BYTES      = 32;  // 256 bits of entropy
