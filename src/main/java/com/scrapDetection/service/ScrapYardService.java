@@ -23,7 +23,7 @@ public interface ScrapYardService {
     ScrapYardResponseDTO getScrapYardByName(String yardName);     // ← NEW
 
     // Get all ScrapYards
-    List<ScrapYardResponseDTO> getAllScrapYards();
+    Page<ScrapYardResponseDTO> getAllActiveScrapYards(Pageable pageable);
 
     // Get all ScrapYards with pagination
     Page<ScrapYardResponseDTO> getAllScrapYards(Pageable pageable);
@@ -34,7 +34,7 @@ public interface ScrapYardService {
     // Find ScrapYard by name
     List<ScrapYardResponseDTO> searchScrapYardsByName(String yardName); // ← NEW
 
-    ScrapYardResponseDTO updateScrapYardStatus(ScrapYardStatusRequestDTO requestDTO);
+    ScrapYardResponseDTO updateScrapYardStatus(ScrapYardStatusRequestDTO requestDTO, Long id);
 
     // Delete ScrapYard by ID
     void deleteScrapYard(Long yardId);

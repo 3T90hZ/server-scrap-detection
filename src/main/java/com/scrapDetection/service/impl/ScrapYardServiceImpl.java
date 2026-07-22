@@ -70,9 +70,9 @@ public class ScrapYardServiceImpl implements ScrapYardService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ScrapYardResponseDTO> getAllScrapYards() {
-        List<ScrapYard> yards = scrapYardRepository.findAll();
-        return scrapYardMapper.toResponseDTOList(yards);
+    public Page<ScrapYardResponseDTO> getAllActiveScrapYards(Pageable pageable) {
+        Page<ScrapYard> yardPage = scrapYardRepository.findByStatus("Active",pageable);
+        return yardPage.map(scrapYardMapper::toResponseDTO);
     }
 
     @Override
@@ -111,15 +111,15 @@ public class ScrapYardServiceImpl implements ScrapYardService {
     }
 
     @Override
-    public ScrapYardResponseDTO updateScrapYardStatus(ScrapYardStatusRequestDTO requestDTO) {
-        ScrapYard existingYard = scrapYardRepository.findById(requestDTO.getYardId())
-                .orElseThrow(() -> new ResourceNotFoundException("Scrap Yard", requestDTO.getYardId()));
-
-        existingYard.setStatus(requestDTO.getStatus());
+    public ScrapYardResponseDTO updateScrapYardStatus(ScrapYardStatusRequestDTO requestDTO, Long id) {
+        ScrapYard existingYard = scrapYardRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Scrap Yard", id));
 
         if(existingYard.getStatus().equals("PENDING") && requestDTO.getStatus().equals("ACTIVE")){
-            accountService.changeRole(existingYard.getYardId(), Role.CUSTOMER, Role.ADMIN);
+            accountService.changeRole(existingYard.getYardId(), Role.CUSTOMER, Role.YARD_OWNER);
         }
+
+        existingYard.setStatus(requestDTO.getStatus());
 
         ScrapYard updatedYard = scrapYardRepository.save(existingYard);
         return scrapYardMapper.toResponseDTO(updatedYard);

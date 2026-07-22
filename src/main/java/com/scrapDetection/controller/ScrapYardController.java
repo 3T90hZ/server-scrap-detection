@@ -33,21 +33,23 @@ public class ScrapYardController {
     }
 
     // READ - Get scrapyard by ID
-    @PreAuthorize("hasRole('YARD_OWNER')")
+    @PreAuthorize("hasAnyRole('YARD_OWNER','ADMIN')")
     @GetMapping("/{yardId}")
     public ResponseEntity<ScrapYardResponseDTO> getScrapYardById(@PathVariable Long yardId) {
+        System.out.println("yardId:" + yardId);
         ScrapYardResponseDTO response = scrapYardService.getScrapYardById(yardId);
         return ResponseEntity.ok(response);
     }
 
-    // READ - Get all scrapyards
+    // READ - Get all scrapyards(PUBLIC)
     @GetMapping
-    public ResponseEntity<List<ScrapYardResponseDTO>> getAllScrapYards() {
-        List<ScrapYardResponseDTO> response = scrapYardService.getAllScrapYards();
+    public ResponseEntity<Page<ScrapYardResponseDTO>> getAllActiveScrapYards(Pageable pageable) {
+        Page<ScrapYardResponseDTO> response = scrapYardService.getAllActiveScrapYards(pageable);
         return ResponseEntity.ok(response);
     }
 
     // READ - Get all ScrapYards with Pagination
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/paged")
     public ResponseEntity<Page<ScrapYardResponseDTO>> getAllScrapYardsPaged(Pageable pageable) {
         Page<ScrapYardResponseDTO> response = scrapYardService.getAllScrapYards(pageable);
@@ -75,9 +77,9 @@ public class ScrapYardController {
     @PreAuthorize("hasAnyRole('YARD_OWNER','ADMIN')")
     @PutMapping("/{yardId}/status")
     public ResponseEntity<ScrapYardResponseDTO> updateScrapYardStatus(
-            @Valid @RequestBody ScrapYardStatusRequestDTO requestDTO) {
+            @Valid @RequestBody ScrapYardStatusRequestDTO requestDTO, @PathVariable Long yardId) {
 
-        ScrapYardResponseDTO response = scrapYardService.updateScrapYardStatus(requestDTO);
+        ScrapYardResponseDTO response = scrapYardService.updateScrapYardStatus(requestDTO, yardId);
         return ResponseEntity.ok(response);
     }
 
@@ -101,7 +103,7 @@ public class ScrapYardController {
      * DELETE - Delete scrapyard
      */
     @PreAuthorize("hasAnyRole('YARD_OWNER','ADMIN')")
-    @DeleteMapping("/{yardId}")
+    @DeleteMapping("/{yardId}/delete")
     public ResponseEntity<Void> deleteScrapYard(@PathVariable Long yardId) {
         scrapYardService.deleteScrapYard(yardId);
         return ResponseEntity.noContent().build();
