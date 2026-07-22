@@ -51,6 +51,7 @@ public class TransactionController {
     }
 
     // Get all transaction by customer
+    @PreAuthorize("hasAnyRole('STAFF', 'YARD_OWNER','CUSTOMER')")
     @GetMapping("/customer/{customerId}")
     public ResponseEntity<List<TransactionSummaryDTO>> getTransactionsByCustomer(@PathVariable Long customerId) {
         List<TransactionSummaryDTO> response = transactionService.getTransactionsByCustomer(customerId);
