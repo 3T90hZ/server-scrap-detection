@@ -20,7 +20,7 @@ public class AuthenticationController {
     public ResponseEntity<AuthResponseDTO> registerCustomer(
             @Valid @RequestBody CreateAccountRequestDTO request) {
 
-        AuthResponseDTO response = accountService.registerCustomer(request);
+        AuthResponseDTO response = accountService.registerCustomer(request, null);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 

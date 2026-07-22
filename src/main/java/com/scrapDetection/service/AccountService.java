@@ -9,7 +9,7 @@ import java.util.List;
 public interface AccountService {
 
     // Customer
-    AuthResponseDTO registerCustomer(CreateAccountRequestDTO request);
+    AuthResponseDTO registerCustomer(CreateAccountRequestDTO request, Long yardId);
 
     // Authentication
     AuthResponseDTO login(LoginRequestDTO request);

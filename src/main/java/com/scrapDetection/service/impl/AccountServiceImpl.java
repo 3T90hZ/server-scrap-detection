@@ -1,10 +1,7 @@
 package com.scrapDetection.service.impl;
 
 import com.scrapDetection.dto.account.*;
-import com.scrapDetection.entity.Account;
-import com.scrapDetection.entity.PasswordResetToken;
-import com.scrapDetection.entity.Role;
-import com.scrapDetection.entity.ScrapYard;
+import com.scrapDetection.entity.*;
 import com.scrapDetection.exception.InvalidRequestException;
 import com.scrapDetection.exception.InvalidTokenException;
 import com.scrapDetection.exception.ResourceAlreadyExistsException;
@@ -45,14 +42,16 @@ public class AccountServiceImpl implements AccountService {
     private static final int TOKEN_EXPIRY_MINUTES = 60;
 
     @Override
-    public AuthResponseDTO registerCustomer(CreateAccountRequestDTO request) {
+    public AuthResponseDTO registerCustomer(CreateAccountRequestDTO request, Long yardId) {
         validateUniqueFields(request.getPhoneNumbers(), request.getEmail());
 
         Account account = accountMapper.toEntity(request);
         account.setRole(Role.CUSTOMER);
         account.setStatus("ACTIVE");
         account.setPasswordHash(passwordEncoder.encode(request.getPassword()));
-
+        if(yardId != null) {
+            account.setScrapYard(scrapYardRepository.getReferenceById(yardId));
+        }
         Account saved = accountRepository.save(account);
 
         String token = jwtService.generateToken(saved);
@@ -68,7 +67,7 @@ public class AccountServiceImpl implements AccountService {
 
         if(account.getScrapYard() != null && account.getRole() != Role.CUSTOMER){
             ScrapYard scrapYard = scrapYardRepository.getReferenceById(account.getScrapYard().getYardId());
-            if( scrapYard.getStatus().equals("INACTIVE") || scrapYard.getStatus().equals("PENDING")){
+            if( !scrapYard.getStatus().equals("ACTIVE")){
                 throw new InvalidRequestException("Yard is not activated");
             }
         }
