@@ -38,6 +38,7 @@ public class AccountMapper {
                 .phoneNumbers(account.getPhoneNumbers())
                 .email(account.getEmail())
                 .role(account.getRole() != null ? account.getRole().name() : null)
+                .yardId(account.getScrapYard() != null? account.getScrapYard().getYardId() : null)
                 .status(account.getStatus())
                 .token(token)
                 .expiresAt(account.getCreatedAt().plusHours(24))
