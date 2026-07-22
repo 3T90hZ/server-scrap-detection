@@ -1,10 +1,7 @@
 package com.scrapDetection.service.impl;
 
 import com.scrapDetection.dto.account.*;
-import com.scrapDetection.entity.Account;
-import com.scrapDetection.entity.PasswordResetToken;
-import com.scrapDetection.entity.Role;
-import com.scrapDetection.entity.ScrapYard;
+import com.scrapDetection.entity.*;
 import com.scrapDetection.exception.InvalidRequestException;
 import com.scrapDetection.exception.InvalidTokenException;
 import com.scrapDetection.exception.ResourceAlreadyExistsException;
@@ -45,14 +42,16 @@ public class AccountServiceImpl implements AccountService {
     private static final int TOKEN_EXPIRY_MINUTES = 60;
 
     @Override
-    public AuthResponseDTO registerCustomer(CustomerRegisterRequestDTO request) {
+    public AuthResponseDTO registerCustomer(CreateAccountRequestDTO request, Long yardId) {
         validateUniqueFields(request.getPhoneNumbers(), request.getEmail());
 
         Account account = accountMapper.toEntity(request);
         account.setRole(Role.CUSTOMER);
         account.setStatus("ACTIVE");
         account.setPasswordHash(passwordEncoder.encode(request.getPassword()));
-
+        if(yardId != null) {
+            account.setScrapYard(scrapYardRepository.getReferenceById(yardId));
+        }
         Account saved = accountRepository.save(account);
 
         String token = jwtService.generateToken(saved);
@@ -66,9 +65,9 @@ public class AccountServiceImpl implements AccountService {
         Account account = accountRepository.findByPhoneNumbers(request.getPhoneNumbers())
                 .orElseThrow(() -> new ResourceNotFoundException("Account", "phoneNumbers", request.getPhoneNumbers()));
 
-        if(account.getScrapYard() != null){
+        if(account.getScrapYard() != null && account.getRole() != Role.CUSTOMER){
             ScrapYard scrapYard = scrapYardRepository.getReferenceById(account.getScrapYard().getYardId());
-            if( scrapYard.getStatus().equals("INACTIVE") || scrapYard.getStatus().equals("Pending")){
+            if( !scrapYard.getStatus().equals("ACTIVE")){
                 throw new InvalidRequestException("Yard is not activated");
             }
         }
@@ -103,30 +102,9 @@ public class AccountServiceImpl implements AccountService {
         return accountMapper.toAuthResponse(account, token);
     }
 
-    @Override
-    public AuthResponseDTO createYardOwner(YardOwnerCreateRequestDTO request) {
-        validateUniqueFields(request.getPhoneNumbers(), request.getEmail());
-
-        Account account = accountMapper.toEntity(request);
-        account.setRole(Role.YARD_OWNER);
-        account.setStatus("ACTIVE");
-        account.setPasswordHash(passwordEncoder.encode(request.getPassword()));
-
-        if (request.getYardId() != null) {
-            var yard = scrapYardRepository.findById(request.getYardId())
-                    .orElseThrow(() -> new ResourceNotFoundException("ScrapYard", request.getYardId()));
-            account.setScrapYard(yard);
-        }
-
-        Account saved = accountRepository.save(account);
-        String token = jwtService.generateToken(saved);
-        sessionService.createSession(saved, token);
-
-        return accountMapper.toAuthResponse(saved, token);
-    }
 
     @Override
-    public AuthResponseDTO createStaff(StaffCreateRequestDTO request) {
+    public AuthResponseDTO createStaff(CreateAccountRequestDTO request) {
         validateUniqueFields(request.getPhoneNumbers(), request.getEmail());
 
         Account account = accountMapper.toEntity(request);
@@ -289,5 +267,11 @@ public class AccountServiceImpl implements AccountService {
         if (email != null && !email.trim().isEmpty() && accountRepository.existsByEmail(email)) {
             throw new ResourceAlreadyExistsException("Account", "email", email);
         }
+    }
+    @Override
+    public void changeRole(Long yardId, Role fromRole, Role toRole){
+        Account account = accountRepository.findByScrapYardYardIdAndRole(yardId, fromRole).getFirst();
+        account.setRole(toRole);
+        accountRepository.save(account);
     }
 }

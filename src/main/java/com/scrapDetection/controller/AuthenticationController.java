@@ -18,9 +18,9 @@ public class AuthenticationController {
 
     @PostMapping("/register/customer")
     public ResponseEntity<AuthResponseDTO> registerCustomer(
-            @Valid @RequestBody CustomerRegisterRequestDTO request) {
+            @Valid @RequestBody CreateAccountRequestDTO request) {
 
-        AuthResponseDTO response = accountService.registerCustomer(request);
+        AuthResponseDTO response = accountService.registerCustomer(request, null);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
@@ -36,16 +36,9 @@ public class AuthenticationController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/yard-owner")
-    public ResponseEntity<AuthResponseDTO> createYardOwner(@Valid @RequestBody YardOwnerCreateRequestDTO request) {
-        AuthResponseDTO response = accountService.createYardOwner(request);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
-    }
-
     @PreAuthorize("hasRole('YARD_OWNER')")
     @PostMapping("/staff")
-    public ResponseEntity<AuthResponseDTO> createStaff(@Valid @RequestBody StaffCreateRequestDTO request) {
+    public ResponseEntity<AuthResponseDTO> createStaff(@Valid @RequestBody CreateAccountRequestDTO request) {
         AuthResponseDTO response = accountService.createStaff(request);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }

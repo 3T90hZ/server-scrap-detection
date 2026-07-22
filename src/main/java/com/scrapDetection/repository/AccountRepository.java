@@ -19,18 +19,8 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
     boolean existsByEmail(String email);
 
-    List<Account> findByScrapYardYardId(Long yardId);
-
     List<Account> findByScrapYardYardIdAndRole(Long yardId, Role role);
-
-    // Status-based queries
-    List<Account> findByStatus(String status);
-
-    // Combined queries
-    List<Account> findByScrapYardYardIdAndStatus(Long yardId, String status);
 
     // For password reset
     Optional<Account> findByEmail(String email);
-
-    Optional<Account> findByPhoneNumbersOrEmail(String phoneNumbers, String email);
 }

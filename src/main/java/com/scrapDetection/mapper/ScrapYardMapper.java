@@ -1,7 +1,9 @@
 package com.scrapDetection.mapper;
 
+import com.scrapDetection.dto.account.CreateAccountRequestDTO;
 import com.scrapDetection.dto.scrapyard.ScrapYardRequestDTO;
 import com.scrapDetection.dto.scrapyard.ScrapYardResponseDTO;
+import com.scrapDetection.dto.scrapyard.ScrapYardUpdateRequestDTO;
 import com.scrapDetection.entity.ScrapYard;
 import org.springframework.stereotype.Component;
 
@@ -18,8 +20,16 @@ public class ScrapYardMapper {
         scrapYard.setYardName(dto.getYardName());
         scrapYard.setAddress(dto.getAddress());
         scrapYard.setPhoneNumbers(dto.getPhoneNumbers());
-        scrapYard.setStatus(dto.getStatus());
         return scrapYard;
+    }
+
+    public CreateAccountRequestDTO scrapYardToAccountRequest (ScrapYardRequestDTO dto) {
+        CreateAccountRequestDTO accountRequest = new CreateAccountRequestDTO();
+        accountRequest.setAccountName(dto.getDisplayName());
+        accountRequest.setPhoneNumbers(dto.getYardOwnerPhoneNumber());
+        accountRequest.setPassword(dto.getPassword());
+        accountRequest.setEmail(dto.getEmail());
+        return accountRequest;
     }
 
     public ScrapYardResponseDTO toResponseDTO(ScrapYard entity) {
@@ -30,6 +40,8 @@ public class ScrapYardMapper {
                 .yardName(entity.getYardName())
                 .address(entity.getAddress())
                 .phoneNumbers(entity.getPhoneNumbers())
+                .openHour(entity.getOpenHour())
+                .closeHour(entity.getCloseHour())
                 .status(entity.getStatus())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
@@ -38,12 +50,12 @@ public class ScrapYardMapper {
 
     public List<ScrapYardResponseDTO> toResponseDTOList(List<ScrapYard> entities) {
         return entities.stream()
-                .map(this::toResponseDTO)
+                .map(this ::toResponseDTO)
                 .collect(Collectors.toList());
     }
 
     // For partial updates
-    public void updateEntityFromDTO(ScrapYardRequestDTO dto, ScrapYard entity) {
+    public void updateEntityFromDTO(ScrapYardUpdateRequestDTO dto, ScrapYard entity) {
         if (dto.getYardName() != null) {
             entity.setYardName(dto.getYardName());
         }
@@ -53,8 +65,11 @@ public class ScrapYardMapper {
         if (dto.getPhoneNumbers() != null) {
             entity.setPhoneNumbers(dto.getPhoneNumbers());
         }
-        if (dto.getStatus() != null) {
-            entity.setStatus(dto.getStatus());
+        if(dto.getOpenHour() != null){
+            entity.setOpenHour(dto.getOpenHour());
+        }
+        if(dto.getCloseHour() != null){
+            entity.setCloseHour(dto.getCloseHour());
         }
     }
 }
