@@ -2,6 +2,7 @@ package com.scrapDetection.controller;
 
 import com.scrapDetection.dto.device.DeviceRequestDTO;
 import com.scrapDetection.dto.device.DeviceResponseDTO;
+import com.scrapDetection.dto.device.DeviceStatusUpdateDTO;
 import com.scrapDetection.service.DeviceService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +38,26 @@ public class DeviceController {
             @Valid @RequestBody DeviceRequestDTO requestDTO) {
 
         DeviceResponseDTO response = deviceService.updateDevice(deviceId, requestDTO);
+        return ResponseEntity.ok(response);
+    }
+
+    // Rotate (regenerate) device API key — invalidates the old key immediately.
+    // Response's apiKey field carries the new raw key exactly once.
+    @PreAuthorize("hasRole('YARD_OWNER')")
+    @PostMapping("/{deviceId}/rotate-key")
+    public ResponseEntity<DeviceResponseDTO> rotateApiKey(@PathVariable Long deviceId) {
+        DeviceResponseDTO response = deviceService.regenerateApiKey(deviceId);
+        return ResponseEntity.ok(response);
+    }
+
+    // Change device status (ACTIVE / REVOKED / DISABLED) without deleting it
+    @PreAuthorize("hasRole('YARD_OWNER')")
+    @PatchMapping("/{deviceId}/status")
+    public ResponseEntity<DeviceResponseDTO> updateDeviceStatus(
+            @PathVariable Long deviceId,
+            @Valid @RequestBody DeviceStatusUpdateDTO requestDTO) {
+
+        DeviceResponseDTO response = deviceService.updateStatus(deviceId, requestDTO.getStatus());
         return ResponseEntity.ok(response);
     }
 
