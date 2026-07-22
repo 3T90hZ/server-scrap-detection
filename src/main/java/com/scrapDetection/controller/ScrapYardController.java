@@ -3,6 +3,7 @@ package com.scrapDetection.controller;
 import com.scrapDetection.dto.scrapyard.ScrapYardRequestDTO;
 import com.scrapDetection.dto.scrapyard.ScrapYardResponseDTO;
 import com.scrapDetection.dto.scrapyard.ScrapYardStatusRequestDTO;
+import com.scrapDetection.dto.scrapyard.ScrapYardUpdateRequestDTO;
 import com.scrapDetection.service.ScrapYardService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,7 @@ public class ScrapYardController {
     }
 
     // READ - Get scrapyard by ID
+    @PreAuthorize("hasRole('YARD_OWNER')")
     @GetMapping("/{yardId}")
     public ResponseEntity<ScrapYardResponseDTO> getScrapYardById(@PathVariable Long yardId) {
         ScrapYardResponseDTO response = scrapYardService.getScrapYardById(yardId);
@@ -59,11 +61,11 @@ public class ScrapYardController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasAnyRole('YARD_OWNER','ADMIN')")
-    @PutMapping("/{yardId}")
+    @PreAuthorize("hasRole('YARD_OWNER')")
+    @PutMapping("/{yardId}/update")
     public ResponseEntity<ScrapYardResponseDTO> updateScrapYard(
             @PathVariable Long yardId,
-            @Valid @RequestBody ScrapYardRequestDTO requestDTO) {
+            @Valid @RequestBody ScrapYardUpdateRequestDTO requestDTO) {
 
         ScrapYardResponseDTO response = scrapYardService.updateScrapYard(yardId, requestDTO);
         return ResponseEntity.ok(response);
@@ -73,7 +75,6 @@ public class ScrapYardController {
     @PreAuthorize("hasAnyRole('YARD_OWNER','ADMIN')")
     @PutMapping("/{yardId}/status")
     public ResponseEntity<ScrapYardResponseDTO> updateScrapYardStatus(
-            @PathVariable Long yardId,
             @Valid @RequestBody ScrapYardStatusRequestDTO requestDTO) {
 
         ScrapYardResponseDTO response = scrapYardService.updateScrapYardStatus(requestDTO);

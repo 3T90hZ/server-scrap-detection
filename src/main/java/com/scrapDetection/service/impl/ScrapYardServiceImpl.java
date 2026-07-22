@@ -3,6 +3,7 @@ package com.scrapDetection.service.impl;
 import com.scrapDetection.dto.scrapyard.ScrapYardRequestDTO;
 import com.scrapDetection.dto.scrapyard.ScrapYardResponseDTO;
 import com.scrapDetection.dto.scrapyard.ScrapYardStatusRequestDTO;
+import com.scrapDetection.dto.scrapyard.ScrapYardUpdateRequestDTO;
 import com.scrapDetection.entity.Role;
 import com.scrapDetection.entity.ScrapYard;
 import com.scrapDetection.exception.ResourceAlreadyExistsException;
@@ -53,8 +54,8 @@ public class ScrapYardServiceImpl implements ScrapYardService {
             scrapYard.setStatus("PENDING");
         }
 
-        accountService.registerCustomer(scrapYardMapper.scrapYardToAccountRequest(requestDTO));
         ScrapYard savedYard = scrapYardRepository.save(scrapYard);
+        accountService.registerCustomer(scrapYardMapper.scrapYardToAccountRequest(requestDTO), scrapYard.getYardId());
         return scrapYardMapper.toResponseDTO(savedYard);
     }
 
@@ -89,7 +90,7 @@ public class ScrapYardServiceImpl implements ScrapYardService {
     }
 
     @Override
-    public ScrapYardResponseDTO updateScrapYard(Long yardId, ScrapYardRequestDTO requestDTO) {
+    public ScrapYardResponseDTO updateScrapYard(Long yardId, ScrapYardUpdateRequestDTO requestDTO) {
         ScrapYard existingYard = scrapYardRepository.findById(yardId)
                 .orElseThrow(() -> new ResourceNotFoundException("Scrap Yard", yardId));
 

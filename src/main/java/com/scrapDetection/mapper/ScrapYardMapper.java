@@ -3,6 +3,7 @@ package com.scrapDetection.mapper;
 import com.scrapDetection.dto.account.CreateAccountRequestDTO;
 import com.scrapDetection.dto.scrapyard.ScrapYardRequestDTO;
 import com.scrapDetection.dto.scrapyard.ScrapYardResponseDTO;
+import com.scrapDetection.dto.scrapyard.ScrapYardUpdateRequestDTO;
 import com.scrapDetection.entity.ScrapYard;
 import org.springframework.stereotype.Component;
 
@@ -39,6 +40,8 @@ public class ScrapYardMapper {
                 .yardName(entity.getYardName())
                 .address(entity.getAddress())
                 .phoneNumbers(entity.getPhoneNumbers())
+                .openHour(entity.getOpenHour())
+                .closeHour(entity.getCloseHour())
                 .status(entity.getStatus())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
@@ -52,7 +55,7 @@ public class ScrapYardMapper {
     }
 
     // For partial updates
-    public void updateEntityFromDTO(ScrapYardRequestDTO dto, ScrapYard entity) {
+    public void updateEntityFromDTO(ScrapYardUpdateRequestDTO dto, ScrapYard entity) {
         if (dto.getYardName() != null) {
             entity.setYardName(dto.getYardName());
         }
@@ -61,6 +64,12 @@ public class ScrapYardMapper {
         }
         if (dto.getPhoneNumbers() != null) {
             entity.setPhoneNumbers(dto.getPhoneNumbers());
+        }
+        if(dto.getOpenHour() != null){
+            entity.setOpenHour(dto.getOpenHour());
+        }
+        if(dto.getCloseHour() != null){
+            entity.setCloseHour(dto.getCloseHour());
         }
     }
 }
