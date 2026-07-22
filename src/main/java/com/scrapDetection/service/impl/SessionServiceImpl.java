@@ -2,7 +2,6 @@ package com.scrapDetection.service.impl;
 
 import com.scrapDetection.entity.Account;
 import com.scrapDetection.entity.Session;
-import com.scrapDetection.exception.ResourceNotFoundException;
 import com.scrapDetection.repository.SessionRepository;
 import com.scrapDetection.security.jwt.JwtService;
 import com.scrapDetection.service.SessionService;
@@ -33,7 +32,6 @@ public class SessionServiceImpl implements SessionService {
         session.setJwtTokenHash(tokenHash);
         session.setExpiredAt(LocalDateTime.now().plusHours(24)); // 24 hours
 
-        System.out.println("saving session");
         return sessionRepository.save(session);
     }
 

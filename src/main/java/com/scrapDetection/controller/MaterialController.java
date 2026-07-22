@@ -56,7 +56,7 @@ public class MaterialController {
     }
 
     /**
-     * YARD OWNER - Get All active Materials in Their Own Yard
+     * YARD OWNER - Get All inactive Materials in Their Own Yard
      */
     @PreAuthorize("hasRole('YARD_OWNER')")
     @GetMapping("/my-yard-Inactive")
@@ -66,7 +66,7 @@ public class MaterialController {
         return ResponseEntity.ok(materials);
     }
 
-    @PreAuthorize("hasRole('YARD_OWNER')")
+    @PreAuthorize("hasAnyRole('YARD_OWNER','STAFF')")
     @GetMapping("/my-yard-active")
     public ResponseEntity<List<MaterialResponseDTO>> getMyYardActiveMaterials() {
         Long yardId = getCurrentUserYardId();
@@ -93,7 +93,7 @@ public class MaterialController {
     }
 
     // Search Materials by Name (for yard owner)
-    @PreAuthorize("hasRole('YARD_OWNER')")
+    @PreAuthorize("hasAnyRole('YARD_OWNER','STAFF')")
     @GetMapping("/search-in-yard")
     public ResponseEntity<List<MaterialResponseDTO>> searchYardMaterials(
             @RequestParam String name) {

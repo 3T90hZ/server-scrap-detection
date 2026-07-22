@@ -3,11 +3,14 @@ package com.scrapDetection.service.impl;
 import com.scrapDetection.dto.scrapyard.ScrapYardRequestDTO;
 import com.scrapDetection.dto.scrapyard.ScrapYardResponseDTO;
 import com.scrapDetection.dto.scrapyard.ScrapYardStatusRequestDTO;
+import com.scrapDetection.dto.scrapyard.ScrapYardUpdateRequestDTO;
+import com.scrapDetection.entity.Role;
 import com.scrapDetection.entity.ScrapYard;
 import com.scrapDetection.exception.ResourceAlreadyExistsException;
 import com.scrapDetection.exception.ResourceNotFoundException;
 import com.scrapDetection.mapper.ScrapYardMapper;
 import com.scrapDetection.repository.ScrapYardRepository;
+import com.scrapDetection.service.AccountService;
 import com.scrapDetection.service.ScrapYardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,9 +27,10 @@ public class ScrapYardServiceImpl implements ScrapYardService {
 
     private final ScrapYardRepository scrapYardRepository;
     private final ScrapYardMapper scrapYardMapper;
+    private final AccountService accountService;
 
     @Override
-    public ScrapYardResponseDTO createScrapYard(ScrapYardRequestDTO requestDTO) {
+    public ScrapYardResponseDTO createScrapYardRequest(ScrapYardRequestDTO requestDTO) {
         requestDTO.setPhoneNumbers(requestDTO.getPhoneNumbers().trim());
         if (scrapYardRepository.existsByYardName(requestDTO.getYardName())) {
             throw new ResourceAlreadyExistsException("Scrap Yard", "yardName", requestDTO.getYardName());
@@ -40,13 +44,18 @@ public class ScrapYardServiceImpl implements ScrapYardService {
             throw new ResourceAlreadyExistsException("Scrap Yard", "address", requestDTO.getAddress());
         }
 
+        if (scrapYardRepository.existsByPhoneNumbers(requestDTO.getYardOwnerPhoneNumber())) {
+            throw new ResourceAlreadyExistsException("Account", "phoneNumbers", requestDTO.getPhoneNumbers());
+        }
+
         ScrapYard scrapYard = scrapYardMapper.toEntity(requestDTO);
 
         if (scrapYard.getStatus() == null || scrapYard.getStatus().isBlank()) {
-            scrapYard.setStatus("ACTIVE");
+            scrapYard.setStatus("PENDING");
         }
 
         ScrapYard savedYard = scrapYardRepository.save(scrapYard);
+        accountService.registerCustomer(scrapYardMapper.scrapYardToAccountRequest(requestDTO), scrapYard.getYardId());
         return scrapYardMapper.toResponseDTO(savedYard);
     }
 
@@ -61,9 +70,9 @@ public class ScrapYardServiceImpl implements ScrapYardService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ScrapYardResponseDTO> getAllScrapYards() {
-        List<ScrapYard> yards = scrapYardRepository.findAll();
-        return scrapYardMapper.toResponseDTOList(yards);
+    public Page<ScrapYardResponseDTO> getAllActiveScrapYards(Pageable pageable) {
+        Page<ScrapYard> yardPage = scrapYardRepository.findByStatus("Active",pageable);
+        return yardPage.map(scrapYardMapper::toResponseDTO);
     }
 
     @Override
@@ -81,7 +90,7 @@ public class ScrapYardServiceImpl implements ScrapYardService {
     }
 
     @Override
-    public ScrapYardResponseDTO updateScrapYard(Long yardId, ScrapYardRequestDTO requestDTO) {
+    public ScrapYardResponseDTO updateScrapYard(Long yardId, ScrapYardUpdateRequestDTO requestDTO) {
         ScrapYard existingYard = scrapYardRepository.findById(yardId)
                 .orElseThrow(() -> new ResourceNotFoundException("Scrap Yard", yardId));
 
@@ -102,9 +111,13 @@ public class ScrapYardServiceImpl implements ScrapYardService {
     }
 
     @Override
-    public ScrapYardResponseDTO updateScrapYardStatus(ScrapYardStatusRequestDTO requestDTO) {
-        ScrapYard existingYard = scrapYardRepository.findById(requestDTO.getYardId())
-                .orElseThrow(() -> new ResourceNotFoundException("Scrap Yard", requestDTO.getYardId()));
+    public ScrapYardResponseDTO updateScrapYardStatus(ScrapYardStatusRequestDTO requestDTO, Long id) {
+        ScrapYard existingYard = scrapYardRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Scrap Yard", id));
+
+        if(existingYard.getStatus().equals("PENDING") && requestDTO.getStatus().equals("ACTIVE")){
+            accountService.changeRole(existingYard.getYardId(), Role.CUSTOMER, Role.YARD_OWNER);
+        }
 
         existingYard.setStatus(requestDTO.getStatus());
 

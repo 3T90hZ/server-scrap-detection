@@ -12,9 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ScrapYardStatusRequestDTO {
-    @NotNull(message = "Yard ID is required")
-    Long yardId;
 
     @NotBlank(message = "Status is required")
-    String status;
+    private String status;
 }
