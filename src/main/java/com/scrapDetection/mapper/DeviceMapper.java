@@ -29,6 +29,13 @@ public class DeviceMapper {
                 .yardName(entity.getScrapYard() != null ? entity.getScrapYard().getYardName() : null)
                 .deviceName(entity.getDeviceName())
                 .ipAddress(entity.getIpAddress())
+                .status(entity.getStatus())
+                .apiKeyPrefix(entity.getApiKeyPrefix())
+                .firmwareVersion(entity.getFirmwareVersion())
+                .desiredFirmwareVersion(entity.getDesiredFirmwareVersion())
+                .lastSeenAt(entity.getLastSeenAt())
+                // apiKey intentionally omitted — only set by
+                // DeviceServiceImpl.createDevice()/regenerateApiKey()
                 .build();
     }
 

@@ -132,8 +132,9 @@ public class AccountServiceImpl implements AccountService {
 
         Object principal = authentication.getPrincipal();
 
-        if (principal instanceof Account account) {
-            return account;
+        if (principal instanceof Account principalAccount) {
+            return accountRepository.findById(principalAccount.getAccountId())
+                    .orElseThrow(() -> new InvalidRequestException("User not authenticated"));
         }
 
         throw new InvalidRequestException("User not authenticated");
