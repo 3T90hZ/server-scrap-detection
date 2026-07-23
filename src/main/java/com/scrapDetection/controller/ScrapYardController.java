@@ -57,6 +57,7 @@ public class ScrapYardController {
     }
 
     // READ - Get scrapyards by Status
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/status/{status}")
     public ResponseEntity<List<ScrapYardResponseDTO>> getScrapYardsByStatus(@PathVariable String status) {
         List<ScrapYardResponseDTO> response = scrapYardService.getScrapYardsByStatus(status);
@@ -83,14 +84,15 @@ public class ScrapYardController {
         return ResponseEntity.ok(response);
     }
 
-    // Find ScrapYard by name
+    // Find ScrapYard by name (partial match) (PUBLIC)
     @GetMapping("/name/{yardName}")
-    public ResponseEntity<ScrapYardResponseDTO> getScrapYardByName(@PathVariable String yardName) {
+    public ResponseEntity<ScrapYardResponseDTO> getActiveScrapYardByName(@PathVariable String yardName) {
         ScrapYardResponseDTO response = scrapYardService.getScrapYardByName(yardName);
         return ResponseEntity.ok(response);
     }
 
     // Find ScrapYard by name (partial match)
+    @PreAuthorize("hasRole('admin')")
     @GetMapping("/search")
     public ResponseEntity<List<ScrapYardResponseDTO>> searchScrapYards(
             @RequestParam String name) {

@@ -18,6 +18,8 @@ public interface MaterialService {
     // Get material by ID (for both yard owner and customers)
     MaterialResponseDTO getMaterialById(Long materialId);
 
+    List<MaterialResponseDTO> getMaterialsByYardId(Long yardId);
+
     // Get all materials in a specific yard
     List<MaterialResponseDTO> getMaterialsByYardIdAndStatus(Long yardId, String status);
 

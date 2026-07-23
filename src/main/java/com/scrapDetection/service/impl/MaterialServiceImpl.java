@@ -73,6 +73,12 @@ public class MaterialServiceImpl implements MaterialService {
     }
 
     @Override
+    public List<MaterialResponseDTO> getMaterialsByYardId(Long yardId) {
+        List<Material> materials = materialRepository.findByScrapYardYardId(yardId);
+        return materialMapper.toResponseDTOList(materials);
+    }
+
+    @Override
     public List<MaterialResponseDTO> getMaterialsByYardIdAndStatus(Long yardId, String status) {
         List<Material> materials = materialRepository.findByScrapYardYardIdAndStatus(yardId, status);
         return materialMapper.toResponseDTOList(materials);

@@ -30,7 +30,8 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/api/scrap-yards/request",     // ← Make sure exact match
-                                "/api/scrap-yards/**"           // ← Add this
+                                "/api/scrap-yards/**",
+                                "/api/materials/**"
                         ).permitAll()
                         .requestMatchers("/api/detections/**").hasRole("DEVICE")
                         .anyRequest().authenticated()
