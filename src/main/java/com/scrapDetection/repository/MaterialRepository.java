@@ -1,6 +1,8 @@
 package com.scrapDetection.repository;
 
 import com.scrapDetection.entity.Material;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -22,4 +24,6 @@ public interface MaterialRepository extends JpaRepository<Material, Long> {
             Long yardId,
             String keyword
     );
+
+    List<Material> findByScrapYardYardId(Long yardId);
 }

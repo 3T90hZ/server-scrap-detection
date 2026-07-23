@@ -56,13 +56,13 @@ public class MaterialController {
     }
 
     /**
-     * YARD OWNER - Get All inactive Materials in Their Own Yard
+     * ADMIN - Get All Materials in Yard
      */
-    @PreAuthorize("hasRole('YARD_OWNER')")
-    @GetMapping("/my-yard-Inactive")
-    public ResponseEntity<List<MaterialResponseDTO>> getMyYardInactiveMaterials() {
-        Long yardId = getCurrentUserYardId();
-        List<MaterialResponseDTO> materials = materialService.getMaterialsByYardIdAndStatus(yardId, "INACTIVE");
+    @PreAuthorize("hasAnyRole('YARD_OWNER','ADMIN')")
+    @GetMapping("/{yardId}/all")
+    public ResponseEntity<List<MaterialResponseDTO>> getMyYardMaterials(@PathVariable Long yardId) {
+        System.out.println("API Called");
+        List<MaterialResponseDTO> materials = materialService.getMaterialsByYardId(yardId);
         return ResponseEntity.ok(materials);
     }
 
@@ -75,10 +75,10 @@ public class MaterialController {
     }
 
     /**
-     * PUBLIC - Get Materials by Yard ID (for customers)
+     * PUBLIC - Get active Materials by Yard ID (for customers)
      */
-    @GetMapping("/yard/{yardId}")
-    public ResponseEntity<List<MaterialResponseDTO>> getMaterialsByYard(@PathVariable Long yardId) {
+    @GetMapping("/yards/{yardId}")
+    public ResponseEntity<List<MaterialResponseDTO>> getActiveMaterialsByYard(@PathVariable Long yardId) {
         List<MaterialResponseDTO> materials = materialService.getMaterialsByYardIdAndStatus(yardId, "ACTIVE");
         return ResponseEntity.ok(materials);
     }
@@ -113,7 +113,7 @@ public class MaterialController {
 
     // YARD OWNER - Delete Material
     @PreAuthorize("hasRole('YARD_OWNER')")
-    @DeleteMapping("/{materialId}")
+    @DeleteMapping("/{materialId}/delete")
     public ResponseEntity<Void> deleteMaterial(@PathVariable Long materialId) {
         materialService.deleteMaterial(materialId);
         return ResponseEntity.noContent().build();
