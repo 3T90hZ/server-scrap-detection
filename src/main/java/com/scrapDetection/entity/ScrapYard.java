@@ -36,10 +36,10 @@ public class ScrapYard {
     private String status;
 
     @Column(name = "open_hour")
-    private LocalDateTime openHour;
+    private String openHour;
 
     @Column(name = "close_hour")
-    private LocalDateTime closeHour;
+    private String closeHour;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
