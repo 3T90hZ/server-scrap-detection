@@ -60,8 +60,7 @@ public class MaterialController {
      */
     @PreAuthorize("hasAnyRole('YARD_OWNER','ADMIN')")
     @GetMapping("/{yardId}/all")
-    public ResponseEntity<List<MaterialResponseDTO>> getMyYardMaterials(@PathVariable Long yardId) {
-        System.out.println("API Called");
+    public ResponseEntity<List<MaterialResponseDTO>> getYardMaterials(@PathVariable Long yardId) {
         List<MaterialResponseDTO> materials = materialService.getMaterialsByYardId(yardId);
         return ResponseEntity.ok(materials);
     }

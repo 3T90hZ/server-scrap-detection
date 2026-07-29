@@ -40,8 +40,8 @@ public class Material {
     @Column(name = "unit", nullable = false)
     private String unit;
 
-    @Column(name = "stock")
-    private Double stock;
+    @Column(name = "stock", nullable = false)
+    private Double stock = 0D;
 
     @UpdateTimestamp
     @Column(name = "updated_at")
