@@ -59,13 +59,13 @@ public class ScrapYardController {
     // READ - Get scrapyards by Status
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/status/{status}")
-    public ResponseEntity<List<ScrapYardResponseDTO>> getScrapYardsByStatus(@PathVariable String status) {
-        List<ScrapYardResponseDTO> response = scrapYardService.getScrapYardsByStatus(status);
+    public ResponseEntity<Page<ScrapYardResponseDTO>> getScrapYardsByStatus(@PathVariable String status, Pageable  pageable) {
+        Page<ScrapYardResponseDTO> response = scrapYardService.getScrapYardsByStatus(status, pageable);
         return ResponseEntity.ok(response);
     }
 
     @PreAuthorize("hasRole('YARD_OWNER')")
-    @PutMapping("/{yardId}/update")
+    @PutMapping("/{yardId}")
     public ResponseEntity<ScrapYardResponseDTO> updateScrapYard(
             @PathVariable Long yardId,
             @Valid @RequestBody ScrapYardUpdateRequestDTO requestDTO) {
@@ -79,7 +79,7 @@ public class ScrapYardController {
     @PutMapping("/{yardId}/status")
     public ResponseEntity<ScrapYardResponseDTO> updateScrapYardStatus(
             @Valid @RequestBody ScrapYardStatusRequestDTO requestDTO, @PathVariable Long yardId) {
-
+        System.out.println("yardId:" + yardId);
         ScrapYardResponseDTO response = scrapYardService.updateScrapYardStatus(requestDTO, yardId);
         return ResponseEntity.ok(response);
     }
@@ -92,7 +92,7 @@ public class ScrapYardController {
     }
 
     // Find ScrapYard by name (partial match)
-    @PreAuthorize("hasRole('admin')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/search")
     public ResponseEntity<List<ScrapYardResponseDTO>> searchScrapYards(
             @RequestParam String name) {
@@ -105,7 +105,7 @@ public class ScrapYardController {
      * DELETE - Delete scrapyard
      */
     @PreAuthorize("hasAnyRole('YARD_OWNER','ADMIN')")
-    @DeleteMapping("/{yardId}/delete")
+    @DeleteMapping("/{yardId}")
     public ResponseEntity<Void> deleteScrapYard(@PathVariable Long yardId) {
         scrapYardService.deleteScrapYard(yardId);
         return ResponseEntity.noContent().build();

@@ -29,7 +29,7 @@ public interface ScrapYardService {
     Page<ScrapYardResponseDTO> getAllScrapYards(Pageable pageable);
 
     // Find ScrapYards by status
-    List<ScrapYardResponseDTO> getScrapYardsByStatus(String status);
+    Page<ScrapYardResponseDTO> getScrapYardsByStatus(String status, Pageable pageable);
 
     // Find ScrapYard by name
     List<ScrapYardResponseDTO> searchScrapYardsByName(String yardName); // ← NEW

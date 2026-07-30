@@ -84,9 +84,9 @@ public class ScrapYardServiceImpl implements ScrapYardService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ScrapYardResponseDTO> getScrapYardsByStatus(String status) {
-        List<ScrapYard> yards = scrapYardRepository.findByStatus(status);
-        return scrapYardMapper.toResponseDTOList(yards);
+    public Page<ScrapYardResponseDTO> getScrapYardsByStatus(String status, Pageable pageable) {
+        Page<ScrapYard> yards = scrapYardRepository.findByStatus("Active",pageable);
+        return yards.map(scrapYardMapper::toResponseDTO);
     }
 
     @Override

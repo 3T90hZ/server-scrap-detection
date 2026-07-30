@@ -112,7 +112,7 @@ public class MaterialController {
 
     // YARD OWNER - Delete Material
     @PreAuthorize("hasRole('YARD_OWNER')")
-    @DeleteMapping("/{materialId}/delete")
+    @DeleteMapping("/{materialId}")
     public ResponseEntity<Void> deleteMaterial(@PathVariable Long materialId) {
         materialService.deleteMaterial(materialId);
         return ResponseEntity.noContent().build();
