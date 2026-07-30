@@ -5,6 +5,7 @@ import com.scrapDetection.security.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -23,8 +24,10 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .cors(cors -> {})
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(
                                 "/api/auth/**",
                                 "/swagger-ui/**",
@@ -33,6 +36,13 @@ public class SecurityConfig {
                                 "/api/scrap-yards/**",
                                 "/api/materials/**"
                         ).permitAll()
+
+                        .requestMatchers(HttpMethod.GET, "/api/detections", "/api/detections/frame")
+                        .hasAnyRole("STAFF", "YARD_OWNER", "ADMIN")
+
+                        .requestMatchers(HttpMethod.POST, "/api/detections", "/api/detections/frame")
+                        .hasRole("DEVICE")
+
                         .requestMatchers("/api/detections/**").hasRole("DEVICE")
                         .anyRequest().authenticated()
                 )
