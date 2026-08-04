@@ -20,8 +20,6 @@ public class ScrapYardResponseDTO {
     private String openHour;
     private String closeHour;
     private String status;
-    private LocalDateTime openHour;
-    private LocalDateTime closeHour;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
