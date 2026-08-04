@@ -3,10 +3,12 @@ package com.scrapDetection.service.impl;
 import com.scrapDetection.dto.device.DeviceRequestDTO;
 import com.scrapDetection.dto.device.DeviceResponseDTO;
 import com.scrapDetection.entity.Device;
+import com.scrapDetection.entity.DeviceStatus;
 import com.scrapDetection.exception.InvalidRequestException;
 import com.scrapDetection.exception.ResourceNotFoundException;
 import com.scrapDetection.mapper.DeviceMapper;
 import com.scrapDetection.repository.DeviceRepository;
+import com.scrapDetection.security.device.DeviceApiKeyService;
 import com.scrapDetection.service.AccountService;
 import com.scrapDetection.service.DeviceService;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -25,6 +28,7 @@ public class DeviceServiceImpl implements DeviceService {
     private final DeviceRepository deviceRepository;
     private final DeviceMapper deviceMapper;
     private final AccountService accountService;
+    private final DeviceApiKeyService deviceApiKeyService;
 
     @Override
     public DeviceResponseDTO createDevice(DeviceRequestDTO requestDTO) {
@@ -39,8 +43,19 @@ public class DeviceServiceImpl implements DeviceService {
 
         device.setScrapYard(currentUser.getScrapYard());
 
+        // Generate a fresh API key. The raw value is only ever known here,
+        // in memory, for this one request — only its hash gets persisted.
+        String rawKey = deviceApiKeyService.generateRawKey();
+        device.setApiKeyHash(deviceApiKeyService.hash(rawKey));
+        device.setApiKeyPrefix(deviceApiKeyService.extractPrefix(rawKey));
+        device.setApiKeyRotatedAt(LocalDateTime.now());
+        device.setStatus(DeviceStatus.ACTIVE);
+
         Device savedDevice = deviceRepository.save(device);
-        return deviceMapper.toResponseDTO(savedDevice);
+
+        DeviceResponseDTO response = deviceMapper.toResponseDTO(savedDevice);
+        response.setApiKey(rawKey);   // shown once — caller must save it now
+        return response;
     }
 
     @Override
@@ -101,6 +116,40 @@ public class DeviceServiceImpl implements DeviceService {
     @Override
     public boolean existsById(Long deviceId) {
         return deviceRepository.existsById(deviceId);
+    }
+
+    @Override
+    public DeviceResponseDTO regenerateApiKey(Long deviceId) {
+        Device device = deviceRepository.findById(deviceId)
+                .orElseThrow(() -> new ResourceNotFoundException("Device", deviceId));
+
+        validateYardOwnership(device);
+
+        String rawKey = deviceApiKeyService.generateRawKey();
+        device.setApiKeyHash(deviceApiKeyService.hash(rawKey));
+        device.setApiKeyPrefix(deviceApiKeyService.extractPrefix(rawKey));
+        device.setApiKeyRotatedAt(LocalDateTime.now());
+        // The old key stops working the moment this save() commits — no
+        // grace period, since a rotation is normally triggered because the
+        // old key is suspected compromised.
+
+        Device savedDevice = deviceRepository.save(device);
+
+        DeviceResponseDTO response = deviceMapper.toResponseDTO(savedDevice);
+        response.setApiKey(rawKey);   // shown once — caller must save it now
+        return response;
+    }
+
+    @Override
+    public DeviceResponseDTO updateStatus(Long deviceId, DeviceStatus status) {
+        Device device = deviceRepository.findById(deviceId)
+                .orElseThrow(() -> new ResourceNotFoundException("Device", deviceId));
+
+        validateYardOwnership(device);
+
+        device.setStatus(status);
+        Device savedDevice = deviceRepository.save(device);
+        return deviceMapper.toResponseDTO(savedDevice);
     }
 
     // ==================== Private Helper ====================

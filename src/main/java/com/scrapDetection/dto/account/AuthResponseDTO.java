@@ -18,6 +18,7 @@ public class AuthResponseDTO {
     private String role;
     private String phoneNumbers;
     private String email;
+    private Long yardId;
     private String status;
     private String token;           // JWT token
     private LocalDateTime expiresAt;

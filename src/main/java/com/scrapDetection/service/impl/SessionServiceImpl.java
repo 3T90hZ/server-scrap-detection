@@ -2,7 +2,6 @@ package com.scrapDetection.service.impl;
 
 import com.scrapDetection.entity.Account;
 import com.scrapDetection.entity.Session;
-import com.scrapDetection.exception.ResourceNotFoundException;
 import com.scrapDetection.repository.SessionRepository;
 import com.scrapDetection.security.jwt.JwtService;
 import com.scrapDetection.service.SessionService;
@@ -24,10 +23,9 @@ public class SessionServiceImpl implements SessionService {
 
     @Override
     public Session createSession(Account account, String jwtToken) {
+        String tokenHash = jwtService.getTokenHash(jwtToken);
         // Invalidate all previous sessions for this user (single device login policy)
         invalidateAllSessions(account.getAccountId());
-
-        String tokenHash = jwtService.getTokenHash(jwtToken);
 
         Session session = new Session();
         session.setAccount(account);

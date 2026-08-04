@@ -18,5 +18,6 @@ public class TransactionSummaryDTO {
     private Double weight;
     private Double totalWorth;
     private String customerName;
+    private String createdBy;
     private LocalDateTime createdAt;
 }

@@ -8,6 +8,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,9 +28,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final SessionService sessionService;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
+            throws ServletException, IOException {
 
         final String token = getTokenFromRequest(request);
 
@@ -37,27 +37,28 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             try {
                 String phoneNumber = jwtService.extractPhoneNumber(token);
 
-                // Validate token and session
-                if (jwtService.isTokenValid(token, getAccountByPhone(phoneNumber)) &&
-                        sessionService.isSessionValid(token)) {
+                Account account = accountRepository.findByPhoneNumbers(phoneNumber)
+                        .orElseThrow(() -> new RuntimeException("Account not found"));
 
-                    Account account = accountRepository.findByPhoneNumbers(phoneNumber)
-                            .orElseThrow(() -> new RuntimeException("Account not found"));
+                if (jwtService.isTokenValid(token, account) && sessionService.isSessionValid(token)) {
 
-                    // Set authentication in SecurityContext
-                    UsernamePasswordAuthenticationToken authenticationToken =
+                    UsernamePasswordAuthenticationToken authentication =
                             new UsernamePasswordAuthenticationToken(
                                     account,
                                     null,
                                     List.of(new SimpleGrantedAuthority("ROLE_" + account.getRole().name()))
                             );
 
-                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                } else {
+                    System.out.println("JWT Filter - Token validation FAILED");
                 }
             } catch (Exception ex) {
-                // Log exception if needed
+                System.out.println("JWT Filter - ERROR: " + ex.getMessage());
                 SecurityContextHolder.clearContext();
             }
+        } else {
+            System.out.println("JWT Filter - No token found in request");
         }
 
         filterChain.doFilter(request, response);
@@ -70,10 +71,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return bearerToken.substring(7);
         }
         return null;
-    }
-
-    private Account getAccountByPhone(String phoneNumber) {
-        return accountRepository.findByPhoneNumbers(phoneNumber)
-                .orElseThrow(() -> new RuntimeException("Account not found for token validation"));
     }
 }

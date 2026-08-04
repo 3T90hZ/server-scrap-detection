@@ -20,5 +20,5 @@ public class TransactionRequestDTO {
     @Positive(message = "Weight must be positive")
     private Double weight;
 
-    // ownerOrStaff will be set automatically from current logged-in user (staff/yard owner)
+    private Long customerId;
 }

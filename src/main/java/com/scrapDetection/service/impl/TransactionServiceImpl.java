@@ -10,13 +10,12 @@ import com.scrapDetection.entity.TransactionTotal;
 import com.scrapDetection.exception.InvalidRequestException;
 import com.scrapDetection.exception.ResourceNotFoundException;
 import com.scrapDetection.mapper.TransactionMapper;
+import com.scrapDetection.repository.AccountRepository;
 import com.scrapDetection.repository.MaterialRepository;
 import com.scrapDetection.repository.TransactionRepository;
 import com.scrapDetection.service.AccountService;
 import com.scrapDetection.service.TransactionService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +27,7 @@ import java.util.List;
 @Transactional
 public class TransactionServiceImpl implements TransactionService {
 
+    private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
     private final MaterialRepository materialRepository;
     private final AccountService accountService;
@@ -50,10 +50,19 @@ public class TransactionServiceImpl implements TransactionService {
         // Create transaction
         Transaction transaction = transactionMapper.toEntity(requestDTO);
         transaction.setMaterial(material);
-        transaction.setCustomer(currentUser);           // Customer is the one making the transaction
-        transaction.setOwnerOrStaff(currentUser);       // Staff/Owner processing the transaction
+        if(requestDTO.getCustomerId() != null){
+            transaction.setCustomer(accountRepository.getReferenceById(requestDTO.getCustomerId()));
+        }
+        else{
+            transaction.setCustomer(accountRepository.getReferenceById(1L));
+        }
+        transaction.setCreatedBy(currentUser);
 
         Transaction savedTransaction = transactionRepository.save(transaction);
+
+        // Change stock
+        material.setStock(material.getStock() + requestDTO.getWeight());
+        materialRepository.save(material);
 
         // Create TransactionTotal
         TransactionTotal total = new TransactionTotal();
@@ -75,21 +84,21 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public List<TransactionResponseDTO> getTransactionsByCustomer(Long customerId) {
+    public List<TransactionSummaryDTO> getTransactionsByCustomer(Long customerId) {
         List<Transaction> transactions = transactionRepository.findByCustomerAccountId(customerId);
-        return transactionMapper.toResponseDTOList(transactions);
+        return transactionMapper.toSummaryDTOList(transactions);
     }
 
     @Override
-    public List<TransactionResponseDTO> getTransactionsByYard(Long yardId) {
+    public List<TransactionSummaryDTO> getTransactionsByYard(Long yardId) {
         List<Transaction> transactions = transactionRepository.findByMaterialScrapYardYardId(yardId);
-        return transactionMapper.toResponseDTOList(transactions);
+        return transactionMapper.toSummaryDTOList(transactions);
     }
 
     @Override
-    public List<TransactionResponseDTO> getTransactionsByStaff(Long staffId) {
-        List<Transaction> transactions = transactionRepository.findByOwnerOrStaffAccountId(staffId);
-        return transactionMapper.toResponseDTOList(transactions);
+    public List<TransactionSummaryDTO> getTransactionsByStaff(Long staffId) {
+        List<Transaction> transactions = transactionRepository.findByCreated_byAccountId(staffId);
+        return transactionMapper.toSummaryDTOList(transactions);
     }
 
     @Override

@@ -23,13 +23,14 @@ public class Transaction {
     @JoinColumn(name = "material_id", nullable = false)
     private Material material;
 
+    //customer nullable for now to run detection pi api
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer", referencedColumnName = "account_id", nullable = false)
     private Account customer;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner_or_staff", referencedColumnName = "account_id")
-    private Account ownerOrStaff;
+    @JoinColumn(name = "created_by", referencedColumnName = "account_id")
+    private Account createdBy;
 
     @Column(nullable = false)
     private Double weight;

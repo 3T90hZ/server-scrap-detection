@@ -1,6 +1,8 @@
 package com.scrapDetection.repository;
 
 import com.scrapDetection.entity.ScrapYard;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -11,6 +13,8 @@ import java.util.Optional;
 public interface ScrapYardRepository extends JpaRepository<ScrapYard, Long> {
 
     List<ScrapYard> findByStatus(String status);
+
+    Page<ScrapYard> findByStatus(String status, Pageable pageable);
 
     boolean existsByPhoneNumbers(String phoneNumbers);
 

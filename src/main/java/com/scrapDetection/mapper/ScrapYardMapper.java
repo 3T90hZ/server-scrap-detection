@@ -24,6 +24,15 @@ public class ScrapYardMapper {
         return scrapYard;
     }
 
+    public CreateAccountRequestDTO scrapYardToAccountRequest (ScrapYardRequestDTO dto) {
+        CreateAccountRequestDTO accountRequest = new CreateAccountRequestDTO();
+        accountRequest.setAccountName(dto.getDisplayName());
+        accountRequest.setPhoneNumbers(dto.getYardOwnerPhoneNumber());
+        accountRequest.setPassword(dto.getPassword());
+        accountRequest.setEmail(dto.getEmail());
+        return accountRequest;
+    }
+
     public ScrapYardResponseDTO toResponseDTO(ScrapYard entity) {
         if (entity == null) return null;
 
@@ -59,12 +68,6 @@ public class ScrapYardMapper {
         }
         if (dto.getStatus() != null) {
             entity.setStatus(dto.getStatus());
-        }
-        if (dto.getOpenHour()!= null){
-            entity.setOpenHour(dto.getOpenHour());
-        }
-        if (dto.getCloseHour()!= null){
-            entity.setCloseHour(dto.getOpenHour());
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.scrapDetection.dto.scrapyard;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -7,8 +8,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -29,12 +28,17 @@ public class ScrapYardRequestDTO {
     @Pattern(regexp = "^[0-9\\s]*$", message = "Phone numbers should contain only digits and spaces")
     private String phoneNumbers;
 
-    @NotBlank(message = "Status is required")
-    private String status;
+    @NotBlank(message = "Yard is required")
+    @Size(max = 20, message = "Phone numbers cannot exceed 20 characters")
+    @Pattern(regexp = "^[0-9\\s]*$", message = "Phone numbers should contain only digits and spaces")
+    private String yardOwnerPhoneNumber;
 
-    @NotBlank(message = "Open hour is required")
-    private LocalDateTime openHour;
+    @Email(message = "Invalid email format")
+    private String email;
 
-    @NotBlank(message = "Open hour is required")
-    private LocalDateTime closeHour;
+    @NotBlank(message = "Display name are required")
+    private String displayName;
+
+    @NotBlank(message = "Password are required")
+    private String password;
 }

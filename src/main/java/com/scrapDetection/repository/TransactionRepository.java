@@ -14,14 +14,12 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     List<Transaction> findByCustomerAccountId(Long customerId);
 
-    @Query("SELECT t FROM Transaction t WHERE t.ownerOrStaff.accountId = :staffId")
-    List<Transaction> findByOwnerOrStaffAccountId(@Param("staffId") Long staffId);
+    @Query("SELECT t FROM Transaction t WHERE t.createdBy.accountId = :staffId")
+    List<Transaction> findByCreated_byAccountId(@Param("staffId") Long staffId);
 
     List<Transaction> findByMaterialMaterialId(Long materialId);
 
     List<Transaction> findByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
 
     List<Transaction> findByMaterialScrapYardYardId(Long yardId);
-
-    List<Transaction> findByMaterialScrapYardYardIdOrderByCreatedAtDesc(Long yardId);
 }

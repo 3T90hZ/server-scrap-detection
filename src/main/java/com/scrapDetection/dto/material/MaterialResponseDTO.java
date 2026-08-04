@@ -15,8 +15,11 @@ public class MaterialResponseDTO {
 
     private Long materialId;
     private Long yardId;
+    private String icon;
     private String itemName;
     private Double itemPrice;
+    private String unit;
     private String status;
     private LocalDateTime updatedAt;
+    private Double stockQuantity;
 }
