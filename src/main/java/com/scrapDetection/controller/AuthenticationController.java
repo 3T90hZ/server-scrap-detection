@@ -30,12 +30,6 @@ public class AuthenticationController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/login/admin")
-    public ResponseEntity<AuthResponseDTO> adminLogin(@Valid @RequestBody LoginRequestDTO request) {
-        AuthResponseDTO response = accountService.adminLogin(request);
-        return ResponseEntity.ok(response);
-    }
-
     @PreAuthorize("hasRole('YARD_OWNER')")
     @PostMapping("/staff")
     public ResponseEntity<AuthResponseDTO> createStaff(@Valid @RequestBody CreateAccountRequestDTO request) {

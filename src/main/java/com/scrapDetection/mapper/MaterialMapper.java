@@ -35,6 +35,7 @@ public class MaterialMapper {
                 .icon(entity.getIcon())
                 .status(entity.getStatus())
                 .updatedAt(entity.getUpdatedAt())
+                .stockQuantity(entity.getStock())
                 .build();
     }
 

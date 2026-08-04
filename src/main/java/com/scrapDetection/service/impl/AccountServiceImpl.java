@@ -84,24 +84,6 @@ public class AccountServiceImpl implements AccountService {
         return accountMapper.toAuthResponse(account, token);
     }
 
-    @Override
-    public AuthResponseDTO adminLogin(LoginRequestDTO request) {
-        Account account = accountRepository.findByPhoneNumbers(request.getPhoneNumbers())
-                .orElseThrow(() -> new ResourceNotFoundException("Account", "phoneNumbers", request.getPhoneNumbers()));
-
-        if (!passwordEncoder.matches(request.getPassword(), account.getPasswordHash())) {
-            throw new InvalidRequestException("Invalid phone number or password");
-        }
-        if(account.getRole() != Role.ADMIN){
-            throw new InvalidRequestException("No access");
-        }
-
-        String token = jwtService.generateToken(account);
-        sessionService.createSession(account, token);
-
-        return accountMapper.toAuthResponse(account, token);
-    }
-
 
     @Override
     public AuthResponseDTO createStaff(CreateAccountRequestDTO request) {
@@ -259,6 +241,29 @@ public class AccountServiceImpl implements AccountService {
         sessionService.invalidateSession(token);
     }
 
+    @Override
+    public void changeRole(Long yardId, Role fromRole, Role toRole){
+        Account account = accountRepository.findByScrapYardYardIdAndRole(yardId, fromRole).getFirst();
+        account.setRole(toRole);
+        accountRepository.save(account);
+    }
+
+    @Override
+    public String findAccountByPhoneNumber(GetPhoneNumberRequestDTO request){
+        Account account = accountRepository.findByPhoneNumbers(request.getPhoneNumber()).orElse(null);
+
+        if(account == null){
+            return null;
+        }
+        else {
+            return account.getAccountName();
+        }
+    }
+
+    @Override
+    public AuthResponseDTO getMyInfo(){
+        return accountMapper.toAuthResponse(getCurrentUser(), null);
+    }
     // ==================== Helper Methods ====================
 
     private void validateUniqueFields(String phone, String email) {
@@ -268,11 +273,5 @@ public class AccountServiceImpl implements AccountService {
         if (email != null && !email.trim().isEmpty() && accountRepository.existsByEmail(email)) {
             throw new ResourceAlreadyExistsException("Account", "email", email);
         }
-    }
-    @Override
-    public void changeRole(Long yardId, Role fromRole, Role toRole){
-        Account account = accountRepository.findByScrapYardYardIdAndRole(yardId, fromRole).getFirst();
-        account.setRole(toRole);
-        accountRepository.save(account);
     }
 }

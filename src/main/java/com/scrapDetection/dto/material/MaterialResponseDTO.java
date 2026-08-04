@@ -21,4 +21,5 @@ public class MaterialResponseDTO {
     private String unit;
     private String status;
     private LocalDateTime updatedAt;
+    private Double stockQuantity;
 }
