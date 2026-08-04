@@ -3,16 +3,20 @@ package com.scrapDetection.dto.detection;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 /*
   Response sent back to the Raspberry Pi after processing a detection event.
+  Also reused a for GET /api/detections (the frontend's polling
+  endpoint — see DetectionController / LatestDetectionStore)
 
   On receipt (v1 — no transaction yet):
   {
     "status"      : "received",
     "className"   : "paper",
     "confidence"  : 0.923,
-    "weightG"     : 312.5
+    "weightG"     : 312.5,
+    "timestamp"   : "2025-07-01T14:32:01.123456"
   }
 
   On error (bad payload):
@@ -23,6 +27,7 @@ import lombok.Getter;
  */
 
 @Getter
+@Setter
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class DetectionResponseDTO {
@@ -31,6 +36,7 @@ public class DetectionResponseDTO {
     private Double confidence;   // best detection confidence echoed back
     private Double weightG;      // weight from the payload echoed back
     private String message;
+    private String timestamp;    // echoed from the Pi's request — lets pollers
 
     public static DetectionResponseDTO received(String className,
                                                 Double confidence,

@@ -5,6 +5,7 @@ import com.scrapDetection.dto.detection.DetectionRequestDTO.DetectionItemDTO;
 import com.scrapDetection.dto.detection.DetectionResponseDTO;
 import com.scrapDetection.mapper.DetectionMapper;
 import com.scrapDetection.service.DetectionService;
+import com.scrapDetection.service.detection.LatestDetectionStore;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,7 +20,15 @@ import java.util.List;
     1. Validate the payload has at least one detection item.
     2. Pick the detection with the highest confidence.
     3. Log everything clearly so the backend console confirms the Pi is talking.
-    4. Return a success response — no Transaction, no Material lookup.
+    4. Stamp the response with the request's timestamp and store it in
+       LatestDetectionStore so the frontend can poll it via
+       GET /api/detections (see DetectionController).
+    5. Return the (now timestamped) response — no Transaction, no Material
+       lookup.
+
+  Note: weight_g is baseline-relative on the Pi side, i.e. the actual
+  weight of whatever is currently on the scale (Pi subtracts its own idle
+  baseline before sending) — not a raw zero-referenced sensor reading.
 
   Business logic (Transaction creation, Material matching, etc.)
   will be handled by a separate API that calls this data as input.
@@ -30,6 +39,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DetectionServiceImpl implements DetectionService {
     private final DetectionMapper detectionMapper;
+    private final LatestDetectionStore latestDetectionStore;
 
     @Override
     public DetectionResponseDTO processDetection(DetectionRequestDTO requestDTO) {
@@ -64,15 +74,18 @@ public class DetectionServiceImpl implements DetectionService {
         log.info("  best class      : {}", best.getClassName());
         log.info("  best confidence : {}", best.getConfidence());
         log.info("  weight_above_ref: {} g", requestDTO.getWeightAboveRefG());
-        log.info("  weight_above_base:{} g", requestDTO.getWeightAboveBaseG());
         log.info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 
-        // ── 4. Return success — no DB write ───────────────────────────────────
-        return detectionMapper.toReceivedResponse(
+        // ── 4. Build response, stamp timestamp, store as "latest" ──────────────
+        DetectionResponseDTO response = detectionMapper.toReceivedResponse(
                 best.getClassName(),
                 best.getConfidence(),
                 requestDTO.getWeightG()
         );
+        response.setTimestamp(requestDTO.getTimestamp());
+        latestDetectionStore.set(response);
+
+        // ── 5. Return success — no DB write ───────────────────────────────────
+        return response;
     }
 }
-

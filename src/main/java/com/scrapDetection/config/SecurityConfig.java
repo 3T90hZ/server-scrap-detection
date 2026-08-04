@@ -1,10 +1,12 @@
 package com.scrapDetection.config;
 
+import com.scrapDetection.security.device.DeviceAuthenticationFilter;
 import com.scrapDetection.security.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -23,6 +25,7 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final DeviceAuthenticationFilter deviceAuthenticationFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -30,6 +33,7 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())   // ← add this
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(
                                 "/api/auth/**",
                                 "/swagger-ui/**",
@@ -39,11 +43,19 @@ public class SecurityConfig {
                                 "/api/materials/**",
                                 "/api/account/**"
                         ).permitAll()
+
+                        .requestMatchers(HttpMethod.GET, "/api/detections", "/api/detections/frame")
+                        .hasAnyRole("STAFF", "YARD_OWNER", "ADMIN")
+
+                        .requestMatchers(HttpMethod.POST, "/api/detections", "/api/detections/frame")
+                        .hasRole("DEVICE")
+
+                        .requestMatchers("/api/detections/**").hasRole("DEVICE")
                         .anyRequest().authenticated()
                 )
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)  // ← Use the field
+                .addFilterBefore(deviceAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
