@@ -24,7 +24,7 @@ public class ScrapYardRequestDTO {
     private String address;
 
     @NotBlank(message = "Phone numbers are required")
-    @Size(max = 20, message = "Phone numbers cannot exceed 20 characters")
+    @Size(max = 20, message = "Phone numbers cannot exceed 10 characters")
     @Pattern(regexp = "^[0-9\\s]*$", message = "Phone numbers should contain only digits and spaces")
     private String phoneNumbers;
 

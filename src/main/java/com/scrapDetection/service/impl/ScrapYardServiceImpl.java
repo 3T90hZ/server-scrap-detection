@@ -84,9 +84,9 @@ public class ScrapYardServiceImpl implements ScrapYardService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ScrapYardResponseDTO> getScrapYardsByStatus(String status) {
-        List<ScrapYard> yards = scrapYardRepository.findByStatus(status);
-        return scrapYardMapper.toResponseDTOList(yards);
+    public Page<ScrapYardResponseDTO> getScrapYardsByStatus(String status, Pageable pageable) {
+        Page<ScrapYard> yards = scrapYardRepository.findByStatus("Active",pageable);
+        return yards.map(scrapYardMapper::toResponseDTO);
     }
 
     @Override
@@ -96,11 +96,10 @@ public class ScrapYardServiceImpl implements ScrapYardService {
 
         requestDTO.setPhoneNumbers(requestDTO.getPhoneNumbers().trim());
 
-        if(scrapYardRepository.existsByAddress(requestDTO.getAddress())) {
+        if(scrapYardRepository.existsByAddress(requestDTO.getAddress()) && !existingYard.getAddress().equals(requestDTO.getAddress())) {
             throw new  ResourceAlreadyExistsException("Scrap Yard", "address", requestDTO.getAddress());
         }
-
-        if(scrapYardRepository.existsByPhoneNumbers(requestDTO.getPhoneNumbers())) {
+        if(scrapYardRepository.existsByPhoneNumbers(requestDTO.getPhoneNumbers()) && !existingYard.getPhoneNumbers().equals(requestDTO.getPhoneNumbers())) {
             throw new ResourceNotFoundException("Scrap Yard", "phoneNumbers", requestDTO.getPhoneNumbers());
         }
         // Update entity from DTO

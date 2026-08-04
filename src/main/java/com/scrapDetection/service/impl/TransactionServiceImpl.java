@@ -53,6 +53,9 @@ public class TransactionServiceImpl implements TransactionService {
         if(requestDTO.getCustomerId() != null){
             transaction.setCustomer(accountRepository.getReferenceById(requestDTO.getCustomerId()));
         }
+        else{
+            transaction.setCustomer(accountRepository.getReferenceById(1L));
+        }
         transaction.setCreatedBy(currentUser);
 
         Transaction savedTransaction = transactionRepository.save(transaction);

@@ -14,8 +14,6 @@ public interface AccountService {
     // Authentication
     AuthResponseDTO login(LoginRequestDTO request);
 
-    AuthResponseDTO adminLogin(LoginRequestDTO request);
-
     // Yard Owner Operations
     AuthResponseDTO createStaff(CreateAccountRequestDTO request);
 
@@ -36,4 +34,8 @@ public interface AccountService {
     void logout(String token);
 
     void changeRole(Long yardId, Role fromRole, Role toRole);
+
+    String findAccountByPhoneNumber(GetPhoneNumberRequestDTO request);
+
+    AuthResponseDTO getMyInfo();
 }

@@ -60,8 +60,7 @@ public class MaterialController {
      */
     @PreAuthorize("hasAnyRole('YARD_OWNER','ADMIN')")
     @GetMapping("/{yardId}/all")
-    public ResponseEntity<List<MaterialResponseDTO>> getMyYardMaterials(@PathVariable Long yardId) {
-        System.out.println("API Called");
+    public ResponseEntity<List<MaterialResponseDTO>> getYardMaterials(@PathVariable Long yardId) {
         List<MaterialResponseDTO> materials = materialService.getMaterialsByYardId(yardId);
         return ResponseEntity.ok(materials);
     }
@@ -113,7 +112,7 @@ public class MaterialController {
 
     // YARD OWNER - Delete Material
     @PreAuthorize("hasRole('YARD_OWNER')")
-    @DeleteMapping("/{materialId}/delete")
+    @DeleteMapping("/{materialId}")
     public ResponseEntity<Void> deleteMaterial(@PathVariable Long materialId) {
         materialService.deleteMaterial(materialId);
         return ResponseEntity.noContent().build();

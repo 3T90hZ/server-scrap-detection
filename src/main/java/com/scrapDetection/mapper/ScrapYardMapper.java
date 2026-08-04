@@ -40,9 +40,9 @@ public class ScrapYardMapper {
                 .yardName(entity.getYardName())
                 .address(entity.getAddress())
                 .phoneNumbers(entity.getPhoneNumbers())
-                .openHour(entity.getOpenHour())
-                .closeHour(entity.getCloseHour())
                 .status(entity.getStatus())
+                .openHour(entity.getOpenHour())
+                .closeHour((entity.getCloseHour()))
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .build();
@@ -50,7 +50,7 @@ public class ScrapYardMapper {
 
     public List<ScrapYardResponseDTO> toResponseDTOList(List<ScrapYard> entities) {
         return entities.stream()
-                .map(this ::toResponseDTO)
+                .map(this::toResponseDTO)
                 .collect(Collectors.toList());
     }
 
@@ -65,10 +65,10 @@ public class ScrapYardMapper {
         if (dto.getPhoneNumbers() != null) {
             entity.setPhoneNumbers(dto.getPhoneNumbers());
         }
-        if(dto.getOpenHour() != null){
+        if(dto.getOpenHour() != null) {
             entity.setOpenHour(dto.getOpenHour());
         }
-        if(dto.getCloseHour() != null){
+        if (dto.getCloseHour() != null) {
             entity.setCloseHour(dto.getCloseHour());
         }
     }
