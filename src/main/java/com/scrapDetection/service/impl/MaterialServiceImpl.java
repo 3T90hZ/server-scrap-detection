@@ -5,12 +5,14 @@ import com.scrapDetection.dto.material.MaterialResponseDTO;
 import com.scrapDetection.entity.Material;
 import com.scrapDetection.entity.Transaction;
 import com.scrapDetection.exception.InvalidRequestException;
+import com.scrapDetection.exception.ResourceAlreadyExistsException;
 import com.scrapDetection.exception.ResourceNotFoundException;
 import com.scrapDetection.mapper.MaterialMapper;
 import com.scrapDetection.repository.MaterialRepository;
 import com.scrapDetection.repository.TransactionRepository;
 import com.scrapDetection.service.AccountService;
 import com.scrapDetection.service.MaterialService;
+import com.scrapDetection.util.Normalize;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,6 +31,7 @@ public class MaterialServiceImpl implements MaterialService {
     private final MaterialMapper materialMapper;
     private final AccountService accountService;
     private final TransactionRepository transactionRepository;
+    private final Normalize normalize;
 
     @Override
     public MaterialResponseDTO createMaterial(MaterialRequestDTO requestDTO) {
@@ -41,6 +44,9 @@ public class MaterialServiceImpl implements MaterialService {
             throw new InvalidRequestException("You must be assigned to a scrap yard to manage materials");
         }
 
+        if(CheckMaterialNameDuplicate(material.getItemName(), currentUser.getScrapYard().getYardId())){
+            throw new ResourceAlreadyExistsException("Material", "materialName", material.getItemName());
+        }
         // Assign material to current user's yard
         material.setScrapYard(currentUser.getScrapYard());
         material.setStatus("ACTIVE");
@@ -57,6 +63,10 @@ public class MaterialServiceImpl implements MaterialService {
 
         // Yard Ownership Check
         validateYardOwnership(existingMaterial);
+
+        if(CheckMaterialNameDuplicate(requestDTO.getItemName(), existingMaterial.getScrapYard().getYardId())){
+            throw new ResourceAlreadyExistsException("Material", "itemName", requestDTO.getItemName());
+        }
 
         materialMapper.updateEntityFromDTO(requestDTO, existingMaterial);
         existingMaterial.setUpdatedAt(LocalDateTime.now());
@@ -145,5 +155,13 @@ public class MaterialServiceImpl implements MaterialService {
 
             throw new InvalidRequestException("You can only manage materials in your own scrap yard");
         }
+    }
+
+    private Boolean CheckMaterialNameDuplicate(String name, Long yardId) {
+        String normalized = normalize.normalizeName(name);
+
+        return materialRepository.findByScrapYardYardId(yardId).stream()
+                .map(entity -> normalize.normalizeName(name))
+                .anyMatch(normalized::equals);
     }
 }

@@ -12,6 +12,7 @@ import com.scrapDetection.mapper.ScrapYardMapper;
 import com.scrapDetection.repository.ScrapYardRepository;
 import com.scrapDetection.service.AccountService;
 import com.scrapDetection.service.ScrapYardService;
+import com.scrapDetection.util.Normalize;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,11 +29,12 @@ public class ScrapYardServiceImpl implements ScrapYardService {
     private final ScrapYardRepository scrapYardRepository;
     private final ScrapYardMapper scrapYardMapper;
     private final AccountService accountService;
+    private final Normalize normalize;
 
     @Override
     public ScrapYardResponseDTO createScrapYardRequest(ScrapYardRequestDTO requestDTO) {
         requestDTO.setPhoneNumbers(requestDTO.getPhoneNumbers().trim());
-        if (scrapYardRepository.existsByYardName(requestDTO.getYardName())) {
+        if (CheckYardNameDuplicate(requestDTO.getYardName())) {
             throw new ResourceAlreadyExistsException("Scrap Yard", "yardName", requestDTO.getYardName());
         }
 
@@ -100,7 +102,10 @@ public class ScrapYardServiceImpl implements ScrapYardService {
             throw new  ResourceAlreadyExistsException("Scrap Yard", "address", requestDTO.getAddress());
         }
         if(scrapYardRepository.existsByPhoneNumbers(requestDTO.getPhoneNumbers()) && !existingYard.getPhoneNumbers().equals(requestDTO.getPhoneNumbers())) {
-            throw new ResourceNotFoundException("Scrap Yard", "phoneNumbers", requestDTO.getPhoneNumbers());
+            throw new ResourceAlreadyExistsException("Scrap Yard", "phoneNumbers", requestDTO.getPhoneNumbers());
+        }
+        if(CheckYardNameDuplicate(requestDTO.getYardName()) && !existingYard.getYardName().equals(requestDTO.getYardName())) {
+            throw new ResourceAlreadyExistsException("Scrap Yard", "yardName", requestDTO.getYardName());
         }
         // Update entity from DTO
         scrapYardMapper.updateEntityFromDTO(requestDTO, existingYard);
@@ -144,5 +149,13 @@ public class ScrapYardServiceImpl implements ScrapYardService {
     public List<ScrapYardResponseDTO> searchScrapYardsByName(String yardName) {
         List<ScrapYard> yards = scrapYardRepository.findByYardNameContainingIgnoreCase(yardName);
         return scrapYardMapper.toResponseDTOList(yards);
+    }
+
+    private Boolean CheckYardNameDuplicate(String yardName) {
+        String normalized = normalize.normalizeName(yardName);
+
+        return scrapYardRepository.findAll().stream()
+                .map(entity -> normalize.normalizeName(entity.getYardName()))
+                .anyMatch(normalized::equals);
     }
 }
