@@ -127,13 +127,25 @@ public class AccountServiceImpl implements AccountService {
         Account existing = accountRepository.findById(accountId)
                 .orElseThrow(() -> new ResourceNotFoundException("Account", accountId));
 
-        if (request.getPhoneNumbers() != null &&
-                !existing.getPhoneNumbers().equals(request.getPhoneNumbers()) &&
-                accountRepository.existsByPhoneNumbers(request.getPhoneNumbers())) {
+        normalizeAccountUpdateRequest(request);
+        validateAccountUpdateRequest(request);
 
+        if (request.getPhoneNumbers() != null &&
+                !Objects.equals(existing.getPhoneNumbers(), request.getPhoneNumbers()) &&
+                accountRepository.existsByPhoneNumbers(request.getPhoneNumbers())) {
             throw new ResourceAlreadyExistsException("Account", "phoneNumbers", request.getPhoneNumbers());
         }
-        request.setPassword(passwordEncoder.encode(request.getPassword()));
+
+        if (request.getEmail() != null &&
+                !Objects.equals(existing.getEmail(), request.getEmail()) &&
+                accountRepository.existsByEmail(request.getEmail())) {
+            throw new ResourceAlreadyExistsException("Account", "email", request.getEmail());
+        }
+
+        if (request.getPassword() != null) {
+            request.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+
         accountMapper.updateEntityFromDTO(request, existing);
         Account updated = accountRepository.save(existing);
 
@@ -272,6 +284,33 @@ public class AccountServiceImpl implements AccountService {
         }
         if (email != null && !email.trim().isEmpty() && accountRepository.existsByEmail(email)) {
             throw new ResourceAlreadyExistsException("Account", "email", email);
+        }
+    }
+
+    private void normalizeAccountUpdateRequest(AccountUpdateRequestDTO request) {
+        if (request.getAccountName() != null) {
+            request.setAccountName(request.getAccountName().trim());
+        }
+        if (request.getPhoneNumbers() != null) {
+            request.setPhoneNumbers(request.getPhoneNumbers().replaceAll("\\s+", ""));
+        }
+        if (request.getEmail() != null) {
+            request.setEmail(request.getEmail().trim());
+        }
+    }
+
+    private void validateAccountUpdateRequest(AccountUpdateRequestDTO request) {
+        if (request.getAccountName() != null && request.getAccountName().isBlank()) {
+            throw new InvalidRequestException("Account name must not be blank");
+        }
+        if (request.getPhoneNumbers() != null && request.getPhoneNumbers().isBlank()) {
+            throw new InvalidRequestException("Phone number must not be blank");
+        }
+        if (request.getEmail() != null && request.getEmail().isBlank()) {
+            throw new InvalidRequestException("Email must not be blank");
+        }
+        if (request.getPassword() != null && request.getPassword().isBlank()) {
+            throw new InvalidRequestException("Password must not be blank");
         }
     }
 }
