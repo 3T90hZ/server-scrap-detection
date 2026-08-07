@@ -45,7 +45,7 @@ public class SecurityConfig {
                         ).permitAll()
 
                         .requestMatchers(HttpMethod.GET, "/api/detections", "/api/detections/frame")
-                        .hasAnyRole("STAFF", "YARD_OWNER", "ADMIN")
+                        .hasAnyRole("STAFF", "YARD_OWNER")
 
                         .requestMatchers(HttpMethod.POST, "/api/detections", "/api/detections/frame")
                         .hasRole("DEVICE")

@@ -3,6 +3,7 @@ package com.scrapDetection.service;
 import com.scrapDetection.dto.device.DeviceRequestDTO;
 import com.scrapDetection.dto.device.DeviceResponseDTO;
 import com.scrapDetection.entity.DeviceStatus;
+import com.scrapDetection.dto.device.DeviceViewerAccessDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -39,4 +40,7 @@ public interface DeviceService {
 
     // Change device status (ACTIVE / REVOKED / DISABLED) without deleting it.
     DeviceResponseDTO updateStatus(Long deviceId, DeviceStatus status);
+
+    // Validate that the signed-in staff/owner may view this active camera.
+    DeviceViewerAccessDTO getViewerAccess(Long deviceId);
 }
