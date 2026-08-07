@@ -29,6 +29,8 @@ public class TransactionMapper {
 
         return TransactionResponseDTO.builder()
                 .transactionId(entity.getTransactionId())
+                .billId(entity.getBillId())
+                .transactionType(entity.getTransactionType() != null ? entity.getTransactionType() : "buy")
                 .materialId(entity.getMaterial().getMaterialId())
                 .itemName(entity.getMaterial().getItemName())
                 .weight(entity.getWeight())
@@ -48,6 +50,8 @@ public class TransactionMapper {
 
         return TransactionSummaryDTO.builder()
                 .transactionId(entity.getTransactionId())
+                .billId(entity.getBillId())
+                .transactionType(entity.getTransactionType() != null ? entity.getTransactionType() : "buy")
                 .itemName(entity.getMaterial().getItemName())
                 .weight(entity.getWeight())
                 .totalWorth(entity.getTransactionTotal() != null ? entity.getTransactionTotal().getTotalWorth() : null)

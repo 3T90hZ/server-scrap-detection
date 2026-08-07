@@ -3,6 +3,8 @@ package com.scrapDetection.service;
 import com.scrapDetection.dto.transaction.TransactionRequestDTO;
 import com.scrapDetection.dto.transaction.TransactionResponseDTO;
 import com.scrapDetection.dto.transaction.TransactionSummaryDTO;
+import com.scrapDetection.dto.transaction.BillRequestDTO;
+import com.scrapDetection.dto.transaction.BillResponseDTO;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -11,6 +13,14 @@ public interface TransactionService {
 
     // Create a new transaction (Staff or Yard Owner)
     TransactionResponseDTO createTransaction(TransactionRequestDTO requestDTO);
+
+    BillResponseDTO createBill(BillRequestDTO requestDTO);
+
+    List<BillResponseDTO> getBillsByYard(Long yardId);
+
+    List<BillResponseDTO> getBillsByStaff(Long staffId);
+
+    List<BillResponseDTO> getAllBills();
 
     // Get transaction by ID
     TransactionResponseDTO getTransactionById(Long transactionId);

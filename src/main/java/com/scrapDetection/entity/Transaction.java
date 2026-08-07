@@ -19,6 +19,12 @@ public class Transaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long transactionId;
 
+    @Column(name = "bill_id", length = 36)
+    private String billId;
+
+    @Column(name = "transaction_type", length = 10)
+    private String transactionType;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "material_id", nullable = false)
     private Material material;

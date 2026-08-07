@@ -6,25 +6,19 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TransactionResponseDTO {
-
-    private Long transactionId;
+public class BillResponseDTO {
     private String billId;
     private String transactionType;
-    private Long materialId;
-    private String itemName;
-    private Double weight;
+    private List<BillItemResponseDTO> items;
+    private Double totalWeight;
     private Double totalWorth;
-    private Long customerId;
     private String customerName;
-    private Long ownerOrStaffId;
-    private String staffName;
+    private String createdBy;
     private LocalDateTime createdAt;
-    private Long yardId;
-    private String yardName;
 }
