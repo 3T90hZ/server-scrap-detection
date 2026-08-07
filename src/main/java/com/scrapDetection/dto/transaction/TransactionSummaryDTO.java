@@ -14,6 +14,8 @@ import java.time.LocalDateTime;
 public class TransactionSummaryDTO {
 
     private Long transactionId;
+    private String billId;
+    private String transactionType;
     private String itemName;
     private Double weight;
     private Double totalWorth;

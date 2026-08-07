@@ -5,26 +5,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TransactionResponseDTO {
-
+public class BillItemResponseDTO {
     private Long transactionId;
-    private String billId;
-    private String transactionType;
     private Long materialId;
     private String itemName;
     private Double weight;
+    private Double pricePerKg;
     private Double totalWorth;
-    private Long customerId;
-    private String customerName;
-    private Long ownerOrStaffId;
-    private String staffName;
-    private LocalDateTime createdAt;
-    private Long yardId;
-    private String yardName;
 }

@@ -3,6 +3,8 @@ package com.scrapDetection.controller;
 import com.scrapDetection.dto.transaction.TransactionRequestDTO;
 import com.scrapDetection.dto.transaction.TransactionResponseDTO;
 import com.scrapDetection.dto.transaction.TransactionSummaryDTO;
+import com.scrapDetection.dto.transaction.BillRequestDTO;
+import com.scrapDetection.dto.transaction.BillResponseDTO;
 import com.scrapDetection.service.AccountService;
 import com.scrapDetection.service.TransactionService;
 import jakarta.validation.Valid;
@@ -30,6 +32,31 @@ public class TransactionController {
 
         TransactionResponseDTO response = transactionService.createTransaction(requestDTO);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @PreAuthorize("hasAnyRole('STAFF', 'YARD_OWNER')")
+    @PostMapping("/bills")
+    public ResponseEntity<BillResponseDTO> createBill(
+            @Valid @RequestBody BillRequestDTO requestDTO) {
+        return new ResponseEntity<>(transactionService.createBill(requestDTO), HttpStatus.CREATED);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/bills")
+    public ResponseEntity<List<BillResponseDTO>> getAllBills() {
+        return ResponseEntity.ok(transactionService.getAllBills());
+    }
+
+    @PreAuthorize("hasRole('YARD_OWNER')")
+    @GetMapping("/bills/my-yard")
+    public ResponseEntity<List<BillResponseDTO>> getMyYardBills() {
+        return ResponseEntity.ok(transactionService.getBillsByYard(getCurrentUserYardId()));
+    }
+
+    @PreAuthorize("hasRole('STAFF')")
+    @GetMapping("/bills/my-transactions")
+    public ResponseEntity<List<BillResponseDTO>> getMyBills() {
+        return ResponseEntity.ok(transactionService.getBillsByStaff(getCurrentUserId()));
     }
 
     // Get transactions in owner's yard
