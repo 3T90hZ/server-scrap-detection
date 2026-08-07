@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
 import java.util.List;
+import java.time.Instant;
 
 /*
   V1 — receive and log only, no DB writes.
@@ -20,8 +21,8 @@ import java.util.List;
     1. Validate the payload has at least one detection item.
     2. Pick the detection with the highest confidence.
     3. Log everything clearly so the backend console confirms the Pi is talking.
-    4. Stamp the response with the request's timestamp and store it in
-       LatestDetectionStore so the frontend can poll it via
+    4. Stamp the response with the authenticated device ID and server receipt
+       time, then store it in LatestDetectionStore so the frontend can poll via
        GET /api/detections (see DetectionController).
     5. Return the (now timestamped) response — no Transaction, no Material
        lookup.
@@ -42,7 +43,7 @@ public class DetectionServiceImpl implements DetectionService {
     private final LatestDetectionStore latestDetectionStore;
 
     @Override
-    public DetectionResponseDTO processDetection(DetectionRequestDTO requestDTO) {
+    public DetectionResponseDTO processDetection(Long deviceId, DetectionRequestDTO requestDTO) {
 
         List<DetectionItemDTO> detections = requestDTO.getDetections();
 
@@ -83,7 +84,9 @@ public class DetectionServiceImpl implements DetectionService {
                 requestDTO.getWeightG()
         );
         response.setTimestamp(requestDTO.getTimestamp());
-        latestDetectionStore.set(response);
+        response.setDeviceId(deviceId);
+        response.setReceivedAt(Instant.now());
+        latestDetectionStore.set(deviceId, response);
 
         // ── 5. Return success — no DB write ───────────────────────────────────
         return response;

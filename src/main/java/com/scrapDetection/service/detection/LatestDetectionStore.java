@@ -3,30 +3,40 @@ package com.scrapDetection.service.detection;
 import com.scrapDetection.dto.detection.DetectionResponseDTO;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
 /*
-  V1 in-memory "latest detection" holder — same pattern already used by
-  DetectionFrameController for the latest annotated JPEG (volatile field,
-  synchronized write, single read). No DB writes, no history, just the
-  most recent value so the frontend has something to poll.
+  In-memory "latest detection" holder keyed by authenticated device ID.
+  No DB writes and no history: each camera retains only its most recent value
+  so one yard/device cannot overwrite the result being viewed by another.
 
   Holds a DetectionResponseDTO directly — the same shape already sent back
   to the Pi — rather than a separate read-only DTO, so there's only one
   detection response shape in the codebase.
 
-  DetectionServiceImpl (writer) sets this after successfully processing a
-  detection; DetectionController (reader) exposes it via GET /api/detections.
+  DetectionServiceImpl writes after successful processing; DetectionController
+  reads by device ID and optionally filters by the server-side receivedAt time.
  */
 @Component
 public class LatestDetectionStore {
 
-    private volatile DetectionResponseDTO latest = null;
+    private final ConcurrentMap<Long, DetectionResponseDTO> latestByDevice = new ConcurrentHashMap<>();
 
-    public void set(DetectionResponseDTO response) {
-        this.latest = response;
+    public void set(Long deviceId, DetectionResponseDTO response) {
+        latestByDevice.put(deviceId, response);
     }
 
-    /* Returns the latest known detection response, or null if none has arrived yet. */
-    public DetectionResponseDTO get() {
-        return latest;  // read volatile once
+    /* Returns this device's latest detection only when it is newer than after. */
+    public DetectionResponseDTO get(Long deviceId, Instant after) {
+        DetectionResponseDTO latest = latestByDevice.get(deviceId);
+        if (latest == null) {
+            return null;
+        }
+        if (after != null && (latest.getReceivedAt() == null || !latest.getReceivedAt().isAfter(after))) {
+            return null;
+        }
+        return latest;
     }
 }

@@ -3,6 +3,7 @@ package com.scrapDetection.controller;
 import com.scrapDetection.dto.device.DeviceRequestDTO;
 import com.scrapDetection.dto.device.DeviceResponseDTO;
 import com.scrapDetection.dto.device.DeviceStatusUpdateDTO;
+import com.scrapDetection.dto.device.DeviceViewerAccessDTO;
 import com.scrapDetection.service.DeviceService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -69,11 +70,18 @@ public class DeviceController {
     }
 
     // Get all devices by in yard
-    @PreAuthorize("hasRole('YARD_OWNER')")
+    @PreAuthorize("hasAnyRole('STAFF', 'YARD_OWNER')")
     @GetMapping("/my-yard")
     public ResponseEntity<List<DeviceResponseDTO>> getMyYardDevices() {
         List<DeviceResponseDTO> response = deviceService.getMyYardDevices();
         return ResponseEntity.ok(response);
+    }
+
+    // Contract used by the stream relay before accepting a viewer WebSocket.
+    @PreAuthorize("hasAnyRole('STAFF', 'YARD_OWNER')")
+    @GetMapping("/{deviceId}/viewer-access")
+    public ResponseEntity<DeviceViewerAccessDTO> getViewerAccess(@PathVariable Long deviceId) {
+        return ResponseEntity.ok(deviceService.getViewerAccess(deviceId));
     }
 
     // Get all device by yardID
