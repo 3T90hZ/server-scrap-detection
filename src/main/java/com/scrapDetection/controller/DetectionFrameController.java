@@ -1,4 +1,7 @@
 package com.scrapDetection.controller;
+
+import com.scrapDetection.config.OpenApiConfig;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -74,6 +77,7 @@ public class DetectionFrameController {
       204 No Content  — no frame received yet
      */
     @GetMapping(produces = "image/jpeg")
+    @SecurityRequirement(name = OpenApiConfig.BEARER_AUTH)
     public ResponseEntity<byte[]> getLatestFrame() {
         byte[] frame = latestFrame;   // read volatile once
         if (frame == null) {

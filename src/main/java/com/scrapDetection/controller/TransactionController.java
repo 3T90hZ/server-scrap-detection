@@ -5,8 +5,10 @@ import com.scrapDetection.dto.transaction.TransactionResponseDTO;
 import com.scrapDetection.dto.transaction.TransactionSummaryDTO;
 import com.scrapDetection.dto.transaction.BillRequestDTO;
 import com.scrapDetection.dto.transaction.BillResponseDTO;
+import com.scrapDetection.config.OpenApiConfig;
 import com.scrapDetection.service.AccountService;
 import com.scrapDetection.service.TransactionService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -87,6 +89,7 @@ public class TransactionController {
 
 
     @GetMapping("/summary")
+    @SecurityRequirement(name = OpenApiConfig.BEARER_AUTH)
     public ResponseEntity<List<TransactionSummaryDTO>> getTransactionSummaries() {
         List<TransactionSummaryDTO> response = transactionService.getTransactionSummaries();
         return ResponseEntity.ok(response);
@@ -94,6 +97,7 @@ public class TransactionController {
 
     // Get transactions by date range
     @GetMapping("/date-range")
+    @SecurityRequirement(name = OpenApiConfig.BEARER_AUTH)
     public ResponseEntity<List<TransactionResponseDTO>> getTransactionsByDateRange(
             @RequestParam LocalDateTime start,
             @RequestParam LocalDateTime end) {
