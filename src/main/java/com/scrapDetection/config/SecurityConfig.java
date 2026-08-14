@@ -34,6 +34,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/logout")
+                        .hasAnyRole("ADMIN", "YARD_OWNER", "STAFF", "CUSTOMER")
                         .requestMatchers(
                                 "/api/auth/**",
                                 "/swagger-ui.html",
@@ -41,8 +43,7 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/api/scrap-yards/request",
                                 "/api/scrap-yards/**",
-                                "/api/materials/**",
-                                "/api/account/**"
+                                "/api/materials/**"
                         ).permitAll()
 
                         .requestMatchers(HttpMethod.GET, "/api/detections", "/api/detections/frame")
@@ -52,7 +53,7 @@ public class SecurityConfig {
                         .hasRole("DEVICE")
 
                         .requestMatchers("/api/detections/**").hasRole("DEVICE")
-                        .anyRequest().authenticated()
+                        .anyRequest().hasAnyRole("ADMIN", "YARD_OWNER", "STAFF", "CUSTOMER")
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)  // ← Use the field
