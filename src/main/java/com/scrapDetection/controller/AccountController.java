@@ -25,7 +25,7 @@ public class AccountController {
     }
 
 
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasAnyRole('ADMIN', 'YARD_OWNER', 'STAFF', 'CUSTOMER')")
     @PutMapping()
     public ResponseEntity<AuthResponseDTO> updateAccount(@Valid @RequestBody AccountUpdateRequestDTO request) {
         Long currentUserId = getCurrentUserId();
@@ -33,7 +33,7 @@ public class AccountController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasAnyRole('ADMIN', 'YARD_OWNER', 'STAFF', 'CUSTOMER')")
     @PutMapping("/status")
     public ResponseEntity<AccountInfoResponseDTO> updateAccountStatus(@Valid @RequestBody ChangeAccountStatusRequestDTO request) {
         Long currentUserId = getCurrentUserId();
@@ -41,14 +41,14 @@ public class AccountController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasAnyRole('ADMIN', 'YARD_OWNER', 'STAFF', 'CUSTOMER')")
     @GetMapping("/me")
     public ResponseEntity<AuthResponseDTO> getCurrentUserProfile() {
         AuthResponseDTO currentUserInfo = accountService.getMyInfo();
         return ResponseEntity.ok(currentUserInfo);
     }
 
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasAnyRole('ADMIN', 'YARD_OWNER', 'STAFF', 'CUSTOMER')")
     @GetMapping("/customer")
     public ResponseEntity<String> getCustomerName(@Valid @RequestBody GetPhoneNumberRequestDTO request) {
         String customerName = accountService.findAccountByPhoneNumber(request);
