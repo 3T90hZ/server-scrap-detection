@@ -1,10 +1,12 @@
 package com.scrapDetection.controller;
 
+import com.scrapDetection.config.OpenApiConfig;
 import com.scrapDetection.dto.device.DeviceRequestDTO;
 import com.scrapDetection.dto.device.DeviceResponseDTO;
 import com.scrapDetection.dto.device.DeviceStatusUpdateDTO;
 import com.scrapDetection.dto.device.DeviceViewerAccessDTO;
 import com.scrapDetection.service.DeviceService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -64,6 +66,7 @@ public class DeviceController {
 
     // Get device by id
     @GetMapping("/{deviceId}")
+    @SecurityRequirement(name = OpenApiConfig.BEARER_AUTH)
     public ResponseEntity<DeviceResponseDTO> getDeviceById(@PathVariable Long deviceId) {
         DeviceResponseDTO response = deviceService.getDeviceById(deviceId);
         return ResponseEntity.ok(response);
