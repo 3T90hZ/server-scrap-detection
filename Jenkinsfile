@@ -27,7 +27,7 @@ pipeline {
                     docker run -d \
                         --name ${APP_NAME} \
                         --restart=unless-stopped \
-                        -p 8080:8080 \
+                        -p 8081:8080 \
                         ${APP_NAME}:latest
                 """
             }
