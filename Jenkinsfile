@@ -22,6 +22,9 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh """
+                    cp /opt/scrap-smart/.env .
+                    docker compose down || true
+                    docker compose up -d --build
                     docker stop ${APP_NAME} || true
                     docker rm ${APP_NAME} || true
                     docker run -d \
