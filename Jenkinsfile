@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        APP_NAME = "ScrapSmart"
+        APP_NAME = "scrap-smart"
     }
 
     stages {
