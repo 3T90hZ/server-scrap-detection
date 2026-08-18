@@ -249,14 +249,14 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public String findAccountByPhoneNumber(GetPhoneNumberRequestDTO request){
+    public AccountInfoResponseDTO findAccountByPhoneNumber(GetPhoneNumberRequestDTO request){
         Account account = accountRepository.findByPhoneNumbers(request.getPhoneNumber()).orElse(null);
 
         if(account == null){
-            return null;
+            return accountMapper.toAccountInfoResponse(accountRepository.getReferenceById(1L));
         }
         else {
-            return account.getAccountName();
+            return accountMapper.toAccountInfoResponse(account);
         }
     }
 

@@ -1,23 +1,19 @@
-package com.scrapDetection.dto.transaction;
+package com.scrapDetection.dto.bill;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TransactionSummaryDTO {
+public class BillItemResponseDTO {
 
     private Long transactionId;
+    private Long materialId;
     private String itemName;
     private Double weight;
-    private Double totalWorth;
-    private String customerName;
-    private String createdBy;
-    private LocalDateTime createdAt;
+    private Double lineWorth;
 }
