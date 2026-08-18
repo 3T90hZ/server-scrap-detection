@@ -50,9 +50,9 @@ public class AccountController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/customer")
-    public ResponseEntity<String> getCustomerName(@Valid @RequestBody GetPhoneNumberRequestDTO request) {
-        String customerName = accountService.findAccountByPhoneNumber(request);
-        return ResponseEntity.ok(customerName);
+    public ResponseEntity<AccountInfoResponseDTO> getCustomer(@Valid @RequestBody GetPhoneNumberRequestDTO request) {
+        AccountInfoResponseDTO customer = accountService.findAccountByPhoneNumber(request);
+        return ResponseEntity.ok(customer);
     }
     // Helper method
     private Long getCurrentUserId() {
