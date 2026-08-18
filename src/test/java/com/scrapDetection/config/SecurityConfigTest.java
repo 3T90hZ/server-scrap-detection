@@ -16,6 +16,7 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,6 +25,8 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import static org.mockito.Mockito.mock;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -102,6 +105,27 @@ class SecurityConfigTest {
     void anonymousUser_canAccessPublicLoginEndpoint() throws Exception {
         mockMvc.perform(post("/api/auth/login"))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void corsOrigins_areReadFromCommaSeparatedConfiguration() {
+        SecurityConfig securityConfig = new SecurityConfig(
+                mock(JwtAuthenticationFilter.class),
+                mock(DeviceAuthenticationFilter.class)
+        );
+
+        var source = securityConfig.corsConfigurationSource(
+                "https://web.example, https://admin.example"
+        );
+        var cors = source.getCorsConfiguration(
+                new MockHttpServletRequest("GET", "/api/account/me")
+        );
+
+        assertNotNull(cors);
+        assertEquals(
+                java.util.List.of("https://web.example", "https://admin.example"),
+                cors.getAllowedOrigins()
+        );
     }
 
     @Configuration(proxyBeanMethods = false)

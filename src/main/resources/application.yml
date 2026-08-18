@@ -6,15 +6,15 @@ spring:
     name: scrap-detection
 
   datasource:
-    url: jdbc:mysql://localhost:3306/pos_db?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8
-    username: root
-    password: Tranthanh01@
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/pos_db?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:
-      ddl-auto: update        # Options: none, validate, update, create, create-drop
-    show-sql: true            # Set to false in production
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}
+    show-sql: ${SPRING_JPA_SHOW_SQL:false}
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
@@ -41,4 +41,10 @@ spring:
 
 app:
   frontend:
-    base-url: ${APP_FRONTEND_BASE_URL:https://frontend-domain.com}
+    base-url: ${APP_FRONTEND_BASE_URL:http://localhost:3000}
+  cors:
+    allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:3000,http://127.0.0.1:3000,http://localhost:19006}
+
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION_MS:86400000}
