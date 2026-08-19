@@ -2,8 +2,12 @@ package com.scrapDetection.service.impl;
 
 import com.scrapDetection.dto.device.DeviceRequestDTO;
 import com.scrapDetection.dto.device.DeviceResponseDTO;
+import com.scrapDetection.dto.device.DeviceViewerAccessDTO;
+import com.scrapDetection.entity.Account;
 import com.scrapDetection.entity.Device;
 import com.scrapDetection.entity.DeviceStatus;
+import com.scrapDetection.entity.Role;
+import com.scrapDetection.exception.ForbiddenException;
 import com.scrapDetection.exception.InvalidRequestException;
 import com.scrapDetection.exception.ResourceNotFoundException;
 import com.scrapDetection.mapper.DeviceMapper;
@@ -150,6 +154,39 @@ public class DeviceServiceImpl implements DeviceService {
         device.setStatus(status);
         Device savedDevice = deviceRepository.save(device);
         return deviceMapper.toResponseDTO(savedDevice);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public DeviceViewerAccessDTO getViewerAccess(Long deviceId) {
+        Account currentUser = accountService.getCurrentUser();
+
+        if (!"ACTIVE".equalsIgnoreCase(currentUser.getStatus())) {
+            throw new ForbiddenException("Account is not active");
+        }
+        if (currentUser.getRole() != Role.STAFF && currentUser.getRole() != Role.YARD_OWNER) {
+            throw new ForbiddenException("Only staff and yard owners can view cameras");
+        }
+        if (currentUser.getScrapYard() == null) {
+            throw new ForbiddenException("Account is not assigned to a scrap yard");
+        }
+
+        Device device = deviceRepository.findById(deviceId)
+                .orElseThrow(() -> new ResourceNotFoundException("Device", deviceId));
+
+        if (device.getStatus() != DeviceStatus.ACTIVE) {
+            throw new ForbiddenException("Device is not active");
+        }
+        if (device.getScrapYard() == null ||
+                !device.getScrapYard().getYardId().equals(currentUser.getScrapYard().getYardId())) {
+            throw new ForbiddenException("Device does not belong to your scrap yard");
+        }
+
+        return DeviceViewerAccessDTO.builder()
+                .accountId(currentUser.getAccountId())
+                .role(currentUser.getRole())
+                .deviceId(device.getDeviceId())
+                .build();
     }
 
     // ==================== Private Helper ====================

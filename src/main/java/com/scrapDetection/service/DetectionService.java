@@ -5,6 +5,6 @@ import com.scrapDetection.dto.detection.DetectionResponseDTO;
 
 public interface DetectionService {
 
-    DetectionResponseDTO processDetection(DetectionRequestDTO requestDTO);
+    DetectionResponseDTO processDetection(Long deviceId, DetectionRequestDTO requestDTO);
 
 }
