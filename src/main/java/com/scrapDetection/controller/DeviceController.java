@@ -1,9 +1,12 @@
 package com.scrapDetection.controller;
 
+import com.scrapDetection.config.OpenApiConfig;
 import com.scrapDetection.dto.device.DeviceRequestDTO;
 import com.scrapDetection.dto.device.DeviceResponseDTO;
 import com.scrapDetection.dto.device.DeviceStatusUpdateDTO;
+import com.scrapDetection.dto.device.DeviceViewerAccessDTO;
 import com.scrapDetection.service.DeviceService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -63,17 +66,25 @@ public class DeviceController {
 
     // Get device by id
     @GetMapping("/{deviceId}")
+    @SecurityRequirement(name = OpenApiConfig.BEARER_AUTH)
     public ResponseEntity<DeviceResponseDTO> getDeviceById(@PathVariable Long deviceId) {
         DeviceResponseDTO response = deviceService.getDeviceById(deviceId);
         return ResponseEntity.ok(response);
     }
 
     // Get all devices by in yard
-    @PreAuthorize("hasRole('YARD_OWNER')")
+    @PreAuthorize("hasAnyRole('STAFF', 'YARD_OWNER')")
     @GetMapping("/my-yard")
     public ResponseEntity<List<DeviceResponseDTO>> getMyYardDevices() {
         List<DeviceResponseDTO> response = deviceService.getMyYardDevices();
         return ResponseEntity.ok(response);
+    }
+
+    // Contract used by the stream relay before accepting a viewer WebSocket.
+    @PreAuthorize("hasAnyRole('STAFF', 'YARD_OWNER')")
+    @GetMapping("/{deviceId}/viewer-access")
+    public ResponseEntity<DeviceViewerAccessDTO> getViewerAccess(@PathVariable Long deviceId) {
+        return ResponseEntity.ok(deviceService.getViewerAccess(deviceId));
     }
 
     // Get all device by yardID

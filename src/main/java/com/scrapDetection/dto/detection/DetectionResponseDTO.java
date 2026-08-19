@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.Instant;
+
 /*
   Response sent back to the Raspberry Pi after processing a detection event.
   Also reused a for GET /api/detections (the frontend's polling
@@ -16,7 +18,9 @@ import lombok.Setter;
     "className"   : "paper",
     "confidence"  : 0.923,
     "weightG"     : 312.5,
-    "timestamp"   : "2025-07-01T14:32:01.123456"
+    "timestamp"   : "2025-07-01T14:32:01.123456",
+    "deviceId"    : 12,
+    "receivedAt"  : "2026-08-07T08:00:00.123Z"
   }
 
   On error (bad payload):
@@ -37,6 +41,8 @@ public class DetectionResponseDTO {
     private Double weightG;      // weight from the payload echoed back
     private String message;
     private String timestamp;    // echoed from the Pi's request — lets pollers
+    private Long deviceId;       // authenticated device that submitted the result
+    private Instant receivedAt;  // server receipt time used to reject stale scans
 
     public static DetectionResponseDTO received(String className,
                                                 Double confidence,

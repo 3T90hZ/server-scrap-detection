@@ -57,8 +57,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 System.out.println("JWT Filter - ERROR: " + ex.getMessage());
                 SecurityContextHolder.clearContext();
             }
-        } else {
-            System.out.println("JWT Filter - No token found in request");
         }
 
         filterChain.doFilter(request, response);

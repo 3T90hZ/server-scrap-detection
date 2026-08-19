@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    options {
+        disableConcurrentBuilds()
+        timeout(time: 20, unit: 'MINUTES')
+    }
+
     environment {
         APP_NAME = "scrap-smart"
     }
@@ -23,9 +28,9 @@ pipeline {
             steps {
                 sh '''
                     cp /opt/scrap-smart/.env .
-                    docker compose down --remove-orphans || true
-                    docker rm -f scrap-smart mysql || true
-                    docker compose up -d --build
+                    docker compose config --quiet
+                    docker compose up -d --remove-orphans
+                    docker compose ps
                 '''
             }
         }
@@ -33,6 +38,7 @@ pipeline {
 
     post {
         always {
+            sh "rm -f .env"
             sh "docker image prune -f"
         }
         success {
