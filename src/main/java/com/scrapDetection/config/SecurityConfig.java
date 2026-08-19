@@ -3,6 +3,7 @@ package com.scrapDetection.config;
 import com.scrapDetection.security.device.DeviceAuthenticationFilter;
 import com.scrapDetection.security.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -17,6 +18,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Configuration
@@ -34,24 +36,26 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/logout")
+                        .hasAnyRole("ADMIN", "YARD_OWNER", "STAFF", "CUSTOMER")
                         .requestMatchers(
                                 "/api/auth/**",
+                                "/swagger-ui.html",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/api/scrap-yards/request",
                                 "/api/scrap-yards/**",
-                                "/api/materials/**",
-                                "/api/account/**"
+                                "/api/materials/**"
                         ).permitAll()
 
                         .requestMatchers(HttpMethod.GET, "/api/detections", "/api/detections/frame")
-                        .hasAnyRole("STAFF", "YARD_OWNER", "ADMIN")
+                        .hasAnyRole("STAFF", "YARD_OWNER")
 
                         .requestMatchers(HttpMethod.POST, "/api/detections", "/api/detections/frame")
                         .hasRole("DEVICE")
 
                         .requestMatchers("/api/detections/**").hasRole("DEVICE")
-                        .anyRequest().authenticated()
+                        .anyRequest().hasAnyRole("ADMIN", "YARD_OWNER", "STAFF", "CUSTOMER")
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)  // ← Use the field
@@ -61,15 +65,13 @@ public class SecurityConfig {
     }
 
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
+    public CorsConfigurationSource corsConfigurationSource(
+            @Value("${app.cors.allowed-origins}") String allowedOrigins) {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of(
-                "http://localhost:3000",
-                "http://127.0.0.1:3000",
-                "http://localhost:8080",
-                "http://10.0.2.2:8080",
-                "http://localhost:19006"
-        ));
+        config.setAllowedOrigins(Arrays.stream(allowedOrigins.split(","))
+                .map(String::trim)
+                .filter(origin -> !origin.isEmpty())
+                .toList());
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);

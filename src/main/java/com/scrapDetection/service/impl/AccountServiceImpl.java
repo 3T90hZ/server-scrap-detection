@@ -270,7 +270,7 @@ public class AccountServiceImpl implements AccountService {
         if (accountRepository.existsByPhoneNumbers(phone)) {
             throw new ResourceAlreadyExistsException("Account", "phoneNumbers", phone);
         }
-        if (email != null && !email.trim().isEmpty() && accountRepository.existsByEmail(email)) {
+        if (email != null && !email.toLowerCase().trim().isEmpty() && accountRepository.existsByEmail(email)) {
             throw new ResourceAlreadyExistsException("Account", "email", email);
         }
     }
