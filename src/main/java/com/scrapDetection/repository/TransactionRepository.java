@@ -9,6 +9,4 @@ import java.util.List;
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
     List<Transaction> findByMaterialMaterialId(Long materialId);
-
-    List<Transaction> findByMaterialScrapYardYardId(Long yardId);
 }

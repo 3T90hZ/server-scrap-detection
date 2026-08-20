@@ -12,8 +12,6 @@ import java.util.Optional;
 @Repository
 public interface ScrapYardRepository extends JpaRepository<ScrapYard, Long> {
 
-    List<ScrapYard> findByStatus(String status);
-
     Page<ScrapYard> findByStatus(String status, Pageable pageable);
 
     boolean existsByPhoneNumbers(String phoneNumbers);
@@ -21,8 +19,6 @@ public interface ScrapYardRepository extends JpaRepository<ScrapYard, Long> {
     boolean existsByAddress(String address);
 
     boolean existsByYardNameIgnoreCase(String yardName);
-
-    boolean existsByYardName(String yardName);
 
     Optional<ScrapYard> findByYardName(String yardName);
 
