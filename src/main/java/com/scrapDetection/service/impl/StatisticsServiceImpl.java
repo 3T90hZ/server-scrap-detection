@@ -4,9 +4,11 @@ import com.scrapDetection.dto.statistics.MaterialBreakdownDTO;
 import com.scrapDetection.dto.statistics.OwnerProfitResponseDTO;
 import com.scrapDetection.dto.statistics.StaffSummaryResponseDTO;
 import com.scrapDetection.entity.Bill;
+import com.scrapDetection.entity.Resale;
 import com.scrapDetection.entity.Transaction;
 import com.scrapDetection.exception.InvalidRequestException;
 import com.scrapDetection.repository.BillRepository;
+import com.scrapDetection.repository.ResaleRepository;
 import com.scrapDetection.service.StatisticsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,29 +29,29 @@ import java.util.TreeMap;
 public class StatisticsServiceImpl implements StatisticsService {
 
     private final BillRepository billRepository;
+    private final ResaleRepository resaleRepository;
     private final Clock clock;
-    private final double estimatedMarginRate;
 
     @Autowired
     public StatisticsServiceImpl(
             BillRepository billRepository,
-            @Value("${recyclick.statistics.estimated-margin-rate:0.20}") double estimatedMarginRate
+            @Value("${recyclick.statistics.estimated-margin-rate:0.20}") double estimatedMarginRate, ResaleRepository resaleRepository
     ) {
-        this(billRepository, Clock.systemDefaultZone(), estimatedMarginRate);
+        this(billRepository, Clock.systemDefaultZone(), estimatedMarginRate, resaleRepository);
     }
 
     // package-private constructor for tests
     StatisticsServiceImpl(
             BillRepository billRepository,
             Clock clock,
-            double estimatedMarginRate
+            double estimatedMarginRate, ResaleRepository resaleRepository
     ) {
+        this.resaleRepository = resaleRepository;
         if (estimatedMarginRate < 0D) {
             throw new IllegalArgumentException("Estimated margin rate must not be negative");
         }
         this.billRepository = billRepository;
         this.clock = clock;
-        this.estimatedMarginRate = estimatedMarginRate;
     }
 
     @Override
@@ -113,25 +115,29 @@ public class StatisticsServiceImpl implements StatisticsService {
         LocalDateTime localStartDate = toLocalDateTime(startDate);
         LocalDateTime localEndDate = toLocalDateTime(endDate);
 
+        // ----- Cost (money paid to customers) -----
         List<Bill> bills = billRepository.findYardBillsForStatistics(
-                yardId,
-                localStartDate,
-                localEndDate
-        );
+                yardId, localStartDate, localEndDate);
 
         double totalSpent = bills.stream()
                 .flatMap(b -> b.getTransactions().stream())
                 .mapToDouble(this::getLineWorth)
                 .sum();
 
-        // Still using estimated margin for now.
-        // Later you can replace this with real Resale revenue – cost.
-        double totalProfit = totalSpent * estimatedMarginRate;
-        double estimatedRevenue = totalSpent + totalProfit;
+        // ----- Revenue (money received from factories) -----
+        List<Resale> resales = resaleRepository.findYardResalesForStatistics(
+                yardId, localStartDate, localEndDate);
+
+        double totalRevenue = resales.stream()
+                .mapToDouble(this::getResaleWorth)
+                .sum();
+
+        // ----- Real profit -----
+        double totalProfit = totalRevenue - totalSpent;
 
         return OwnerProfitResponseDTO.builder()
                 .totalSpent(totalSpent)
-                .estimatedRevenue(estimatedRevenue)
+                .estimatedRevenue(totalRevenue)   // now real revenue
                 .totalProfit(totalProfit)
                 .build();
     }
@@ -151,5 +157,15 @@ public class StatisticsServiceImpl implements StatisticsService {
             return "Unknown";
         }
         return tx.getMaterial().getItemName();
+    }
+    private double getResaleWorth(Resale resale) {
+        if (resale.getResaleTotal() != null && resale.getResaleTotal().getTotalWorth() != null) {
+            return resale.getResaleTotal().getTotalWorth();
+        }
+        // fallback if total is missing (should not happen)
+        if (resale.getUnitPrice() != null && resale.getWeight() != null) {
+            return resale.getUnitPrice() * resale.getWeight();
+        }
+        return 0D;
     }
 }
