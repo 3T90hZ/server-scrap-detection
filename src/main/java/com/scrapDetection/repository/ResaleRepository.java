@@ -13,9 +13,7 @@ import java.util.List;
 @Repository
 public interface ResaleRepository extends JpaRepository<Resale, Long> {
 
-    List<Resale> findByMaterialScrapYardYardId(Long yardId);
-
-    List<Resale> findByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
+    List<Resale> findByMaterialScrapYardYardIdOrderByCreatedAtDesc(Long yardId);
 
     // ----- Statistics -----
     @EntityGraph(attributePaths = {"resaleTotal", "material"})
@@ -32,7 +30,7 @@ public interface ResaleRepository extends JpaRepository<Resale, Long> {
             @Param("endDate") LocalDateTime endDate
     );
 
-    List<Resale> findByMaterialScrapYardYardIdAndCreatedAtBetween(
+    List<Resale> findByMaterialScrapYardYardIdAndCreatedAtBetweenOrderByCreatedAtDesc(
             Long yardId,
             LocalDateTime start,
             LocalDateTime end

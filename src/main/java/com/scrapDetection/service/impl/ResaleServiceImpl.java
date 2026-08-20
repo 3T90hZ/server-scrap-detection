@@ -75,14 +75,14 @@ public class ResaleServiceImpl implements ResaleService {
 
     @Override
     public List<ResaleSummaryDTO> getResalesByYard() {
-        List<Resale> resales = resaleRepository.findByMaterialScrapYardYardId(accountService.getCurrentUser().getScrapYard().getYardId());
+        List<Resale> resales = resaleRepository.findByMaterialScrapYardYardIdOrderByCreatedAtDesc(accountService.getCurrentUser().getScrapYard().getYardId());
         return resaleMapper.toSummaryDTOList(resales);
     }
 
     @Override
     public List<ResaleResponseDTO> getResalesByDateRange(LocalDateTime start, LocalDateTime end) {
         Account currentUser = accountService.getCurrentUser();
-        List<Resale> resales = resaleRepository.findByMaterialScrapYardYardIdAndCreatedAtBetween(currentUser.getScrapYard().getYardId(), start, end);
+        List<Resale> resales = resaleRepository.findByMaterialScrapYardYardIdAndCreatedAtBetweenOrderByCreatedAtDesc(currentUser.getScrapYard().getYardId(), start, end);
         return resaleMapper.toResponseDTOList(resales);
     }
 }
