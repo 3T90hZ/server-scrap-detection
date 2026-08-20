@@ -14,6 +14,7 @@ import com.scrapDetection.security.jwt.JwtService;
 import com.scrapDetection.service.AccountService;
 import com.scrapDetection.service.EmailService;
 import com.scrapDetection.service.SessionService;
+import com.scrapDetection.util.Normalize;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -38,13 +39,14 @@ public class AccountServiceImpl implements AccountService {
     private final SessionService sessionService;
     private final PasswordResetTokenRepository tokenRepository;
     private final EmailService emailService;
+    private final Normalize normalize;
 
     private static final int TOKEN_EXPIRY_MINUTES = 60;
 
     @Override
     public AuthResponseDTO registerCustomer(CreateAccountRequestDTO request, Long yardId) {
-        request.setEmail(normalizeEmail(request.getEmail()));
-        request.setPhoneNumbers(normalizeEmail(request.getPhoneNumbers()));
+        request.setEmail(normalize.normalizeEmailAndPhoneNumber(request.getEmail()));
+        request.setPhoneNumbers(normalize.normalizeEmailAndPhoneNumber(request.getPhoneNumbers()));
         validateUniqueFields(request.getPhoneNumbers(), request.getEmail());
 
         Account account = accountMapper.toEntity(request);
@@ -89,8 +91,8 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public AuthResponseDTO createStaff(CreateAccountRequestDTO request) {
-        request.setEmail(normalizeEmail(request.getEmail()));
-        request.setPhoneNumbers(normalizeEmail(request.getPhoneNumbers()));
+        request.setEmail(normalize.normalizeEmailAndPhoneNumber(request.getEmail()));
+        request.setPhoneNumbers(normalize.normalizeEmailAndPhoneNumber(request.getPhoneNumbers()));
         validateUniqueFields(request.getPhoneNumbers(), request.getEmail());
 
         Account account = accountMapper.toEntity(request);
@@ -131,8 +133,8 @@ public class AccountServiceImpl implements AccountService {
         Account existing = accountRepository.findById(accountId)
                 .orElseThrow(() -> new ResourceNotFoundException("Account", accountId));
 
-        request.setEmail(normalizeEmail(request.getEmail()));
-        request.setPhoneNumbers(normalizeEmail(request.getPhoneNumbers()));
+        request.setEmail(normalize.normalizeEmailAndPhoneNumber(request.getEmail()));
+        request.setPhoneNumbers(normalize.normalizeEmailAndPhoneNumber(request.getPhoneNumbers()));
         if (request.getPhoneNumbers() != null &&
                 !existing.getPhoneNumbers().equals(request.getPhoneNumbers()) &&
                 accountRepository.existsByPhoneNumbers(request.getPhoneNumbers())) {
@@ -146,7 +148,9 @@ public class AccountServiceImpl implements AccountService {
 
             throw new ResourceAlreadyExistsException("Account", "phoneNumbers", request.getPhoneNumbers());
         }
-        request.setPassword(passwordEncoder.encode(request.getPassword()));
+        if(request.getPassword()!=null){
+            request.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
         accountMapper.updateEntityFromDTO(request, existing);
         Account updated = accountRepository.save(existing);
 
@@ -155,7 +159,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void requestPasswordReset(PasswordResetRequestDTO request) {
-        String value = normalizeEmail(request.getEmailOrPhone());
+        String value =  (request.getEmailOrPhone());
 
         if (isEmail(value)) {
             // Email-based password reset
@@ -289,13 +293,6 @@ public class AccountServiceImpl implements AccountService {
         }
         if (email != null && accountRepository.existsByEmail(email)) {
             throw new ResourceAlreadyExistsException("Account", "email", email);
-        }
-    }
-    private String normalizeEmail(String email){
-        if(email != null && !email.trim().isEmpty()){
-            return email.trim().toLowerCase();
-        }else {
-            return null;
         }
     }
 }

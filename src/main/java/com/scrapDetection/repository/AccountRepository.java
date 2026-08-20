@@ -21,6 +21,7 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
     List<Account> findByScrapYardYardIdAndRole(Long yardId, Role role);
 
+    List<Account> findByScrapYardYardId(Long yardId);
     // For password reset
     Optional<Account> findByEmail(String email);
 }
