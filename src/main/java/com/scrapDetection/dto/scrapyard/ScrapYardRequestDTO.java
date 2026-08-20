@@ -28,11 +28,6 @@ public class ScrapYardRequestDTO {
     @Pattern(regexp = "^[0-9\\s]*$", message = "Phone numbers should contain only digits and spaces")
     private String phoneNumbers;
 
-    @NotBlank(message = "Yard is required")
-    @Size(max = 20, message = "Phone numbers cannot exceed 20 characters")
-    @Pattern(regexp = "^[0-9\\s]*$", message = "Phone numbers should contain only digits and spaces")
-    private String yardOwnerPhoneNumber;
-
     @Email(message = "Invalid email format")
     private String email;
 

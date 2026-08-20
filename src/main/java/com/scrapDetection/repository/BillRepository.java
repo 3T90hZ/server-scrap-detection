@@ -13,14 +13,18 @@ import java.util.List;
 @Repository
 public interface BillRepository extends JpaRepository<Bill, Long> {
 
-    List<Bill> findByCustomerAccountId(Long customerId);
+    List<Bill> findByCustomerAccountIdOrderByCreatedAtDesc(Long customerId);
 
-    @Query("SELECT b FROM Bill b WHERE b.createdBy.accountId = :staffId")
+    @Query("SELECT b FROM Bill b WHERE b.createdBy.accountId = :staffId  ORDER BY b.createdAt DESC")
     List<Bill> findByCreatedByAccountId(@Param("staffId") Long staffId);
 
-    List<Bill> findByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
+    List<Bill> findByCreatedByScrapYardYardIdAndCreatedAtBetweenOrderByCreatedAtDesc(
+            Long yardId,
+            LocalDateTime start,
+            LocalDateTime end
+    );
 
-    @Query("SELECT DISTINCT b FROM Bill b JOIN b.transactions t WHERE t.material.scrapYard.yardId = :yardId")
+    @Query("SELECT DISTINCT b FROM Bill b JOIN b.transactions t WHERE t.material.scrapYard.yardId = :yardId ORDER BY b.createdAt DESC")
     List<Bill> findByYardId(@Param("yardId") Long yardId);
 
     @EntityGraph(attributePaths = {"transactions", "transactions.material"})

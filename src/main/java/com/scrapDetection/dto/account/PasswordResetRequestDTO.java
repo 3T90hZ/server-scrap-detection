@@ -11,10 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PasswordResetRequestDTO {
-
-    private String phoneNumbers;   // Use either phone or email
-
-    private String email;
-
-    // At least one must be provided (validated in service)
+    @NotBlank(message = "Email or phone number is required")
+    private String emailOrPhone;
 }

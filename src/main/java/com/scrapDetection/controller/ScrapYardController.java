@@ -70,6 +70,7 @@ public class ScrapYardController {
             @PathVariable Long yardId,
             @Valid @RequestBody ScrapYardUpdateRequestDTO requestDTO) {
 
+
         ScrapYardResponseDTO response = scrapYardService.updateScrapYard(yardId, requestDTO);
         return ResponseEntity.ok(response);
     }
@@ -79,7 +80,6 @@ public class ScrapYardController {
     @PutMapping("/{yardId}/status")
     public ResponseEntity<ScrapYardResponseDTO> updateScrapYardStatus(
             @Valid @RequestBody ScrapYardStatusRequestDTO requestDTO, @PathVariable Long yardId) {
-        System.out.println("yardId:" + yardId);
         ScrapYardResponseDTO response = scrapYardService.updateScrapYardStatus(requestDTO, yardId);
         return ResponseEntity.ok(response);
     }
@@ -104,7 +104,7 @@ public class ScrapYardController {
     /**
      * DELETE - Delete scrapyard
      */
-    @PreAuthorize("hasAnyRole('YARD_OWNER','ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{yardId}")
     public ResponseEntity<Void> deleteScrapYard(@PathVariable Long yardId) {
         scrapYardService.deleteScrapYard(yardId);

@@ -13,11 +13,7 @@ public interface ResaleService {
 
     ResaleResponseDTO getResaleById(Long resaleId);
 
-    List<ResaleSummaryDTO> getResalesByYard(Long yardId);
-
-    List<ResaleSummaryDTO> getResalesByStaff(Long staffId);
-
-    List<ResaleSummaryDTO> getResaleSummaries();
+    List<ResaleSummaryDTO> getResalesByYard();
 
     List<ResaleResponseDTO> getResalesByDateRange(LocalDateTime start, LocalDateTime end);
 }

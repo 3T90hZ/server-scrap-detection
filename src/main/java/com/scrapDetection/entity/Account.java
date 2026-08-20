@@ -35,7 +35,7 @@ public class Account {
     @Column(name = "account_name", nullable = false)
     private String accountName;
 
-    @Column(name = "phone_numbers")
+    @Column(name = "phone_numbers", nullable = false, unique = true)
     private String phoneNumbers;
 
     @Column(name = "password_hash", nullable = false)
