@@ -14,6 +14,7 @@ import com.scrapDetection.security.jwt.JwtService;
 import com.scrapDetection.service.AccountService;
 import com.scrapDetection.service.EmailService;
 import com.scrapDetection.service.SessionService;
+import com.scrapDetection.util.Normalize;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -38,11 +39,14 @@ public class AccountServiceImpl implements AccountService {
     private final SessionService sessionService;
     private final PasswordResetTokenRepository tokenRepository;
     private final EmailService emailService;
+    private final Normalize normalize;
 
     private static final int TOKEN_EXPIRY_MINUTES = 60;
 
     @Override
     public AuthResponseDTO registerCustomer(CreateAccountRequestDTO request, Long yardId) {
+        request.setEmail(normalize.normalizeEmailAndPhoneNumber(request.getEmail()));
+        request.setPhoneNumbers(normalize.normalizeEmailAndPhoneNumber(request.getPhoneNumbers()));
         validateUniqueFields(request.getPhoneNumbers(), request.getEmail());
 
         Account account = accountMapper.toEntity(request);
@@ -87,6 +91,8 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public AuthResponseDTO createStaff(CreateAccountRequestDTO request) {
+        request.setEmail(normalize.normalizeEmailAndPhoneNumber(request.getEmail()));
+        request.setPhoneNumbers(normalize.normalizeEmailAndPhoneNumber(request.getPhoneNumbers()));
         validateUniqueFields(request.getPhoneNumbers(), request.getEmail());
 
         Account account = accountMapper.toEntity(request);
@@ -127,13 +133,24 @@ public class AccountServiceImpl implements AccountService {
         Account existing = accountRepository.findById(accountId)
                 .orElseThrow(() -> new ResourceNotFoundException("Account", accountId));
 
+        request.setEmail(normalize.normalizeEmailAndPhoneNumber(request.getEmail()));
+        request.setPhoneNumbers(normalize.normalizeEmailAndPhoneNumber(request.getPhoneNumbers()));
         if (request.getPhoneNumbers() != null &&
                 !existing.getPhoneNumbers().equals(request.getPhoneNumbers()) &&
                 accountRepository.existsByPhoneNumbers(request.getPhoneNumbers())) {
 
             throw new ResourceAlreadyExistsException("Account", "phoneNumbers", request.getPhoneNumbers());
         }
-        request.setPassword(passwordEncoder.encode(request.getPassword()));
+
+        if (request.getEmail() != null &&
+                !existing.getEmail().equals(request.getEmail()) &&
+                accountRepository.existsByEmail(request.getEmail())) {
+
+            throw new ResourceAlreadyExistsException("Account", "phoneNumbers", request.getPhoneNumbers());
+        }
+        if(request.getPassword()!=null){
+            request.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
         accountMapper.updateEntityFromDTO(request, existing);
         Account updated = accountRepository.save(existing);
 
@@ -142,15 +159,12 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void requestPasswordReset(PasswordResetRequestDTO request) {
-        if ((request.getPhoneNumbers() == null || request.getPhoneNumbers().trim().isEmpty()) &&
-                (request.getEmail() == null || request.getEmail().trim().isEmpty())) {
-            throw new InvalidRequestException("Phone number or email is required");
-        }
+        String value =  (request.getEmailOrPhone());
 
-        // Email-based password reset
-        if (request.getEmail() != null && !request.getEmail().trim().isEmpty()) {
-            Account account = accountRepository.findByEmail(request.getEmail())
-                    .orElseThrow(() -> new ResourceNotFoundException("No account found with email: " + request.getEmail()));
+        if (isEmail(value)) {
+            // Email-based password reset
+            Account account = accountRepository.findByEmail(value)
+                    .orElseThrow(() -> new ResourceNotFoundException("No account found with email: " + value));
 
             // Invalidate old tokens
             tokenRepository.deleteByAccount(account);
@@ -166,12 +180,24 @@ public class AccountServiceImpl implements AccountService {
             tokenRepository.save(resetToken);
 
             emailService.sendPasswordResetEmail(account.getEmail(), token);
+        } else if (isPhoneNumber(value)) {
+            // TODO: Phone OTP
+            // Account account = accountRepository.findByPhoneNumber(value)
+            //         .orElseThrow(() -> new ResourceNotFoundException("No account found with phone: " + value));
+            // ... generate & send OTP
+        } else {
+            throw new InvalidRequestException("Invalid email or phone number format");
         }
+    }
 
-        // TODO: Phone OTP
-        if (request.getPhoneNumbers() != null && !request.getPhoneNumbers().trim().isEmpty()) {
+    private boolean isEmail(String value) {
+        return value.contains("@") && value.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
+    }
 
-        }
+    private boolean isPhoneNumber(String value) {
+        // Adjust the regex to your accepted formats (E.164, local, etc.)
+        String digitsOnly = value.replaceAll("[^0-9+]", "");
+        return digitsOnly.matches("^\\+?[0-9]{8,15}$");
     }
 
     @Override
@@ -252,12 +278,7 @@ public class AccountServiceImpl implements AccountService {
     public AccountInfoResponseDTO findAccountByPhoneNumber(GetPhoneNumberRequestDTO request){
         Account account = accountRepository.findByPhoneNumbers(request.getPhoneNumber()).orElse(null);
 
-        if(account == null){
-            return accountMapper.toAccountInfoResponse(accountRepository.getReferenceById(1L));
-        }
-        else {
-            return accountMapper.toAccountInfoResponse(account);
-        }
+        return accountMapper.toAccountInfoResponse(Objects.requireNonNullElseGet(account, () -> accountRepository.getReferenceById(1L)));
     }
 
     @Override
@@ -270,7 +291,7 @@ public class AccountServiceImpl implements AccountService {
         if (accountRepository.existsByPhoneNumbers(phone)) {
             throw new ResourceAlreadyExistsException("Account", "phoneNumbers", phone);
         }
-        if (email != null && !email.toLowerCase().trim().isEmpty() && accountRepository.existsByEmail(email)) {
+        if (email != null && accountRepository.existsByEmail(email)) {
             throw new ResourceAlreadyExistsException("Account", "email", email);
         }
     }

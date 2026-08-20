@@ -50,8 +50,6 @@ public class AccountMapper {
             .accountId(account.getAccountId())
             .accountName(account.getAccountName())
             .phoneNumbers(account.getPhoneNumbers())
-            .email(account.getEmail())
-            .role(account.getRole() != null ? account.getRole().name() : null)
             .status(account.getStatus())
             .build();
 

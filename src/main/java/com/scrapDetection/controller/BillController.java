@@ -51,7 +51,7 @@ public class BillController {
     }
 
     // Get bills created by the current staff
-    @PreAuthorize("hasRole('STAFF')")
+    @PreAuthorize("hasAnyRole('STAFF','YARD_OWNER')")
     @GetMapping("/my-bills")
     public ResponseEntity<List<BillSummaryDTO>> getMyBills() {
         Long currentUserId = getCurrentUserId();
@@ -60,27 +60,21 @@ public class BillController {
     }
 
     // Get all bills of a specific customer
-    @PreAuthorize("hasAnyRole('STAFF', 'YARD_OWNER', 'CUSTOMER')")
-    @GetMapping("/customer/{customerId}")
-    public ResponseEntity<List<BillSummaryDTO>> getBillsByCustomer(@PathVariable Long customerId) {
-        List<BillSummaryDTO> response = billService.getBillsByCustomer(customerId);
-        return ResponseEntity.ok(response);
-    }
-
-    // Get all bill summaries
-    @GetMapping("/summary")
-    public ResponseEntity<List<BillSummaryDTO>> getBillSummaries() {
-        List<BillSummaryDTO> response = billService.getBillSummaries();
+    @PreAuthorize("hasAnyRole('CUSTOMER')")
+    @GetMapping("/customer")
+    public ResponseEntity<List<BillSummaryDTO>> getBillsByCustomer() {
+        List<BillSummaryDTO> response = billService.getBillsByCustomer();
         return ResponseEntity.ok(response);
     }
 
     // Get bills by date range
+    @PreAuthorize("hasRole('YARD_OWNER')")
     @GetMapping("/date-range")
-    public ResponseEntity<List<BillResponseDTO>> getBillsByDateRange(
+    public ResponseEntity<List<BillSummaryDTO>> getBillsByDateRange(
             @RequestParam LocalDateTime start,
             @RequestParam LocalDateTime end) {
 
-        List<BillResponseDTO> response = billService.getBillsByDateRange(start, end);
+        List<BillSummaryDTO> response = billService.getBillsByDateRange(start, end);
         return ResponseEntity.ok(response);
     }
 

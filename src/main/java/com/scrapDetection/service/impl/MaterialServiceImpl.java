@@ -160,8 +160,6 @@ public class MaterialServiceImpl implements MaterialService {
     private Boolean CheckMaterialNameDuplicate(String name, Long yardId) {
         String normalized = normalize.normalizeName(name);
 
-        return materialRepository.findByScrapYardYardId(yardId).stream()
-                .map(entity -> normalize.normalizeName(name))
-                .anyMatch(normalized::equals);
+        return materialRepository.existsByScrapYardYardIdAndItemNameIgnoreCase(yardId, normalized);
     }
 }

@@ -12,8 +12,6 @@ import lombok.NoArgsConstructor;
 public class AccountInfoResponseDTO {
     private Long accountId;
     private String accountName;
-    private String role;
     private String phoneNumbers;
-    private String email;
     private String status;
 }
