@@ -24,6 +24,6 @@ public class AccountUpdateRequestDTO {
     @Email
     private String email;
 
-    @Size(min= 6)
+    @Size(min= 8)
     private String password;
 }
