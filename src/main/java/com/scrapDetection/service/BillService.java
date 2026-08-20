@@ -13,13 +13,11 @@ public interface BillService {
 
     BillResponseDTO getBillById(Long billId);
 
-    List<BillSummaryDTO> getBillsByCustomer(Long customerId);
+    List<BillSummaryDTO> getBillsByCustomer();
 
     List<BillSummaryDTO> getBillsByYard(Long yardId);
 
     List<BillSummaryDTO> getBillsByStaff(Long staffId);
 
-    List<BillSummaryDTO> getBillSummaries();
-
-    List<BillResponseDTO> getBillsByDateRange(LocalDateTime start, LocalDateTime end);
+    List<BillSummaryDTO> getBillsByDateRange(LocalDateTime start, LocalDateTime end);
 }

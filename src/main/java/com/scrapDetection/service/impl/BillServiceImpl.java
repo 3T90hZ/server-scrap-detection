@@ -4,10 +4,7 @@ import com.scrapDetection.dto.bill.BillItemRequestDTO;
 import com.scrapDetection.dto.bill.BillRequestDTO;
 import com.scrapDetection.dto.bill.BillResponseDTO;
 import com.scrapDetection.dto.bill.BillSummaryDTO;
-import com.scrapDetection.entity.Account;
-import com.scrapDetection.entity.Bill;
-import com.scrapDetection.entity.Material;
-import com.scrapDetection.entity.Transaction;
+import com.scrapDetection.entity.*;
 import com.scrapDetection.exception.InvalidRequestException;
 import com.scrapDetection.exception.ResourceNotFoundException;
 import com.scrapDetection.mapper.BillMapper;
@@ -59,7 +56,6 @@ public class BillServiceImpl implements BillService {
             Material material = materialRepository.findById(itemDto.getMaterialId())
                     .orElseThrow(() -> new ResourceNotFoundException("Material", itemDto.getMaterialId()));
 
-            // Security: material must belong to the same yard
             if (!material.getScrapYard().getYardId().equals(currentUser.getScrapYard().getYardId())) {
                 throw new InvalidRequestException(
                         "You can only create bills for materials in your yard (materialId=" + itemDto.getMaterialId() + ")");
@@ -89,14 +85,23 @@ public class BillServiceImpl implements BillService {
 
     @Override
     public BillResponseDTO getBillById(Long billId) {
+        Account currentUser = accountService.getCurrentUser();
         Bill bill = billRepository.findById(billId)
                 .orElseThrow(() -> new ResourceNotFoundException("Bill", billId));
+        if(currentUser.getRole().equals(Role.CUSTOMER) && !bill.getCustomer().equals(currentUser)){
+            throw new InvalidRequestException("You can only get your bill as a customer!");
+        }else if(currentUser.getRole().equals(Role.STAFF) && !bill.getCreatedBy().equals(currentUser)){
+            throw new InvalidRequestException("You can only get the bills you created!");
+        }else if(currentUser.getRole().equals(Role.YARD_OWNER) && !bill.getCreatedBy().getScrapYard().equals(currentUser.getScrapYard())){
+            throw new InvalidRequestException("You can only get the bills of your yard!");
+        }
         return billMapper.toResponseDTO(bill);
     }
 
     @Override
-    public List<BillSummaryDTO> getBillsByCustomer(Long customerId) {
-        return billMapper.toSummaryDTOList(billRepository.findByCustomerAccountId(customerId));
+    public List<BillSummaryDTO> getBillsByCustomer() {
+        Long customerId = accountService.getCurrentUser().getAccountId();
+        return billMapper.toSummaryDTOList(billRepository.findByCustomerAccountIdOrderByCreatedAtDesc(customerId));
     }
 
     @Override
@@ -110,12 +115,8 @@ public class BillServiceImpl implements BillService {
     }
 
     @Override
-    public List<BillSummaryDTO> getBillSummaries() {
-        return billMapper.toSummaryDTOList(billRepository.findAll());
-    }
-
-    @Override
-    public List<BillResponseDTO> getBillsByDateRange(LocalDateTime start, LocalDateTime end) {
-        return billMapper.toResponseDTOList(billRepository.findByCreatedAtBetween(start, end));
+    public List<BillSummaryDTO> getBillsByDateRange(LocalDateTime start, LocalDateTime end) {
+        Long yardId = accountService.getCurrentUser().getScrapYard().getYardId();
+        return billMapper.toSummaryDTOList(billRepository.findByCreatedByScrapYardYardIdAndCreatedAtBetweenOrderByCreatedAtDesc(yardId, start, end));
     }
 }
