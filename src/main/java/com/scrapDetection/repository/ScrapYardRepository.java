@@ -20,7 +20,7 @@ public interface ScrapYardRepository extends JpaRepository<ScrapYard, Long> {
 
     boolean existsByAddress(String address);
 
-    // boolean existsByPhoneNumbersAndYardIdNot(String phoneNumbers, Long yardId);
+    boolean existsByYardNameIgnoreCase(String yardName);
 
     boolean existsByYardName(String yardName);
 
