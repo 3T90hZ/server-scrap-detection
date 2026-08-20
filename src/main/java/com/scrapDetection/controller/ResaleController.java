@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -17,6 +18,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/resales")
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('YARD_OWNER')")
 public class ResaleController {
 
     private final ResaleService resaleService;
@@ -46,34 +48,10 @@ public class ResaleController {
      * Get all resales belonging to a specific yard
      */
     @GetMapping("/yard/{yardId}")
-    public ResponseEntity<List<ResaleSummaryDTO>> getResalesByYard(
-            @PathVariable Long yardId) {
+    public ResponseEntity<List<ResaleSummaryDTO>> getResalesByYard() {
 
-        return ResponseEntity.ok(resaleService.getResalesByYard(yardId));
+        return ResponseEntity.ok(resaleService.getResalesByYard());
     }
-
-    /**
-     * Get all resales created by a specific staff / owner
-     */
-    @GetMapping("/staff/{staffId}")
-    public ResponseEntity<List<ResaleSummaryDTO>> getResalesByStaff(
-            @PathVariable Long staffId) {
-
-        return ResponseEntity.ok(resaleService.getResalesByStaff(staffId));
-    }
-
-    /**
-     * Get all resales (summary view)
-     */
-    @GetMapping
-    public ResponseEntity<List<ResaleSummaryDTO>> getAllResaleSummaries() {
-        return ResponseEntity.ok(resaleService.getResaleSummaries());
-    }
-
-    /**
-     * Get resales within a date range
-     * Example: /api/resales/date-range?start=2025-01-01T00:00:00&end=2025-12-31T23:59:59
-     */
     @GetMapping("/date-range")
     public ResponseEntity<List<ResaleResponseDTO>> getResalesByDateRange(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,

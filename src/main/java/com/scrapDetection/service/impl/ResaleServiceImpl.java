@@ -3,10 +3,7 @@ package com.scrapDetection.service.impl;
 import com.scrapDetection.dto.resale.ResaleRequestDTO;
 import com.scrapDetection.dto.resale.ResaleResponseDTO;
 import com.scrapDetection.dto.resale.ResaleSummaryDTO;
-import com.scrapDetection.entity.Account;
-import com.scrapDetection.entity.Material;
-import com.scrapDetection.entity.Resale;
-import com.scrapDetection.entity.ResaleTotal;
+import com.scrapDetection.entity.*;
 import com.scrapDetection.exception.InvalidRequestException;
 import com.scrapDetection.exception.ResourceNotFoundException;
 import com.scrapDetection.mapper.ResaleMapper;
@@ -46,7 +43,6 @@ public class ResaleServiceImpl implements ResaleService {
             throw new InvalidRequestException("Insufficient stock. Available: " + material.getStock());
         }
 
-        // Create resale (now includes unitPrice from DTO)
         Resale resale = resaleMapper.toEntity(requestDTO);
         resale.setMaterial(material);
         resale.setCreatedBy(currentUser);
@@ -71,30 +67,22 @@ public class ResaleServiceImpl implements ResaleService {
     public ResaleResponseDTO getResaleById(Long resaleId) {
         Resale resale = resaleRepository.findById(resaleId)
                 .orElseThrow(() -> new ResourceNotFoundException("Resale", resaleId));
+        if(resale.getCreatedBy().equals(accountService.getCurrentUser())) {
+            throw new InvalidRequestException("No permission to retrieve resale");
+        }
         return resaleMapper.toResponseDTO(resale);
     }
 
     @Override
-    public List<ResaleSummaryDTO> getResalesByYard(Long yardId) {
-        List<Resale> resales = resaleRepository.findByMaterialScrapYardYardId(yardId);
-        return resaleMapper.toSummaryDTOList(resales);
-    }
-
-    @Override
-    public List<ResaleSummaryDTO> getResalesByStaff(Long staffId) {
-        List<Resale> resales = resaleRepository.findByCreatedByAccountId(staffId);
-        return resaleMapper.toSummaryDTOList(resales);
-    }
-
-    @Override
-    public List<ResaleSummaryDTO> getResaleSummaries() {
-        List<Resale> resales = resaleRepository.findAll();
+    public List<ResaleSummaryDTO> getResalesByYard() {
+        List<Resale> resales = resaleRepository.findByMaterialScrapYardYardId(accountService.getCurrentUser().getScrapYard().getYardId());
         return resaleMapper.toSummaryDTOList(resales);
     }
 
     @Override
     public List<ResaleResponseDTO> getResalesByDateRange(LocalDateTime start, LocalDateTime end) {
-        List<Resale> resales = resaleRepository.findByCreatedAtBetween(start, end);
+        Account currentUser = accountService.getCurrentUser();
+        List<Resale> resales = resaleRepository.findByMaterialScrapYardYardIdAndCreatedAtBetween(currentUser.getScrapYard().getYardId(), start, end);
         return resaleMapper.toResponseDTOList(resales);
     }
 }
