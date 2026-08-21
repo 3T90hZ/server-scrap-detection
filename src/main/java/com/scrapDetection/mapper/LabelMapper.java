@@ -1,10 +1,6 @@
 package com.scrapDetection.mapper;
 
-import com.scrapDetection.dto.device.DeviceRequestDTO;
-import com.scrapDetection.dto.device.DeviceResponseDTO;
-import com.scrapDetection.dto.label.LabelRequest;
 import com.scrapDetection.dto.label.LabelResponse;
-import com.scrapDetection.entity.Device;
 import com.scrapDetection.entity.Label;
 import org.springframework.stereotype.Component;
 
