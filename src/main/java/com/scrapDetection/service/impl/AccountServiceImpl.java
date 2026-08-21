@@ -70,8 +70,7 @@ public class AccountServiceImpl implements AccountService {
                 .orElseThrow(() -> new ResourceNotFoundException("Account", "phoneNumbers", request.getPhoneNumbers()));
 
         if(account.getScrapYard() != null && account.getRole() != Role.CUSTOMER){
-            ScrapYard scrapYard = scrapYardRepository.getReferenceById(account.getScrapYard().getYardId());
-            if( !scrapYard.getStatus().equals("ACTIVE")){
+            if( !account.getScrapYard().getStatus().equals("ACTIVE")){
                 throw new InvalidRequestException("Yard is not activated");
             }
         }

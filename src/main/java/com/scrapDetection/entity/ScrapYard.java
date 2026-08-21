@@ -58,4 +58,7 @@ public class ScrapYard {
 
     @OneToMany(mappedBy = "scrapYard", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Account> accounts = new HashSet<>();
+
+    @OneToMany(mappedBy = "scrapYard", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Label> labels = new HashSet<>();
 }
