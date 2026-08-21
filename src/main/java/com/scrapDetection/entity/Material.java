@@ -49,4 +49,7 @@ public class Material {
 
     @OneToMany(mappedBy = "material")
     private Set<Transaction> transactions = new HashSet<>();
+
+    @OneToOne(mappedBy = "material")
+    private Set<Label> labels = new HashSet<>();
 }

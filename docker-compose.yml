@@ -44,7 +44,19 @@ services:
       start_period: 40s
     networks:
       - scrap-network
-
+      
+  streaming:
+    build: /opt/streaming-backend
+    container_name: streaming-backend
+    restart: unless-stopped
+    ports:
+      - "8100:8100"
+    env_file:
+      - /opt/streaming-backend/.env
+    depends_on:
+      - mysql
+    networks:
+      - scrap-network
 volumes:
   mysql_data:
 
