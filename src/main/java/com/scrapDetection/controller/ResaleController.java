@@ -45,6 +45,14 @@ public class ResaleController {
     }
 
     /**
+     * Get all resales in the current owner's yard (convenience endpoint)
+     */
+    @GetMapping("/my-yard")
+    public ResponseEntity<List<ResaleSummaryDTO>> getMyYardResales() {
+        return ResponseEntity.ok(resaleService.getResalesByYard());
+    }
+
+    /**
      * Get all resales belonging to a specific yard
      */
     @GetMapping("/yard/{yardId}")
