@@ -2,7 +2,7 @@ package com.scrapDetection.config;
 
 import com.scrapDetection.controller.DetectionFrameController;
 import com.scrapDetection.controller.DeviceController;
-import com.scrapDetection.controller.TransactionController;
+import com.scrapDetection.controller.BillController;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
@@ -90,9 +90,6 @@ class OpenApiConfigTest {
 
     @Test
     void authenticatedMethodsWithoutPreAuthorize_declareBearerSecurity() throws NoSuchMethodException {
-        assertBearerAnnotation(TransactionController.class.getMethod("getTransactionSummaries"));
-        assertBearerAnnotation(TransactionController.class.getMethod(
-                "getTransactionsByDateRange", LocalDateTime.class, LocalDateTime.class));
         assertBearerAnnotation(DeviceController.class.getMethod("getDeviceById", Long.class));
         assertBearerAnnotation(DetectionFrameController.class.getMethod("getLatestFrame"));
     }

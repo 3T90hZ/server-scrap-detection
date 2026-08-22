@@ -11,11 +11,13 @@ import com.scrapDetection.repository.ScrapYardRepository;
 import com.scrapDetection.security.jwt.JwtService;
 import com.scrapDetection.service.EmailService;
 import com.scrapDetection.service.SessionService;
+import com.scrapDetection.util.Normalize;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -45,6 +47,8 @@ class AccountServiceImplTest {
     private PasswordResetTokenRepository tokenRepository;
     @Mock
     private EmailService emailService;
+    @Spy
+    private Normalize normalize = new Normalize();
 
     @InjectMocks
     private AccountServiceImpl accountService;

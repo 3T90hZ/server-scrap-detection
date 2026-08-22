@@ -10,10 +10,12 @@ import com.scrapDetection.mapper.MaterialMapper;
 import com.scrapDetection.repository.MaterialRepository;
 import com.scrapDetection.repository.TransactionRepository;
 import com.scrapDetection.service.AccountService;
+import com.scrapDetection.util.Normalize;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
@@ -37,6 +39,8 @@ class MaterialServiceImplTest {
     private AccountService accountService;
     @Mock
     private TransactionRepository transactionRepository;
+    @Spy
+    private Normalize normalize = new Normalize();
 
     @InjectMocks
     private MaterialServiceImpl materialService;
@@ -53,14 +57,16 @@ class MaterialServiceImplTest {
                 .scrapYard(yard)
                 .build();
 
+        Material mapped = Material.builder().itemName("  Sắt   vụn ").build();
+
         when(accountService.getCurrentUser()).thenReturn(owner);
-        when(materialRepository.findByScrapYardYardId(10L)).thenReturn(List.of(inactiveDuplicate));
+        when(materialMapper.toEntity(request)).thenReturn(mapped);
+        when(materialRepository.existsByScrapYardYardIdAndItemNameIgnoreCase(10L, "sắt   vụn")).thenReturn(true);
 
         assertThrows(ResourceAlreadyExistsException.class,
                 () -> materialService.createMaterial(request));
 
         verify(materialRepository, never()).save(org.mockito.ArgumentMatchers.any());
-        verifyNoInteractions(materialMapper);
     }
 
     @Test
@@ -73,14 +79,13 @@ class MaterialServiceImplTest {
         MaterialResponseDTO response = MaterialResponseDTO.builder().materialId(20L).itemName("Giấy carton").build();
 
         when(accountService.getCurrentUser()).thenReturn(owner);
-        when(materialRepository.findByScrapYardYardId(10L)).thenReturn(List.of());
         when(materialMapper.toEntity(request)).thenReturn(mapped);
+        when(materialRepository.existsByScrapYardYardIdAndItemNameIgnoreCase(10L, "giấy carton")).thenReturn(false);
         when(materialRepository.save(mapped)).thenReturn(saved);
         when(materialMapper.toResponseDTO(saved)).thenReturn(response);
 
         MaterialResponseDTO result = materialService.createMaterial(request);
 
-        assertEquals("Giấy carton", request.getItemName());
         assertEquals(20L, result.getMaterialId());
         verify(materialRepository).save(mapped);
     }
@@ -99,13 +104,12 @@ class MaterialServiceImplTest {
 
         when(materialRepository.findById(20L)).thenReturn(Optional.of(existing));
         when(accountService.getCurrentUser()).thenReturn(owner);
-        when(materialRepository.findByScrapYardYardId(10L)).thenReturn(List.of(existing, duplicate));
+        when(materialRepository.existsByScrapYardYardIdAndItemNameIgnoreCase(10L, "nhôm")).thenReturn(true);
 
         assertThrows(ResourceAlreadyExistsException.class,
                 () -> materialService.updateMaterial(20L, request));
 
         verify(materialRepository, never()).save(org.mockito.ArgumentMatchers.any());
-        verifyNoInteractions(materialMapper);
     }
 
     private MaterialRequestDTO request(String itemName) {

@@ -52,14 +52,6 @@ public class ResaleController {
         return ResponseEntity.ok(resaleService.getResalesByYard());
     }
 
-    /**
-     * Get all resales belonging to a specific yard
-     */
-    @GetMapping("/yard/{yardId}")
-    public ResponseEntity<List<ResaleSummaryDTO>> getResalesByYard() {
-
-        return ResponseEntity.ok(resaleService.getResalesByYard());
-    }
     @GetMapping("/date-range")
     public ResponseEntity<List<ResaleResponseDTO>> getResalesByDateRange(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
