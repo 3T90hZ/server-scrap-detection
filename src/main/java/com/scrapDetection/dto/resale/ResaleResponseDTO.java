@@ -1,4 +1,4 @@
-package com.scrapDetection.dto.transaction;
+package com.scrapDetection.dto.resale;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,17 +11,15 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TransactionResponseDTO {
+public class ResaleResponseDTO {
 
-    private Long transactionId;
-    private String billId;
-    private String transactionType;
+    private Long resaleId;
     private Long materialId;
     private String itemName;
     private Double weight;
+    private Double unitPrice;
     private Double totalWorth;
-    private Long customerId;
-    private String customerName;
+    private String factoryName;
     private Long ownerOrStaffId;
     private String staffName;
     private LocalDateTime createdAt;

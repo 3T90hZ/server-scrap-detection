@@ -1,7 +1,7 @@
-package com.scrapDetection.dto.transaction;
+package com.scrapDetection.dto.label;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,14 +11,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TransactionRequestDTO {
+public class LabelRequest {
+    @NotBlank(message = "Label name is required")
+    private String labelName;
 
     @NotNull(message = "Material ID is required")
     private Long materialId;
-
-    @NotNull(message = "Weight is required")
-    @Positive(message = "Weight must be positive")
-    private Double weight;
-
-    private Long customerId;
 }

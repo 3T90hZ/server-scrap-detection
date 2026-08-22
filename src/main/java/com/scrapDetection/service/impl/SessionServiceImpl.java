@@ -30,7 +30,7 @@ public class SessionServiceImpl implements SessionService {
         Session session = new Session();
         session.setAccount(account);
         session.setJwtTokenHash(tokenHash);
-        session.setExpiredAt(LocalDateTime.now().plusHours(24)); // 24 hours
+        session.setExpiredAt(LocalDateTime.now().plusHours(12));
 
         return sessionRepository.save(session);
     }

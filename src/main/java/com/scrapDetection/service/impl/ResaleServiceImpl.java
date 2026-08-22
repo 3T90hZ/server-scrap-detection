@@ -1,0 +1,88 @@
+package com.scrapDetection.service.impl;
+
+import com.scrapDetection.dto.resale.ResaleRequestDTO;
+import com.scrapDetection.dto.resale.ResaleResponseDTO;
+import com.scrapDetection.dto.resale.ResaleSummaryDTO;
+import com.scrapDetection.entity.*;
+import com.scrapDetection.exception.InvalidRequestException;
+import com.scrapDetection.exception.ResourceNotFoundException;
+import com.scrapDetection.mapper.ResaleMapper;
+import com.scrapDetection.repository.MaterialRepository;
+import com.scrapDetection.repository.ResaleRepository;
+import com.scrapDetection.service.AccountService;
+import com.scrapDetection.service.ResaleService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+@Transactional
+public class ResaleServiceImpl implements ResaleService {
+
+    private final ResaleRepository resaleRepository;
+    private final MaterialRepository materialRepository;
+    private final AccountService accountService;
+    private final ResaleMapper resaleMapper;
+
+    @Override
+    public ResaleResponseDTO createResale(ResaleRequestDTO requestDTO) {
+        Account currentUser = accountService.getCurrentUser();
+
+        Material material = materialRepository.findById(requestDTO.getMaterialId())
+                .orElseThrow(() -> new ResourceNotFoundException("Material", requestDTO.getMaterialId()));
+
+        if (!material.getScrapYard().getYardId().equals(currentUser.getScrapYard().getYardId())) {
+            throw new InvalidRequestException("You can only create resales for materials in your yard");
+        }
+
+        if (material.getStock() < requestDTO.getWeight()) {
+            throw new InvalidRequestException("Insufficient stock. Available: " + material.getStock());
+        }
+
+        Resale resale = resaleMapper.toEntity(requestDTO);
+        resale.setMaterial(material);
+        resale.setCreatedBy(currentUser);
+
+        Resale savedResale = resaleRepository.save(resale);
+
+        // Decrease stock
+        material.setStock(material.getStock() - requestDTO.getWeight());
+        materialRepository.save(material);
+
+        ResaleTotal total = new ResaleTotal();
+        total.setResale(savedResale);
+        total.setTotalWorth(requestDTO.getWeight() * requestDTO.getUnitPrice());
+        savedResale.setResaleTotal(total);
+
+        savedResale = resaleRepository.save(savedResale);
+
+        return resaleMapper.toResponseDTO(savedResale);
+    }
+
+    @Override
+    public ResaleResponseDTO getResaleById(Long resaleId) {
+        Resale resale = resaleRepository.findById(resaleId)
+                .orElseThrow(() -> new ResourceNotFoundException("Resale", resaleId));
+        if(resale.getCreatedBy().equals(accountService.getCurrentUser())) {
+            throw new InvalidRequestException("No permission to retrieve resale");
+        }
+        return resaleMapper.toResponseDTO(resale);
+    }
+
+    @Override
+    public List<ResaleSummaryDTO> getResalesByYard() {
+        List<Resale> resales = resaleRepository.findByMaterialScrapYardYardIdOrderByCreatedAtDesc(accountService.getCurrentUser().getScrapYard().getYardId());
+        return resaleMapper.toSummaryDTOList(resales);
+    }
+
+    @Override
+    public List<ResaleResponseDTO> getResalesByDateRange(LocalDateTime start, LocalDateTime end) {
+        Account currentUser = accountService.getCurrentUser();
+        List<Resale> resales = resaleRepository.findByMaterialScrapYardYardIdAndCreatedAtBetweenOrderByCreatedAtDesc(currentUser.getScrapYard().getYardId(), start, end);
+        return resaleMapper.toResponseDTOList(resales);
+    }
+}

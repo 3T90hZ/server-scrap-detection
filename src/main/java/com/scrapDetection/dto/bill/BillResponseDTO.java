@@ -1,4 +1,4 @@
-package com.scrapDetection.dto.transaction;
+package com.scrapDetection.dto.bill;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,12 +13,15 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BillResponseDTO {
-    private String billId;
-    private String transactionType;
-    private List<BillItemResponseDTO> items;
-    private Double totalWeight;
-    private Double totalWorth;
+
+    private Long billId;
+    private Long customerId;
     private String customerName;
-    private String createdBy;
+    private Long createdById;
+    private String createdByName;
     private LocalDateTime createdAt;
+    private Double totalWorth;
+    private Long yardId;
+    private String yardName;
+    private List<BillItemResponseDTO> items;
 }

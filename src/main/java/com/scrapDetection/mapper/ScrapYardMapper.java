@@ -26,8 +26,8 @@ public class ScrapYardMapper {
     public CreateAccountRequestDTO scrapYardToAccountRequest (ScrapYardRequestDTO dto) {
         CreateAccountRequestDTO accountRequest = new CreateAccountRequestDTO();
         accountRequest.setAccountName(dto.getDisplayName());
-        accountRequest.setPhoneNumbers(dto.getYardOwnerPhoneNumber());
         accountRequest.setPassword(dto.getPassword());
+        accountRequest.setPhoneNumbers(dto.getPhoneNumbers());
         accountRequest.setEmail(dto.getEmail());
         return accountRequest;
     }

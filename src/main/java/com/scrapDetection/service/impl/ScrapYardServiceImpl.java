@@ -4,14 +4,20 @@ import com.scrapDetection.dto.scrapyard.ScrapYardRequestDTO;
 import com.scrapDetection.dto.scrapyard.ScrapYardResponseDTO;
 import com.scrapDetection.dto.scrapyard.ScrapYardStatusRequestDTO;
 import com.scrapDetection.dto.scrapyard.ScrapYardUpdateRequestDTO;
+import com.scrapDetection.entity.Account;
+import com.scrapDetection.entity.Material;
 import com.scrapDetection.entity.Role;
 import com.scrapDetection.entity.ScrapYard;
+import com.scrapDetection.exception.InvalidRequestException;
 import com.scrapDetection.exception.ResourceAlreadyExistsException;
 import com.scrapDetection.exception.ResourceNotFoundException;
 import com.scrapDetection.mapper.ScrapYardMapper;
+import com.scrapDetection.repository.AccountRepository;
+import com.scrapDetection.repository.MaterialRepository;
 import com.scrapDetection.repository.ScrapYardRepository;
 import com.scrapDetection.service.AccountService;
 import com.scrapDetection.service.ScrapYardService;
+import com.scrapDetection.util.Normalize;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,13 +32,19 @@ import java.util.List;
 public class ScrapYardServiceImpl implements ScrapYardService {
 
     private final ScrapYardRepository scrapYardRepository;
+    private final AccountRepository accountRepository;
+    private final MaterialRepository materialRepository;
     private final ScrapYardMapper scrapYardMapper;
     private final AccountService accountService;
+    private final Normalize normalize;
 
     @Override
     public ScrapYardResponseDTO createScrapYardRequest(ScrapYardRequestDTO requestDTO) {
-        requestDTO.setPhoneNumbers(requestDTO.getPhoneNumbers().trim());
-        if (scrapYardRepository.existsByYardName(requestDTO.getYardName())) {
+        requestDTO.setPhoneNumbers(normalize.normalizeEmailAndPhoneNumber(requestDTO.getPhoneNumbers()));
+        requestDTO.setEmail(normalize.normalizeEmailAndPhoneNumber(requestDTO.getEmail()));
+
+        Account account = accountRepository.findByPhoneNumbers(normalize.normalizeEmailAndPhoneNumber(requestDTO.getPhoneNumbers())).orElse(null);
+        if (CheckYardNameDuplicate(requestDTO.getYardName())) {
             throw new ResourceAlreadyExistsException("Scrap Yard", "yardName", requestDTO.getYardName());
         }
 
@@ -44,10 +56,6 @@ public class ScrapYardServiceImpl implements ScrapYardService {
             throw new ResourceAlreadyExistsException("Scrap Yard", "address", requestDTO.getAddress());
         }
 
-        if (scrapYardRepository.existsByPhoneNumbers(requestDTO.getYardOwnerPhoneNumber())) {
-            throw new ResourceAlreadyExistsException("Account", "phoneNumbers", requestDTO.getPhoneNumbers());
-        }
-
         ScrapYard scrapYard = scrapYardMapper.toEntity(requestDTO);
 
         if (scrapYard.getStatus() == null || scrapYard.getStatus().isBlank()) {
@@ -55,7 +63,16 @@ public class ScrapYardServiceImpl implements ScrapYardService {
         }
 
         ScrapYard savedYard = scrapYardRepository.save(scrapYard);
-        accountService.registerCustomer(scrapYardMapper.scrapYardToAccountRequest(requestDTO), scrapYard.getYardId());
+        if(account != null) {
+            if( account.getRole().equals(Role.CUSTOMER) && account.getScrapYard() == null) {
+                account.setScrapYard(savedYard);
+            }
+            else {
+                throw new InvalidRequestException("Already belong to a yard!");
+            }
+        }else {
+            accountService.registerCustomer(scrapYardMapper.scrapYardToAccountRequest(requestDTO), scrapYard.getYardId());
+        }
         return scrapYardMapper.toResponseDTO(savedYard);
     }
 
@@ -85,12 +102,13 @@ public class ScrapYardServiceImpl implements ScrapYardService {
     @Override
     @Transactional(readOnly = true)
     public Page<ScrapYardResponseDTO> getScrapYardsByStatus(String status, Pageable pageable) {
-        Page<ScrapYard> yards = scrapYardRepository.findByStatus("Active",pageable);
+        Page<ScrapYard> yards = scrapYardRepository.findByStatus(status,pageable);
         return yards.map(scrapYardMapper::toResponseDTO);
     }
 
     @Override
     public ScrapYardResponseDTO updateScrapYard(Long yardId, ScrapYardUpdateRequestDTO requestDTO) {
+        checkYardOwnership(yardId);
         ScrapYard existingYard = scrapYardRepository.findById(yardId)
                 .orElseThrow(() -> new ResourceNotFoundException("Scrap Yard", yardId));
 
@@ -100,7 +118,10 @@ public class ScrapYardServiceImpl implements ScrapYardService {
             throw new  ResourceAlreadyExistsException("Scrap Yard", "address", requestDTO.getAddress());
         }
         if(scrapYardRepository.existsByPhoneNumbers(requestDTO.getPhoneNumbers()) && !existingYard.getPhoneNumbers().equals(requestDTO.getPhoneNumbers())) {
-            throw new ResourceNotFoundException("Scrap Yard", "phoneNumbers", requestDTO.getPhoneNumbers());
+            throw new ResourceAlreadyExistsException("Scrap Yard", "phoneNumbers", requestDTO.getPhoneNumbers());
+        }
+        if(CheckYardNameDuplicate(requestDTO.getYardName()) && !existingYard.getYardName().equals(requestDTO.getYardName())) {
+            throw new ResourceAlreadyExistsException("Scrap Yard", "yardName", requestDTO.getYardName());
         }
         // Update entity from DTO
         scrapYardMapper.updateEntityFromDTO(requestDTO, existingYard);
@@ -111,10 +132,13 @@ public class ScrapYardServiceImpl implements ScrapYardService {
 
     @Override
     public ScrapYardResponseDTO updateScrapYardStatus(ScrapYardStatusRequestDTO requestDTO, Long id) {
+        checkYardOwnership(id);
         ScrapYard existingYard = scrapYardRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Scrap Yard", id));
 
-        if(existingYard.getStatus().equals("PENDING") && requestDTO.getStatus().equals("ACTIVE")){
+        if(existingYard.getStatus().equals("PENDING")
+                && requestDTO.getStatus().equals("ACTIVE")
+                && accountService.getCurrentUser().getRole() ==  Role.ADMIN) {
             accountService.changeRole(existingYard.getYardId(), Role.CUSTOMER, Role.YARD_OWNER);
         }
 
@@ -126,10 +150,22 @@ public class ScrapYardServiceImpl implements ScrapYardService {
 
     @Override
     public void deleteScrapYard(Long yardId) {
-        if (!scrapYardRepository.existsById(yardId)) {
-            throw new ResourceNotFoundException("Scrap Yard", yardId);
+        ScrapYard existingYard = scrapYardRepository.findById(yardId)
+                .orElseThrow(() -> new ResourceNotFoundException("Scrap Yard", yardId));
+
+        List<Material> materials = materialRepository.findByScrapYardYardId(yardId);
+        accountRepository.findByScrapYardYardId(yardId).forEach(acc -> {
+            acc.setScrapYard(null);
+            acc.setRole(Role.CUSTOMER);
+            accountRepository.save(acc);
+        });
+        if(!materials.isEmpty()) {
+            materials.forEach(material -> {material.setStatus("INACTIVE"); materialRepository.save(material);});
+            existingYard.setStatus("INACTIVE");
+            scrapYardRepository.save(existingYard);
+        }else {
+            scrapYardRepository.deleteById(yardId);
         }
-        scrapYardRepository.deleteById(yardId);
     }
 
     @Override
@@ -144,5 +180,17 @@ public class ScrapYardServiceImpl implements ScrapYardService {
     public List<ScrapYardResponseDTO> searchScrapYardsByName(String yardName) {
         List<ScrapYard> yards = scrapYardRepository.findByYardNameContainingIgnoreCase(yardName);
         return scrapYardMapper.toResponseDTOList(yards);
+    }
+
+    private Boolean CheckYardNameDuplicate(String yardName) {
+        String normalized = normalize.normalizeName(yardName);
+        return scrapYardRepository.existsByYardNameIgnoreCase(normalized);
+    }
+
+    private void checkYardOwnership(Long yardId){
+        if(accountService.getCurrentUser().getRole() == Role.YARD_OWNER
+                && !accountService.getCurrentUser().getScrapYard().getYardId().equals(yardId)){
+            throw new InvalidRequestException("No permission!");
+        }
     }
 }

@@ -18,7 +18,10 @@ public interface MaterialRepository extends JpaRepository<Material, Long> {
 
     List<Material> findByItemNameContainingIgnoreCaseAndStatus(String keyword, String status);
 
-    Optional<Material> findFirstByItemNameIgnoreCase(String itemName);
+    boolean existsByScrapYardYardIdAndItemNameIgnoreCase(
+            Long yardId,
+            String itemName
+    );
 
     List<Material> findByScrapYardYardIdAndItemNameContainingIgnoreCase(
             Long yardId,

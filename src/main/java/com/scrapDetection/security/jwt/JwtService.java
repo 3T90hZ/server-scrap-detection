@@ -4,6 +4,7 @@ import com.scrapDetection.entity.Account;
 import com.scrapDetection.exception.InvalidRequestException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
@@ -17,11 +18,18 @@ import java.util.Map;
 @Service
 public class JwtService {
 
-    @Value("${jwt.secret:your-super-secret-key-at-least-64-characters-for-hs512-security-change-in-production}")
+    @Value("${jwt.secret}")
     private String secretKey;
 
     @Value("${jwt.expiration:86400000}") // 24 hours
     private long jwtExpiration;
+
+    @PostConstruct
+    void validateSecret() {
+        if (secretKey == null || secretKey.getBytes(StandardCharsets.UTF_8).length < 64) {
+            throw new IllegalStateException("JWT_SECRET must contain at least 64 bytes for HS512");
+        }
+    }
 
     private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
