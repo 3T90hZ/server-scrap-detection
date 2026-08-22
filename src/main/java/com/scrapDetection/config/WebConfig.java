@@ -12,12 +12,19 @@ public class WebConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
                 .allowedOrigins(
-                        "http://localhost:3000",           // Next.js
-                        "http://127.0.0.1:3000",           // Alternative localhost
-                        "http://localhost:8080",           // Swagger UI
-                        "http://10.0.2.2:8080",            // Android Emulator
-                        "http://localhost:19006",          // Expo Web
-                        "exp://192.168.1.105:19000"       // Expo Go
+                        // Local development
+                        "http://localhost:3000",
+                        "http://127.0.0.1:3000",
+                        "http://localhost:8080",
+                        "http://10.0.2.2:8080",
+                        "http://localhost:19006",
+                        "exp://192.168.1.105:19000",
+                        // Production — Web
+                        "https://scrapsmart.io.vn",
+                        "https://www.scrapsmart.io.vn",
+                        // Vercel preview / CI deployments
+                        "https://recy-click-front-web-ggwp.vercel.app",
+                        "https://recy-click-front-web.vercel.app"
                 )
                 .allowedMethods("*")
                 .allowedHeaders("*")
