@@ -48,7 +48,7 @@ public class AccountController {
         return ResponseEntity.ok(currentUserInfo);
     }
 
-    @PreAuthorize("hasAnyRole('YARD_OWNER', 'STAFF')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'YARD_OWNER', 'STAFF', 'CUSTOMER')")
     @GetMapping("/customer")
     public ResponseEntity<AccountInfoResponseDTO> getCustomer(@Valid @RequestBody GetPhoneNumberRequestDTO request) {
         AccountInfoResponseDTO customer = accountService.findAccountByPhoneNumber(request);
