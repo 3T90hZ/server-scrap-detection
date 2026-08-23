@@ -4,10 +4,7 @@ import com.scrapDetection.dto.scrapyard.ScrapYardRequestDTO;
 import com.scrapDetection.dto.scrapyard.ScrapYardResponseDTO;
 import com.scrapDetection.dto.scrapyard.ScrapYardStatusRequestDTO;
 import com.scrapDetection.dto.scrapyard.ScrapYardUpdateRequestDTO;
-import com.scrapDetection.entity.Account;
-import com.scrapDetection.entity.Material;
-import com.scrapDetection.entity.Role;
-import com.scrapDetection.entity.ScrapYard;
+import com.scrapDetection.entity.*;
 import com.scrapDetection.exception.InvalidRequestException;
 import com.scrapDetection.exception.ResourceAlreadyExistsException;
 import com.scrapDetection.exception.ResourceNotFoundException;
@@ -52,8 +49,13 @@ public class ScrapYardServiceImpl implements ScrapYardService {
 
         if (scrapYardRepository.existsByPhoneNumbers(requestDTO.getPhoneNumbers())) {
             ScrapYard scrapYard = scrapYardRepository.findByPhoneNumbers(requestDTO.getPhoneNumbers()).orElse(null);
-            if(scrapYard != null && scrapYard.getStatus().equals("INACTIVE")) {
-                scrapYard.setStatus("ACTIVE");
+            if(scrapYard != null && scrapYard.getStatus().equals(YardStatus.INACTIVE)) {
+                scrapYard.setStatus(YardStatus.PENDING);
+                if (account!= null
+                        && account.getScrapYard() != null
+                        && !account.getScrapYard().getYardId().equals(scrapYard.getYardId())) {
+                    throw new InvalidRequestException("Already belong to a yard!");
+                }
                 return scrapYardMapper.toResponseDTO(scrapYardRepository.save(scrapYard));
             }
             throw new ResourceAlreadyExistsException("Scrap Yard", "phoneNumbers", requestDTO.getPhoneNumbers());
@@ -65,20 +67,21 @@ public class ScrapYardServiceImpl implements ScrapYardService {
 
         ScrapYard scrapYard = scrapYardMapper.toEntity(requestDTO);
 
-        if (scrapYard.getStatus() == null || scrapYard.getStatus().isBlank()) {
-            scrapYard.setStatus("PENDING");
+        if (scrapYard.getStatus() == null) {
+            scrapYard.setStatus(YardStatus.PENDING);
         }
 
         ScrapYard savedYard = scrapYardRepository.save(scrapYard);
         if(account != null) {
             if( account.getRole().equals(Role.CUSTOMER) && account.getScrapYard() == null) {
                 account.setScrapYard(savedYard);
+                accountRepository.save(account);
             }
             else {
                 throw new InvalidRequestException("Already belong to a yard!");
             }
         }else {
-            accountService.registerCustomer(scrapYardMapper.scrapYardToAccountRequest(requestDTO), scrapYard.getYardId());
+            accountService.registerCustomer(scrapYardMapper.scrapYardToAccountRequest(requestDTO), savedYard.getYardId());
         }
         return scrapYardMapper.toResponseDTO(savedYard);
     }
@@ -95,7 +98,7 @@ public class ScrapYardServiceImpl implements ScrapYardService {
     @Override
     @Transactional(readOnly = true)
     public Page<ScrapYardResponseDTO> getAllActiveScrapYards(Pageable pageable) {
-        Page<ScrapYard> yardPage = scrapYardRepository.findByStatus("Active",pageable);
+        Page<ScrapYard> yardPage = scrapYardRepository.findByStatus(YardStatus.ACTIVE, pageable);
         return yardPage.map(scrapYardMapper::toResponseDTO);
     }
 
@@ -108,7 +111,7 @@ public class ScrapYardServiceImpl implements ScrapYardService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<ScrapYardResponseDTO> getScrapYardsByStatus(String status, Pageable pageable) {
+    public Page<ScrapYardResponseDTO> getScrapYardsByStatus(YardStatus status, Pageable pageable) {
         Page<ScrapYard> yards = scrapYardRepository.findByStatus(status,pageable);
         return yards.map(scrapYardMapper::toResponseDTO);
     }
@@ -143,8 +146,8 @@ public class ScrapYardServiceImpl implements ScrapYardService {
         ScrapYard existingYard = scrapYardRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Scrap Yard", id));
 
-        if(existingYard.getStatus().equals("PENDING")
-                && requestDTO.getStatus().equals("ACTIVE")
+        if(existingYard.getStatus().equals(YardStatus.PENDING)
+                && requestDTO.getStatus().equals(YardStatus.ACTIVE)
                 && currentUserService.getCurrentUser().getRole() ==  Role.ADMIN) {
             accountService.changeRole(existingYard.getYardId(), Role.CUSTOMER, Role.YARD_OWNER);
         }
@@ -169,8 +172,8 @@ public class ScrapYardServiceImpl implements ScrapYardService {
             accountRepository.save(acc);
         });
         if(!materials.isEmpty()) {
-            materials.forEach(material -> {material.setStatus("INACTIVE"); materialRepository.save(material);});
-            existingYard.setStatus("INACTIVE");
+            materials.forEach(material -> {material.setStatus(MaterialStatus.INACTIVE); materialRepository.save(material);});
+            existingYard.setStatus(YardStatus.INACTIVE);
             scrapYardRepository.save(existingYard);
         }else {
             scrapYardRepository.deleteById(yardId);

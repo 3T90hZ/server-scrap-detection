@@ -25,8 +25,9 @@ public class Material {
     @JoinColumn(name = "yard_id", nullable = false)
     private ScrapYard scrapYard;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String status; // ACTIVE/INACTIVE
+    private MaterialStatus status;
 
     @Column(name = "icon",nullable = false)
     private String icon;

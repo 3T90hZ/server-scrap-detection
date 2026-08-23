@@ -1,5 +1,6 @@
 package com.scrapDetection.dto.scrapyard;
 
+import com.scrapDetection.entity.YardStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,7 +20,7 @@ public class ScrapYardResponseDTO {
     private String phoneNumbers;
     private String openHour;
     private String closeHour;
-    private String status;
+    private YardStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

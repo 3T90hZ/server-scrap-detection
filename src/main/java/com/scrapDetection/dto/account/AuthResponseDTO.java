@@ -1,5 +1,6 @@
 package com.scrapDetection.dto.account;
 
+import com.scrapDetection.entity.AccountStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,7 +20,7 @@ public class AuthResponseDTO {
     private String phoneNumbers;
     private String email;
     private Long yardId;
-    private String status;
+    private AccountStatus status;
     private String token;           // JWT token
     private LocalDateTime expiresAt;
 }

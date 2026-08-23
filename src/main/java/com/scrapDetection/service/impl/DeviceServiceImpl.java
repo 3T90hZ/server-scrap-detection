@@ -3,10 +3,7 @@ package com.scrapDetection.service.impl;
 import com.scrapDetection.dto.device.DeviceRequestDTO;
 import com.scrapDetection.dto.device.DeviceResponseDTO;
 import com.scrapDetection.dto.device.DeviceViewerAccessDTO;
-import com.scrapDetection.entity.Account;
-import com.scrapDetection.entity.Device;
-import com.scrapDetection.entity.DeviceStatus;
-import com.scrapDetection.entity.Role;
+import com.scrapDetection.entity.*;
 import com.scrapDetection.exception.ForbiddenException;
 import com.scrapDetection.exception.InvalidRequestException;
 import com.scrapDetection.exception.ResourceNotFoundException;
@@ -161,7 +158,7 @@ public class DeviceServiceImpl implements DeviceService {
     public DeviceViewerAccessDTO getViewerAccess(Long deviceId) {
         Account currentUser = currentUserService.getCurrentUser();
 
-        if (!"ACTIVE".equalsIgnoreCase(currentUser.getStatus())) {
+        if (!AccountStatus.ACTIVE.equals(currentUser.getStatus())) {
             throw new ForbiddenException("Account is not active");
         }
         if (currentUser.getRole() != Role.STAFF && currentUser.getRole() != Role.YARD_OWNER) {

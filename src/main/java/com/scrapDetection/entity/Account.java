@@ -45,8 +45,9 @@ public class Account {
     @Email()
     private String email;
 
-    @Column(name = "status", nullable = false, length = 20)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private AccountStatus status;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
