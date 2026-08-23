@@ -13,6 +13,7 @@ import com.scrapDetection.repository.ScrapYardRepository;
 import com.scrapDetection.security.jwt.JwtService;
 import com.scrapDetection.service.AccountService;
 import com.scrapDetection.service.EmailService;
+import com.scrapDetection.service.NotificationService;
 import com.scrapDetection.service.SessionService;
 import com.scrapDetection.util.Normalize;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +41,7 @@ public class AccountServiceImpl implements AccountService {
     private final PasswordResetTokenRepository tokenRepository;
     private final EmailService emailService;
     private final Normalize normalize;
+    private final NotificationService notificationService;
 
     private static final int TOKEN_EXPIRY_MINUTES = 60;
 
@@ -107,6 +109,22 @@ public class AccountServiceImpl implements AccountService {
 
         Account saved = accountRepository.save(account);
         return accountMapper.toAuthResponse(saved, null);
+    }
+
+    @Override
+    public void addStaff(String phoneNumber){
+        Account currentUser = getCurrentUser();
+        if(currentUser.getScrapYard() == null
+                || currentUser.getScrapYard().getStatus().equals("INACTIVE")
+                || !currentUser.getRole().equals(Role.YARD_OWNER)) {
+            throw new InvalidRequestException("You do not have permission to add this staff");
+        }
+        Account staff = accountRepository.findByPhoneNumbers(phoneNumber).orElse(null);
+        if(staff == null || staff.getRole() != Role.CUSTOMER || staff.getScrapYard() != null) {
+            throw new InvalidRequestException("Can not add this user as your staff!");
+        }
+
+        notificationService.createInviteNotification(staff.getAccountId(), currentUser.getAccountId());
     }
 
     @Override
@@ -180,10 +198,7 @@ public class AccountServiceImpl implements AccountService {
 
             emailService.sendPasswordResetEmail(account.getEmail(), token);
         } else if (isPhoneNumber(value)) {
-            // TODO: Phone OTP
-            // Account account = accountRepository.findByPhoneNumber(value)
-            //         .orElseThrow(() -> new ResourceNotFoundException("No account found with phone: " + value));
-            // ... generate & send OTP
+            throw new InvalidRequestException("Sending OTP with phone number is currently not available");
         } else {
             throw new InvalidRequestException("Invalid email or phone number format");
         }

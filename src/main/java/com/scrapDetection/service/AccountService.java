@@ -17,6 +17,8 @@ public interface AccountService {
     // Yard Owner Operations
     AuthResponseDTO createStaff(CreateAccountRequestDTO request);
 
+    void addStaff(String phoneNumber);
+
     Account getCurrentUser(); // For security context
 
     // Update
