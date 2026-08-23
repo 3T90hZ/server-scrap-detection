@@ -266,6 +266,33 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    public void leaveYard(Long accountId) {
+        Account currentAccount = currentUserService.getCurrentUser();
+        Account leavingAccount = accountRepository.
+                findById(accountId).
+                orElseThrow(() -> new ResourceNotFoundException("Account", accountId));
+        // Staff leave yard
+        if(currentAccount.getAccountId().equals(accountId) && currentAccount.getRole() == Role.STAFF){
+            leavingAccount.setRole(Role.CUSTOMER);
+            leavingAccount.setScrapYard(null);
+        }
+        // Yard owner remove staff
+        else if(!currentAccount.getAccountId().equals(accountId)
+                && currentAccount.getRole() == Role.YARD_OWNER
+                && leavingAccount.getRole().equals(Role.STAFF)
+                && currentAccount.getScrapYard() != null
+                && leavingAccount.getScrapYard() != null
+                && leavingAccount.getScrapYard().getYardId().equals(currentAccount.getScrapYard().getYardId())){
+            leavingAccount.setRole(Role.CUSTOMER);
+            leavingAccount.setScrapYard(null);
+        }
+        else{
+            throw new InvalidRequestException("No permission");
+        }
+        accountRepository.save(leavingAccount);
+    }
+
+    @Override
     public AccountInfoResponseDTO findAccountByPhoneNumber(GetPhoneNumberRequestDTO request){
         Account account = accountRepository.findByPhoneNumbers(request.getPhoneNumber()).orElse(null);
 
