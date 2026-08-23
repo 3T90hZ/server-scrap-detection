@@ -16,6 +16,7 @@ import com.scrapDetection.repository.AccountRepository;
 import com.scrapDetection.repository.MaterialRepository;
 import com.scrapDetection.repository.ScrapYardRepository;
 import com.scrapDetection.service.AccountService;
+import com.scrapDetection.service.CurrentUserService;
 import com.scrapDetection.service.ScrapYardService;
 import com.scrapDetection.util.Normalize;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +38,7 @@ public class ScrapYardServiceImpl implements ScrapYardService {
     private final ScrapYardMapper scrapYardMapper;
     private final AccountService accountService;
     private final Normalize normalize;
+    private final CurrentUserService currentUserService;
 
     @Override
     public ScrapYardResponseDTO createScrapYardRequest(ScrapYardRequestDTO requestDTO) {
@@ -138,7 +140,7 @@ public class ScrapYardServiceImpl implements ScrapYardService {
 
         if(existingYard.getStatus().equals("PENDING")
                 && requestDTO.getStatus().equals("ACTIVE")
-                && accountService.getCurrentUser().getRole() ==  Role.ADMIN) {
+                && currentUserService.getCurrentUser().getRole() ==  Role.ADMIN) {
             accountService.changeRole(existingYard.getYardId(), Role.CUSTOMER, Role.YARD_OWNER);
         }
 
@@ -188,8 +190,8 @@ public class ScrapYardServiceImpl implements ScrapYardService {
     }
 
     private void checkYardOwnership(Long yardId){
-        if(accountService.getCurrentUser().getRole() == Role.YARD_OWNER
-                && !accountService.getCurrentUser().getScrapYard().getYardId().equals(yardId)){
+        if(currentUserService.getCurrentUser().getRole() == Role.YARD_OWNER
+                && !currentUserService.getCurrentUser().getScrapYard().getYardId().equals(yardId)){
             throw new InvalidRequestException("No permission!");
         }
     }

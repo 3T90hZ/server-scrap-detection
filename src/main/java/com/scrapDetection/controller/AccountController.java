@@ -3,6 +3,7 @@ package com.scrapDetection.controller;
 import com.scrapDetection.dto.account.*;
 import com.scrapDetection.entity.Account;
 import com.scrapDetection.service.AccountService;
+import com.scrapDetection.service.CurrentUserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,12 +17,22 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AccountController {
     private final AccountService accountService;
+    private final CurrentUserService currentUserService;
 
     @PreAuthorize("hasRole('YARD_OWNER')")
     @GetMapping("/staff")
     public ResponseEntity<List<AccountInfoResponseDTO>> getMyStaff() {
         List<AccountInfoResponseDTO> staff = accountService.getAllStaffByYardOwner();
         return ResponseEntity.ok(staff);
+    }
+
+    @PreAuthorize("hasRole('YARD_OWNER')")
+    @PostMapping("/add-staff")
+    public ResponseEntity<Void> addStaff(
+            @Valid @RequestBody AddStaffRequestDTO request
+    ) {
+        accountService.addStaff(request.getPhoneNumber());
+        return ResponseEntity.noContent().build();
     }
 
 
@@ -56,7 +67,7 @@ public class AccountController {
     }
     // Helper method
     private Long getCurrentUserId() {
-        Account currentUser = accountService.getCurrentUser();
+        Account currentUser = currentUserService.getCurrentUser();
         return currentUser.getAccountId();
     }
 }

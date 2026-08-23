@@ -10,7 +10,7 @@ import com.scrapDetection.exception.ResourceNotFoundException;
 import com.scrapDetection.mapper.MaterialMapper;
 import com.scrapDetection.repository.MaterialRepository;
 import com.scrapDetection.repository.TransactionRepository;
-import com.scrapDetection.service.AccountService;
+import com.scrapDetection.service.CurrentUserService;
 import com.scrapDetection.service.MaterialService;
 import com.scrapDetection.util.Normalize;
 import lombok.RequiredArgsConstructor;
@@ -29,16 +29,16 @@ public class MaterialServiceImpl implements MaterialService {
 
     private final MaterialRepository materialRepository;
     private final MaterialMapper materialMapper;
-    private final AccountService accountService;
     private final TransactionRepository transactionRepository;
     private final Normalize normalize;
+    private final CurrentUserService  currentUserService;
 
     @Override
     public MaterialResponseDTO createMaterial(MaterialRequestDTO requestDTO) {
         Material material = materialMapper.toEntity(requestDTO);
 
         // Get current logged-in user (Yard Owner)
-        var currentUser = accountService.getCurrentUser();
+        var currentUser = currentUserService.getCurrentUser();
 
         if (currentUser.getScrapYard() == null) {
             throw new InvalidRequestException("You must be assigned to a scrap yard to manage materials");
@@ -144,7 +144,7 @@ public class MaterialServiceImpl implements MaterialService {
      * Validates that the current user can only manage materials in their own yard
      */
     private void validateYardOwnership(Material material) {
-        var currentUser = accountService.getCurrentUser();
+        var currentUser = currentUserService.getCurrentUser();
 
         if (currentUser.getScrapYard() == null) {
             throw new InvalidRequestException("You are not assigned to any scrap yard");

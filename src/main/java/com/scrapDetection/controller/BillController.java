@@ -3,8 +3,8 @@ package com.scrapDetection.controller;
 import com.scrapDetection.dto.bill.BillRequestDTO;
 import com.scrapDetection.dto.bill.BillResponseDTO;
 import com.scrapDetection.dto.bill.BillSummaryDTO;
-import com.scrapDetection.service.AccountService;
 import com.scrapDetection.service.BillService;
+import com.scrapDetection.service.CurrentUserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,7 +21,7 @@ import java.util.List;
 public class BillController {
 
     private final BillService billService;
-    private final AccountService accountService;
+    private final CurrentUserService currentUserService;
 
     // Create a bill (one or more materials)
     @PreAuthorize("hasAnyRole('STAFF', 'YARD_OWNER')")
@@ -81,12 +81,12 @@ public class BillController {
     // ==================== Helper Methods ====================
 
     private Long getCurrentUserId() {
-        var currentUser = accountService.getCurrentUser();
+        var currentUser = currentUserService.getCurrentUser();
         return currentUser.getAccountId();
     }
 
     private Long getCurrentUserYardId() {
-        var currentUser = accountService.getCurrentUser();
+        var currentUser = currentUserService.getCurrentUser();
 
         if (currentUser.getScrapYard() == null) {
             throw new com.scrapDetection.exception.InvalidRequestException("You are not assigned to any scrap yard");

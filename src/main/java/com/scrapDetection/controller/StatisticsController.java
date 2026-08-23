@@ -3,7 +3,7 @@ package com.scrapDetection.controller;
 import com.scrapDetection.dto.statistics.OwnerProfitResponseDTO;
 import com.scrapDetection.dto.statistics.StaffSummaryResponseDTO;
 import com.scrapDetection.exception.InvalidRequestException;
-import com.scrapDetection.service.AccountService;
+import com.scrapDetection.service.CurrentUserService;
 import com.scrapDetection.service.StatisticsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -22,12 +22,12 @@ import java.time.Instant;
 public class StatisticsController {
 
     private final StatisticsService statisticsService;
-    private final AccountService accountService;
+    private final CurrentUserService currentUserService;
 
     @PreAuthorize("hasRole('STAFF')")
     @GetMapping("/staff/summary")
     public ResponseEntity<StaffSummaryResponseDTO> getStaffDailySummary() {
-        Long staffId = accountService.getCurrentUser().getAccountId();
+        Long staffId = currentUserService.getCurrentUser().getAccountId();
         return ResponseEntity.ok(statisticsService.getStaffDailySummary(staffId));
     }
 
@@ -41,7 +41,7 @@ public class StatisticsController {
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
             Instant endDate
     ) {
-        var currentUser = accountService.getCurrentUser();
+        var currentUser = currentUserService.getCurrentUser();
         if (currentUser.getScrapYard() == null) {
             throw new InvalidRequestException("You are not assigned to any scrap yard");
         }

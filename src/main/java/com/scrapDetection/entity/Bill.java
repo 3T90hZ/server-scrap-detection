@@ -26,7 +26,7 @@ public class Bill {
     private Account customer;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "created_by", referencedColumnName = "account_id")
+    @JoinColumn(name = "created_by", referencedColumnName = "account_id", nullable = false)
     private Account createdBy;
 
     @CreationTimestamp
