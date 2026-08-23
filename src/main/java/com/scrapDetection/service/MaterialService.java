@@ -2,6 +2,7 @@ package com.scrapDetection.service;
 
 import com.scrapDetection.dto.material.MaterialRequestDTO;
 import com.scrapDetection.dto.material.MaterialResponseDTO;
+import com.scrapDetection.entity.MaterialStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -21,7 +22,7 @@ public interface MaterialService {
     List<MaterialResponseDTO> getMaterialsByYardId(Long yardId);
 
     // Get all materials in a specific yard
-    List<MaterialResponseDTO> getMaterialsByYardIdAndStatus(Long yardId, String status);
+    List<MaterialResponseDTO> getMaterialsByYardIdAndStatus(Long yardId, MaterialStatus status);
 
     // Get all materials with pagination
     Page<MaterialResponseDTO> getAllActiveMaterials(Pageable pageable);

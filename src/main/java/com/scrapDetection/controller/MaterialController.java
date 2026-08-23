@@ -2,6 +2,7 @@ package com.scrapDetection.controller;
 
 import com.scrapDetection.dto.material.MaterialRequestDTO;
 import com.scrapDetection.dto.material.MaterialResponseDTO;
+import com.scrapDetection.entity.MaterialStatus;
 import com.scrapDetection.service.CurrentUserService;
 import com.scrapDetection.service.MaterialService;
 import jakarta.validation.Valid;
@@ -69,7 +70,7 @@ public class MaterialController {
     @GetMapping("/my-yard-active")
     public ResponseEntity<List<MaterialResponseDTO>> getMyYardActiveMaterials() {
         Long yardId = getCurrentUserYardId();
-        List<MaterialResponseDTO> materials = materialService.getMaterialsByYardIdAndStatus(yardId, "ACTIVE");
+        List<MaterialResponseDTO> materials = materialService.getMaterialsByYardIdAndStatus(yardId, MaterialStatus.ACTIVE);
         return ResponseEntity.ok(materials);
     }
 
@@ -78,7 +79,7 @@ public class MaterialController {
      */
     @GetMapping("/yards/{yardId}")
     public ResponseEntity<List<MaterialResponseDTO>> getActiveMaterialsByYard(@PathVariable Long yardId) {
-        List<MaterialResponseDTO> materials = materialService.getMaterialsByYardIdAndStatus(yardId, "ACTIVE");
+        List<MaterialResponseDTO> materials = materialService.getMaterialsByYardIdAndStatus(yardId, MaterialStatus.ACTIVE);
         return ResponseEntity.ok(materials);
     }
 

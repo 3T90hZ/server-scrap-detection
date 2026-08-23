@@ -4,6 +4,7 @@ import com.scrapDetection.dto.scrapyard.ScrapYardRequestDTO;
 import com.scrapDetection.dto.scrapyard.ScrapYardResponseDTO;
 import com.scrapDetection.dto.scrapyard.ScrapYardStatusRequestDTO;
 import com.scrapDetection.dto.scrapyard.ScrapYardUpdateRequestDTO;
+import com.scrapDetection.entity.YardStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -29,7 +30,7 @@ public interface ScrapYardService {
     Page<ScrapYardResponseDTO> getAllScrapYards(Pageable pageable);
 
     // Find ScrapYards by status
-    Page<ScrapYardResponseDTO> getScrapYardsByStatus(String status, Pageable pageable);
+    Page<ScrapYardResponseDTO> getScrapYardsByStatus(YardStatus status, Pageable pageable);
 
     // Find ScrapYard by name
     List<ScrapYardResponseDTO> searchScrapYardsByName(String yardName); // ← NEW

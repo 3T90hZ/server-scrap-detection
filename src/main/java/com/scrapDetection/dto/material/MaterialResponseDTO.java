@@ -1,5 +1,6 @@
 package com.scrapDetection.dto.material;
 
+import com.scrapDetection.entity.MaterialStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,7 +20,7 @@ public class MaterialResponseDTO {
     private String itemName;
     private Double itemPrice;
     private String unit;
-    private String status;
+    private MaterialStatus status;
     private LocalDateTime updatedAt;
     private Double stockQuantity;
 }

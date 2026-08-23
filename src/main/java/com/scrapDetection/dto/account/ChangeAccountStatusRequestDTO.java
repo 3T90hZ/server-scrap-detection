@@ -1,5 +1,6 @@
 package com.scrapDetection.dto.account;
 
+import com.scrapDetection.entity.AccountStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -16,5 +17,5 @@ public class ChangeAccountStatusRequestDTO {
     Long accountId;
 
     @NotBlank(message = "Status is required")
-    String status;
+    AccountStatus status;
 }
