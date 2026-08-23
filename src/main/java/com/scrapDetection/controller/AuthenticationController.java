@@ -37,14 +37,6 @@ public class AuthenticationController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @PostMapping("/staff")
-    public ResponseEntity<Void> addStaff(
-            @Valid @RequestBody AddStaffRequestDTO request
-    ) {
-        accountService.addStaff(request.getPhoneNumber());
-        return ResponseEntity.noContent().build();
-    }
-
     @PostMapping("/password-reset/request")
     public ResponseEntity<String> requestPasswordReset(@Valid @RequestBody PasswordResetRequestDTO request) {
         accountService.requestPasswordReset(request);
