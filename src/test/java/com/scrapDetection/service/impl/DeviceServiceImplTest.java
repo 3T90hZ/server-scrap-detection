@@ -1,11 +1,7 @@
 package com.scrapDetection.service.impl;
 
 import com.scrapDetection.dto.device.DeviceViewerAccessDTO;
-import com.scrapDetection.entity.Account;
-import com.scrapDetection.entity.Device;
-import com.scrapDetection.entity.DeviceStatus;
-import com.scrapDetection.entity.Role;
-import com.scrapDetection.entity.ScrapYard;
+import com.scrapDetection.entity.*;
 import com.scrapDetection.exception.ForbiddenException;
 import com.scrapDetection.mapper.DeviceMapper;
 import com.scrapDetection.repository.DeviceRepository;
@@ -45,7 +41,7 @@ class DeviceServiceImplTest {
         Account staff = Account.builder()
                 .accountId(20L)
                 .role(Role.STAFF)
-                .status("ACTIVE")
+                .status(AccountStatus.ACTIVE)
                 .scrapYard(yard)
                 .build();
         Device device = Device.builder()
@@ -69,7 +65,7 @@ class DeviceServiceImplTest {
         Account owner = Account.builder()
                 .accountId(20L)
                 .role(Role.YARD_OWNER)
-                .status("ACTIVE")
+                .status(AccountStatus.ACTIVE)
                 .scrapYard(ScrapYard.builder().yardId(10L).build())
                 .build();
         Device device = Device.builder()
@@ -90,7 +86,7 @@ class DeviceServiceImplTest {
         Account owner = Account.builder()
                 .accountId(20L)
                 .role(Role.YARD_OWNER)
-                .status("ACTIVE")
+                .status(AccountStatus.ACTIVE)
                 .scrapYard(yard)
                 .build();
         Device device = Device.builder()
@@ -111,7 +107,7 @@ class DeviceServiceImplTest {
         Account staff = Account.builder()
                 .accountId(20L)
                 .role(Role.STAFF)
-                .status("INACTIVE")
+                .status(AccountStatus.INACTIVE)
                 .scrapYard(yard)
                 .build();
 
