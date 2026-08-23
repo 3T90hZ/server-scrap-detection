@@ -7,7 +7,6 @@ import com.scrapDetection.exception.InvalidRequestException;
 import com.scrapDetection.exception.ResourceNotFoundException;
 import com.scrapDetection.mapper.NotificationMapper;
 import com.scrapDetection.repository.AccountRepository;
-import com.scrapDetection.repository.BillRepository;
 import com.scrapDetection.repository.NotificationRepository;
 import com.scrapDetection.service.AccountService;
 import com.scrapDetection.service.NotificationService;
@@ -28,7 +27,6 @@ public class NotificationServiceImpl implements NotificationService {
     private final AccountService accountService;
     private final NotificationMapper notificationMapper;
     private final AccountRepository accountRepository;
-    private final BillRepository billRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -124,23 +122,20 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Transactional
     @Override
-    public void createBillNotification(Long recipientId, Long billId) {
-        Notification billNotification =  new Notification();
-
-        Account recipient = accountRepository.findById(recipientId)
-                .orElseThrow(()-> new ResourceNotFoundException("Account" + recipientId));
-        Bill bill =  billRepository.findById(billId)
-                .orElseThrow(()-> new ResourceNotFoundException("Bill" + billId));
-
-        billNotification.setTitle("Thông báo giao dịch thành công");
-        billNotification.setMessage("Giao dịch của bạn đã được tạo thành công. Tổng tiền: "
-                + bill.getTotalWorth()
-                + " VND.");
-        billNotification.setType(NotificationType.BILL_CREATED);
-        billNotification.setCreatedAt(LocalDateTime.now());
-        billNotification.setSender(bill.getCreatedBy());
-        billNotification.setRecipient(recipient);
-        billNotification.setBill(bill);
+    public void createBillNotification(Account recipient, Bill bill) {
+        Notification billNotification = Notification.builder()
+                .title("Thông báo giao dịch thành công")
+                .message(
+                        "Giao dịch của bạn đã được tạo thành công. Tổng tiền: "
+                                + bill.getTotalWorth()
+                                + " VND."
+                )
+                .type(NotificationType.BILL_CREATED)
+                .createdAt(LocalDateTime.now())
+                .sender(bill.getCreatedBy())
+                .recipient(recipient)
+                .bill(bill)
+                .build();
 
         notificationRepository.save(billNotification);
     }
