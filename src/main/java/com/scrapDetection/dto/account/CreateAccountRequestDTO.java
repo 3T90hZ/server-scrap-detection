@@ -17,9 +17,8 @@ public class CreateAccountRequestDTO {
     private String accountName;
 
     @NotBlank(message = "Phone number is required")
-    @Pattern(regexp = "^[0-9\\s]*$", message = "Invalid phone number format")
-    @Min(value = 10, message = "Invalid phone number")
-    @Max(value = 12, message = "Invalid phone number")
+    @Pattern(regexp = "^[0-9\\s]*$", message = "Invalid phone number")
+    @Size(min = 10, max = 12, message = "Invalid phone number length")
     private String phoneNumbers;
 
     @NotBlank(message = "Password is required")
