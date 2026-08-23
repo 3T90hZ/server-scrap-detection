@@ -45,3 +45,9 @@ application-local.properties
 sepay.properties
 secrets/
 credentials.json
+
+# Agent Rules
+.agents/
+AGENTS.md
+WORKLOG.local.md
+pr_body.txt
