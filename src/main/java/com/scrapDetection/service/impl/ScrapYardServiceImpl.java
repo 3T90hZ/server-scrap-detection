@@ -46,11 +46,16 @@ public class ScrapYardServiceImpl implements ScrapYardService {
         requestDTO.setEmail(normalize.normalizeEmailAndPhoneNumber(requestDTO.getEmail()));
 
         Account account = accountRepository.findByPhoneNumbers(normalize.normalizeEmailAndPhoneNumber(requestDTO.getPhoneNumbers())).orElse(null);
-        if (CheckYardNameDuplicate(requestDTO.getYardName())) {
+        if (checkYardNameDuplicate(requestDTO.getYardName())) {
             throw new ResourceAlreadyExistsException("Scrap Yard", "yardName", requestDTO.getYardName());
         }
 
         if (scrapYardRepository.existsByPhoneNumbers(requestDTO.getPhoneNumbers())) {
+            ScrapYard scrapYard = scrapYardRepository.findByPhoneNumbers(requestDTO.getPhoneNumbers()).orElse(null);
+            if(scrapYard != null && scrapYard.getStatus().equals("INACTIVE")) {
+                scrapYard.setStatus("ACTIVE");
+                return scrapYardMapper.toResponseDTO(scrapYardRepository.save(scrapYard));
+            }
             throw new ResourceAlreadyExistsException("Scrap Yard", "phoneNumbers", requestDTO.getPhoneNumbers());
         }
 
@@ -122,7 +127,7 @@ public class ScrapYardServiceImpl implements ScrapYardService {
         if(scrapYardRepository.existsByPhoneNumbers(requestDTO.getPhoneNumbers()) && !existingYard.getPhoneNumbers().equals(requestDTO.getPhoneNumbers())) {
             throw new ResourceAlreadyExistsException("Scrap Yard", "phoneNumbers", requestDTO.getPhoneNumbers());
         }
-        if(CheckYardNameDuplicate(requestDTO.getYardName()) && !existingYard.getYardName().equals(requestDTO.getYardName())) {
+        if(checkYardNameDuplicate(requestDTO.getYardName()) && !existingYard.getYardName().equals(requestDTO.getYardName())) {
             throw new ResourceAlreadyExistsException("Scrap Yard", "yardName", requestDTO.getYardName());
         }
         // Update entity from DTO
@@ -157,7 +162,9 @@ public class ScrapYardServiceImpl implements ScrapYardService {
 
         List<Material> materials = materialRepository.findByScrapYardYardId(yardId);
         accountRepository.findByScrapYardYardId(yardId).forEach(acc -> {
-            acc.setScrapYard(null);
+            if(acc.getRole()!=Role.YARD_OWNER) {
+                acc.setScrapYard(null);
+            }
             acc.setRole(Role.CUSTOMER);
             accountRepository.save(acc);
         });
@@ -184,7 +191,7 @@ public class ScrapYardServiceImpl implements ScrapYardService {
         return scrapYardMapper.toResponseDTOList(yards);
     }
 
-    private Boolean CheckYardNameDuplicate(String yardName) {
+    private Boolean checkYardNameDuplicate(String yardName) {
         String normalized = normalize.normalizeName(yardName);
         return scrapYardRepository.existsByYardNameIgnoreCase(normalized);
     }
