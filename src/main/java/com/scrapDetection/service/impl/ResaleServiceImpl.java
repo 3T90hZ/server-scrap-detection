@@ -47,17 +47,18 @@ public class ResaleServiceImpl implements ResaleService {
         resale.setMaterial(material);
         resale.setCreatedBy(currentUser);
 
-        // Set total before save so cascade persists it in one roundtrip
-        ResaleTotal total = new ResaleTotal();
-        total.setResale(resale);
-        total.setTotalWorth(requestDTO.getWeight() * requestDTO.getUnitPrice());
-        resale.setResaleTotal(total);
-
         Resale savedResale = resaleRepository.save(resale);
 
         // Decrease stock
         material.setStock(material.getStock() - requestDTO.getWeight());
         materialRepository.save(material);
+
+        ResaleTotal total = new ResaleTotal();
+        total.setResale(savedResale);
+        total.setTotalWorth(requestDTO.getWeight() * requestDTO.getUnitPrice());
+        savedResale.setResaleTotal(total);
+
+        savedResale = resaleRepository.save(savedResale);
 
         return resaleMapper.toResponseDTO(savedResale);
     }
@@ -66,10 +67,7 @@ public class ResaleServiceImpl implements ResaleService {
     public ResaleResponseDTO getResaleById(Long resaleId) {
         Resale resale = resaleRepository.findById(resaleId)
                 .orElseThrow(() -> new ResourceNotFoundException("Resale", resaleId));
-
-        Long currentYardId = accountService.getCurrentUser().getScrapYard().getYardId();
-        Long resaleYardId = resale.getMaterial().getScrapYard().getYardId();
-        if (!currentYardId.equals(resaleYardId)) {
+        if(resale.getCreatedBy().equals(accountService.getCurrentUser())) {
             throw new InvalidRequestException("No permission to retrieve resale");
         }
         return resaleMapper.toResponseDTO(resale);
