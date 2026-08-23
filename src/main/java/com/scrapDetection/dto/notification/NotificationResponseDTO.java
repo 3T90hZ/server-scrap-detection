@@ -22,7 +22,11 @@ public class NotificationResponseDTO {
 
     private Boolean isRead;
 
+    private Boolean isAccepted;
+
     private LocalDateTime createdAt;
+
+    private LocalDateTime expiredAt;
 
     private Long billId;
 }
