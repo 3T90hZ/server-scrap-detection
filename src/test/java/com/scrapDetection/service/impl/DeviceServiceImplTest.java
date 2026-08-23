@@ -11,6 +11,7 @@ import com.scrapDetection.mapper.DeviceMapper;
 import com.scrapDetection.repository.DeviceRepository;
 import com.scrapDetection.security.device.DeviceApiKeyService;
 import com.scrapDetection.service.AccountService;
+import com.scrapDetection.service.CurrentUserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -31,7 +32,7 @@ class DeviceServiceImplTest {
     @Mock
     private DeviceMapper deviceMapper;
     @Mock
-    private AccountService accountService;
+    private CurrentUserService currentUserService;
     @Mock
     private DeviceApiKeyService deviceApiKeyService;
 
@@ -53,7 +54,7 @@ class DeviceServiceImplTest {
                 .scrapYard(yard)
                 .build();
 
-        when(accountService.getCurrentUser()).thenReturn(staff);
+        when(currentUserService.getCurrentUser()).thenReturn(staff);
         when(deviceRepository.findById(30L)).thenReturn(Optional.of(device));
 
         DeviceViewerAccessDTO access = deviceService.getViewerAccess(30L);
@@ -77,7 +78,7 @@ class DeviceServiceImplTest {
                 .scrapYard(ScrapYard.builder().yardId(11L).build())
                 .build();
 
-        when(accountService.getCurrentUser()).thenReturn(owner);
+        when(currentUserService.getCurrentUser()).thenReturn(owner);
         when(deviceRepository.findById(30L)).thenReturn(Optional.of(device));
 
         assertThrows(ForbiddenException.class, () -> deviceService.getViewerAccess(30L));
@@ -98,7 +99,7 @@ class DeviceServiceImplTest {
                 .scrapYard(yard)
                 .build();
 
-        when(accountService.getCurrentUser()).thenReturn(owner);
+        when(currentUserService.getCurrentUser()).thenReturn(owner);
         when(deviceRepository.findById(30L)).thenReturn(Optional.of(device));
 
         assertThrows(ForbiddenException.class, () -> deviceService.getViewerAccess(30L));
@@ -114,7 +115,7 @@ class DeviceServiceImplTest {
                 .scrapYard(yard)
                 .build();
 
-        when(accountService.getCurrentUser()).thenReturn(staff);
+        when(currentUserService.getCurrentUser()).thenReturn(staff);
 
         assertThrows(ForbiddenException.class, () -> deviceService.getViewerAccess(30L));
     }
