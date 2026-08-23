@@ -35,6 +35,8 @@ public class MaterialServiceImpl implements MaterialService {
 
     @Override
     public MaterialResponseDTO createMaterial(MaterialRequestDTO requestDTO) {
+        Material material = materialMapper.toEntity(requestDTO);
+
         // Get current logged-in user (Yard Owner)
         var currentUser = accountService.getCurrentUser();
 
@@ -42,7 +44,6 @@ public class MaterialServiceImpl implements MaterialService {
             throw new InvalidRequestException("You must be assigned to a scrap yard to manage materials");
         }
 
-        Material material = materialMapper.toEntity(requestDTO);
         if(CheckMaterialNameDuplicate(material.getItemName(), currentUser.getScrapYard().getYardId())){
             throw new ResourceAlreadyExistsException("Material", "materialName", material.getItemName());
         }
