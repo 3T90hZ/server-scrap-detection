@@ -13,6 +13,7 @@ import java.util.List;
 @Repository
 public interface ResaleRepository extends JpaRepository<Resale, Long> {
 
+    @EntityGraph(attributePaths = {"resaleTotal", "material", "createdBy"})
     List<Resale> findByMaterialScrapYardYardIdOrderByCreatedAtDesc(Long yardId);
 
     // ----- Statistics -----

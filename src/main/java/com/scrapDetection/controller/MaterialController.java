@@ -2,7 +2,7 @@ package com.scrapDetection.controller;
 
 import com.scrapDetection.dto.material.MaterialRequestDTO;
 import com.scrapDetection.dto.material.MaterialResponseDTO;
-import com.scrapDetection.service.AccountService;
+import com.scrapDetection.service.CurrentUserService;
 import com.scrapDetection.service.MaterialService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,7 @@ import java.util.List;
 public class MaterialController {
 
     private final MaterialService materialService;
-    private final AccountService accountService;   // ← Injected
+    private final CurrentUserService currentUserService;
 
     /**
      * YARD OWNER - Create New Material
@@ -119,7 +119,7 @@ public class MaterialController {
     }
 
     private Long getCurrentUserYardId() {
-        var currentUser = accountService.getCurrentUser();
+        var currentUser = currentUserService.getCurrentUser();
 
         if (currentUser.getScrapYard() == null) {
             throw new com.scrapDetection.exception.InvalidRequestException("You are not assigned to any scrap yard");
