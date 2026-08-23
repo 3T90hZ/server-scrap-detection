@@ -40,7 +40,8 @@ class MaterialServiceImplTest {
     private AccountService accountService;
     @Mock
     private CurrentUserService  currentUserService;
-
+    @Mock
+    private Normalize normalize;
     @InjectMocks
     private MaterialServiceImpl materialService;
 
@@ -60,7 +61,8 @@ class MaterialServiceImplTest {
 
         when(currentUserService.getCurrentUser()).thenReturn(owner);
         when(materialMapper.toEntity(request)).thenReturn(mapped);
-        when(materialRepository.existsByScrapYardYardIdAndItemNameIgnoreCase(10L, "sắt   vụn")).thenReturn(true);
+        when(normalize.normalizeName("  Sắt   vụn ")).thenReturn("sắt vụn");
+        when(materialRepository.existsByScrapYardYardIdAndItemNameIgnoreCase(10L, "sắt vụn")).thenReturn(true);
 
         assertThrows(ResourceAlreadyExistsException.class,
                 () -> materialService.createMaterial(request));
@@ -79,6 +81,7 @@ class MaterialServiceImplTest {
 
         when(currentUserService.getCurrentUser()).thenReturn(owner);
         when(materialMapper.toEntity(request)).thenReturn(mapped);
+        when(normalize.normalizeName("Giấy carton")).thenReturn("giấy carton");
         when(materialRepository.existsByScrapYardYardIdAndItemNameIgnoreCase(10L, "giấy carton")).thenReturn(false);
         when(materialRepository.save(mapped)).thenReturn(saved);
         when(materialMapper.toResponseDTO(saved)).thenReturn(response);
@@ -103,6 +106,7 @@ class MaterialServiceImplTest {
 
         when(materialRepository.findById(20L)).thenReturn(Optional.of(existing));
         when(currentUserService.getCurrentUser()).thenReturn(owner);
+        when(normalize.normalizeName(" nhôm ")).thenReturn("nhôm");
         when(materialRepository.existsByScrapYardYardIdAndItemNameIgnoreCase(10L, "nhôm")).thenReturn(true);
 
         assertThrows(ResourceAlreadyExistsException.class,

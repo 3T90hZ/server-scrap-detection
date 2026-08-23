@@ -10,9 +10,10 @@ public class Normalize {
         }
 
         return name
-                .trim()                          // remove leading/trailing spaces
-                .replaceAll("^[^a-zA-Z0-9]+", "") // remove leading special chars
-                .replaceAll("[^a-zA-Z0-9]+$", "") // remove trailing special chars
+                .trim()
+                .replaceAll("^[^\\p{L}\\p{N}]+", "")
+                .replaceAll("[^\\p{L}\\p{N}]+$", "")
+                .replaceAll("\\s+", " ")
                 .toLowerCase();
     }
     public String normalizeEmailAndPhoneNumber(String string){
