@@ -16,7 +16,7 @@ public class Transaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long transactionId;
 
-    @Column(name = "bill_id", length = 36)
+    @Column(name = "bill_id", length = 36, insertable = false, updatable = false)
     private String billId;
 
     @Column(name = "transaction_type", length = 10)
