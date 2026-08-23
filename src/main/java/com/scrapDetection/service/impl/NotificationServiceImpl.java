@@ -37,14 +37,14 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     @Transactional
-    public void acceptNotification(AcceptInviteRequestDTO dto) {
+    public void acceptNotification(Long notificationId,AcceptInviteRequestDTO dto) {
 
         Account recipient = accountService.getCurrentUser();
 
-        Notification notification = notificationRepository.findById(dto.getNotificationId())
+        Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
-                                "Notification " + dto.getNotificationId()
+                                "Notification " + notificationId
                         ));
 
         // Make sure this notification belongs to the current user

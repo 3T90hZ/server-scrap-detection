@@ -11,9 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AcceptInviteRequestDTO {
-    @NotNull(message = "Notification id is required")
-    Long notificationId;
 
-    @NotNull
-    Boolean acceptInvite;
+    @NotNull(message = "Accept invite value is required")
+    private Boolean acceptInvite;
 }

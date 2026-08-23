@@ -13,7 +13,7 @@ public interface NotificationService {
     Page<NotificationResponseDTO> getMyNotifications(Pageable pageable);
 
     @Transactional
-    void acceptNotification(AcceptInviteRequestDTO dto);
+    void acceptNotification(Long notificationId, AcceptInviteRequestDTO dto);
 
     @Transactional
     void createBillNotification(Account recipient, Bill bill);
