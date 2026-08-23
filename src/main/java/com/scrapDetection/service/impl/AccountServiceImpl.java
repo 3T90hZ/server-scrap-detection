@@ -11,13 +11,9 @@ import com.scrapDetection.repository.AccountRepository;
 import com.scrapDetection.repository.PasswordResetTokenRepository;
 import com.scrapDetection.repository.ScrapYardRepository;
 import com.scrapDetection.security.jwt.JwtService;
-import com.scrapDetection.service.AccountService;
-import com.scrapDetection.service.EmailService;
-import com.scrapDetection.service.NotificationService;
-import com.scrapDetection.service.SessionService;
+import com.scrapDetection.service.*;
 import com.scrapDetection.util.Normalize;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,6 +38,7 @@ public class AccountServiceImpl implements AccountService {
     private final EmailService emailService;
     private final Normalize normalize;
     private final NotificationService notificationService;
+    private final CurrentUserService currentUserService;
 
     private static final int TOKEN_EXPIRY_MINUTES = 60;
 
@@ -101,7 +98,7 @@ public class AccountServiceImpl implements AccountService {
         account.setStatus("ACTIVE");
         account.setPasswordHash(passwordEncoder.encode(request.getPassword()));
 
-        Account currentUser = getCurrentUser();
+        Account currentUser = currentUserService.getCurrentUser();
         if (currentUser.getScrapYard() == null) {
             throw new InvalidRequestException("Yard owner must be assigned to a scrap yard");
         }
@@ -113,7 +110,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void addStaff(String phoneNumber){
-        Account currentUser = getCurrentUser();
+        Account currentUser = currentUserService.getCurrentUser();
         if(currentUser.getScrapYard() == null
                 || currentUser.getScrapYard().getStatus().equals("INACTIVE")
                 || !currentUser.getRole().equals(Role.YARD_OWNER)) {
@@ -125,24 +122,6 @@ public class AccountServiceImpl implements AccountService {
         }
 
         notificationService.createInviteNotification(staff.getAccountId(), currentUser.getAccountId());
-    }
-
-    @Override
-    public Account getCurrentUser() {
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new InvalidRequestException("User not authenticated");
-        }
-
-        Object principal = authentication.getPrincipal();
-
-        if (principal instanceof Account principalAccount) {
-            return accountRepository.findById(principalAccount.getAccountId())
-                    .orElseThrow(() -> new InvalidRequestException("User not authenticated"));
-        }
-
-        throw new InvalidRequestException("User not authenticated");
     }
 
     @Override
@@ -215,7 +194,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public AuthResponseDTO resetPassword(PasswordResetConfirmDTO request) {
+    public void resetPassword(PasswordResetConfirmDTO request) {
         PasswordResetToken resetToken = tokenRepository.findByToken(request.getResetToken())
                 .orElseThrow(() -> new InvalidTokenException("Invalid or expired reset token"));
 
@@ -235,13 +214,11 @@ public class AccountServiceImpl implements AccountService {
 
         // Clean up token
         tokenRepository.delete(resetToken);
-
-        return accountMapper.toAuthResponse(account, null);
     }
 
     @Override
     public List<AccountInfoResponseDTO> getAllStaffByYardOwner() {
-        Account current = getCurrentUser();
+        Account current = currentUserService.getCurrentUser();
         if (current.getScrapYard() == null) {
             throw new InvalidRequestException("Current user is not associated with any scrap yard");
         }
@@ -297,7 +274,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public AuthResponseDTO getMyInfo(){
-        return accountMapper.toAuthResponse(getCurrentUser(), null);
+        return accountMapper.toAuthResponse(currentUserService.getCurrentUser(), null);
     }
     // ==================== Helper Methods ====================
 

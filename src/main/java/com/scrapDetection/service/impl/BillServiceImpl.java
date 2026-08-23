@@ -11,8 +11,8 @@ import com.scrapDetection.mapper.BillMapper;
 import com.scrapDetection.repository.AccountRepository;
 import com.scrapDetection.repository.BillRepository;
 import com.scrapDetection.repository.MaterialRepository;
-import com.scrapDetection.service.AccountService;
 import com.scrapDetection.service.BillService;
+import com.scrapDetection.service.CurrentUserService;
 import com.scrapDetection.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,13 +29,13 @@ public class BillServiceImpl implements BillService {
     private final BillRepository billRepository;
     private final MaterialRepository materialRepository;
     private final AccountRepository accountRepository;
-    private final AccountService accountService;
     private final BillMapper billMapper;
     private final NotificationService notificationService;
+    private final CurrentUserService currentUserService;
 
     @Override
     public BillResponseDTO createBill(BillRequestDTO requestDTO) {
-        Account currentUser = accountService.getCurrentUser();
+        Account currentUser = currentUserService.getCurrentUser();
 
         // Resolve customer (fallback to id=1 for detection API compatibility)
         Account customer;
@@ -97,7 +97,7 @@ public class BillServiceImpl implements BillService {
 
     @Override
     public BillResponseDTO getBillById(Long billId) {
-        Account currentUser = accountService.getCurrentUser();
+        Account currentUser = currentUserService.getCurrentUser();
         Bill bill = billRepository.findById(billId)
                 .orElseThrow(() -> new ResourceNotFoundException("Bill", billId));
         if(currentUser.getRole().equals(Role.CUSTOMER) && !bill.getCustomer().equals(currentUser)){
@@ -112,7 +112,7 @@ public class BillServiceImpl implements BillService {
 
     @Override
     public List<BillSummaryDTO> getBillsByCustomer() {
-        Long customerId = accountService.getCurrentUser().getAccountId();
+        Long customerId = currentUserService.getCurrentUser().getAccountId();
         return billMapper.toSummaryDTOList(billRepository.findByCustomerAccountIdOrderByCreatedAtDesc(customerId));
     }
 
@@ -128,7 +128,7 @@ public class BillServiceImpl implements BillService {
 
     @Override
     public List<BillSummaryDTO> getBillsByDateRange(LocalDateTime start, LocalDateTime end) {
-        Long yardId = accountService.getCurrentUser().getScrapYard().getYardId();
+        Long yardId = currentUserService.getCurrentUser().getScrapYard().getYardId();
         return billMapper.toSummaryDTOList(billRepository.findByCreatedByScrapYardYardIdAndCreatedAtBetweenOrderByCreatedAtDesc(yardId, start, end));
     }
 }

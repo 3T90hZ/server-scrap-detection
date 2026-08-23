@@ -9,7 +9,7 @@ import com.scrapDetection.exception.ResourceNotFoundException;
 import com.scrapDetection.mapper.ResaleMapper;
 import com.scrapDetection.repository.MaterialRepository;
 import com.scrapDetection.repository.ResaleRepository;
-import com.scrapDetection.service.AccountService;
+import com.scrapDetection.service.CurrentUserService;
 import com.scrapDetection.service.ResaleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,12 +25,12 @@ public class ResaleServiceImpl implements ResaleService {
 
     private final ResaleRepository resaleRepository;
     private final MaterialRepository materialRepository;
-    private final AccountService accountService;
     private final ResaleMapper resaleMapper;
+    private final CurrentUserService currentUserService;
 
     @Override
     public ResaleResponseDTO createResale(ResaleRequestDTO requestDTO) {
-        Account currentUser = accountService.getCurrentUser();
+        Account currentUser = currentUserService.getCurrentUser();
 
         Material material = materialRepository.findById(requestDTO.getMaterialId())
                 .orElseThrow(() -> new ResourceNotFoundException("Material", requestDTO.getMaterialId()));
@@ -67,7 +67,7 @@ public class ResaleServiceImpl implements ResaleService {
     public ResaleResponseDTO getResaleById(Long resaleId) {
         Resale resale = resaleRepository.findById(resaleId)
                 .orElseThrow(() -> new ResourceNotFoundException("Resale", resaleId));
-        if(resale.getCreatedBy().equals(accountService.getCurrentUser())) {
+        if(resale.getCreatedBy().equals(currentUserService.getCurrentUser())) {
             throw new InvalidRequestException("No permission to retrieve resale");
         }
         return resaleMapper.toResponseDTO(resale);
@@ -75,13 +75,13 @@ public class ResaleServiceImpl implements ResaleService {
 
     @Override
     public List<ResaleSummaryDTO> getResalesByYard() {
-        List<Resale> resales = resaleRepository.findByMaterialScrapYardYardIdOrderByCreatedAtDesc(accountService.getCurrentUser().getScrapYard().getYardId());
+        List<Resale> resales = resaleRepository.findByMaterialScrapYardYardIdOrderByCreatedAtDesc(currentUserService.getCurrentUser().getScrapYard().getYardId());
         return resaleMapper.toSummaryDTOList(resales);
     }
 
     @Override
     public List<ResaleResponseDTO> getResalesByDateRange(LocalDateTime start, LocalDateTime end) {
-        Account currentUser = accountService.getCurrentUser();
+        Account currentUser = currentUserService.getCurrentUser();
         List<Resale> resales = resaleRepository.findByMaterialScrapYardYardIdAndCreatedAtBetweenOrderByCreatedAtDesc(currentUser.getScrapYard().getYardId(), start, end);
         return resaleMapper.toResponseDTOList(resales);
     }

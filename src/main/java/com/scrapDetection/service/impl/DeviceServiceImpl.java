@@ -13,7 +13,7 @@ import com.scrapDetection.exception.ResourceNotFoundException;
 import com.scrapDetection.mapper.DeviceMapper;
 import com.scrapDetection.repository.DeviceRepository;
 import com.scrapDetection.security.device.DeviceApiKeyService;
-import com.scrapDetection.service.AccountService;
+import com.scrapDetection.service.CurrentUserService;
 import com.scrapDetection.service.DeviceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -31,15 +31,15 @@ public class DeviceServiceImpl implements DeviceService {
 
     private final DeviceRepository deviceRepository;
     private final DeviceMapper deviceMapper;
-    private final AccountService accountService;
     private final DeviceApiKeyService deviceApiKeyService;
+    private final CurrentUserService currentUserService;
 
     @Override
     public DeviceResponseDTO createDevice(DeviceRequestDTO requestDTO) {
         Device device = deviceMapper.toEntity(requestDTO);
 
         // Get current Yard Owner and assign to their yard
-        var currentUser = accountService.getCurrentUser();
+        var currentUser = currentUserService.getCurrentUser();
 
         if (currentUser.getScrapYard() == null) {
             throw new InvalidRequestException("You must be assigned to a scrap yard to manage devices");
@@ -85,7 +85,7 @@ public class DeviceServiceImpl implements DeviceService {
 
     @Override
     public List<DeviceResponseDTO> getMyYardDevices() {
-        var currentUser = accountService.getCurrentUser();
+        var currentUser = currentUserService.getCurrentUser();
 
         if (currentUser.getScrapYard() == null) {
             throw new InvalidRequestException("You are not assigned to any scrap yard");
@@ -159,7 +159,7 @@ public class DeviceServiceImpl implements DeviceService {
     @Override
     @Transactional(readOnly = true)
     public DeviceViewerAccessDTO getViewerAccess(Long deviceId) {
-        Account currentUser = accountService.getCurrentUser();
+        Account currentUser = currentUserService.getCurrentUser();
 
         if (!"ACTIVE".equalsIgnoreCase(currentUser.getStatus())) {
             throw new ForbiddenException("Account is not active");
@@ -192,7 +192,7 @@ public class DeviceServiceImpl implements DeviceService {
     // ==================== Private Helper ====================
 
     private void validateYardOwnership(Device device) {
-        var currentUser = accountService.getCurrentUser();
+        var currentUser = currentUserService.getCurrentUser();
 
         if (currentUser.getScrapYard() == null) {
             throw new InvalidRequestException("You are not assigned to any scrap yard");

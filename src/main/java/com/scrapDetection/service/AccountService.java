@@ -1,7 +1,6 @@
 package com.scrapDetection.service;
 
 import com.scrapDetection.dto.account.*;
-import com.scrapDetection.entity.Account;
 import com.scrapDetection.entity.Role;
 
 import java.util.List;
@@ -19,15 +18,13 @@ public interface AccountService {
 
     void addStaff(String phoneNumber);
 
-    Account getCurrentUser(); // For security context
-
     // Update
     AuthResponseDTO updateAccount(Long accountId, AccountUpdateRequestDTO request);
 
     // Password Reset
     void requestPasswordReset(PasswordResetRequestDTO request);
 
-    AuthResponseDTO resetPassword(PasswordResetConfirmDTO request);
+    void resetPassword(PasswordResetConfirmDTO request);
 
     // Utility
     List<AccountInfoResponseDTO> getAllStaffByYardOwner();

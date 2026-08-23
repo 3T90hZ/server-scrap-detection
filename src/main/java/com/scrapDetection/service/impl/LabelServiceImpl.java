@@ -10,7 +10,7 @@ import com.scrapDetection.exception.ResourceNotFoundException;
 import com.scrapDetection.mapper.LabelMapper;
 import com.scrapDetection.repository.LabelRepository;
 import com.scrapDetection.repository.MaterialRepository;
-import com.scrapDetection.service.AccountService;
+import com.scrapDetection.service.CurrentUserService;
 import com.scrapDetection.service.LabelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,16 +24,17 @@ import java.util.List;
 public class LabelServiceImpl implements LabelService {
 
     private final LabelRepository labelRepository;
-    private final AccountService accountService;
     private final LabelMapper labelMapper;
     private final MaterialRepository materialRepository;
+    private final CurrentUserService currentUserService;
+
     @Override
     public LabelResponse createLabel(LabelRequest request) {
         validateLabelRequest(request, null);
         Label label = Label.builder()
                 .label(request.getLabelName())
                 .material(materialRepository.getReferenceById(request.getMaterialId()))
-                .scrapYard(accountService.getCurrentUser().getScrapYard())
+                .scrapYard(currentUserService.getCurrentUser().getScrapYard())
                 .build();
         return labelMapper.toResponseDTO(labelRepository.save(label));
     }
@@ -42,7 +43,7 @@ public class LabelServiceImpl implements LabelService {
     @Override
     @Transactional(readOnly = true)
     public List<LabelResponse> getAllLabelsByYard() {
-        Long yardId = accountService.getCurrentUser().getScrapYard().getYardId();
+        Long yardId = currentUserService.getCurrentUser().getScrapYard().getYardId();
         List<Label> labels = labelRepository.findByScrapYardYardId(yardId);
         return labelMapper.toResponseDTOList(labels);
     }
@@ -53,7 +54,7 @@ public class LabelServiceImpl implements LabelService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Label", id));
 
-        if (!accountService.getCurrentUser()
+        if (!currentUserService.getCurrentUser()
                 .getScrapYard()
                 .equals(existingLabel.getScrapYard())) {
 
@@ -74,7 +75,7 @@ public class LabelServiceImpl implements LabelService {
         Label existingLabel = labelRepository.findById(labelId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Label", labelId));
-        if(!accountService.getCurrentUser().getScrapYard().equals(existingLabel.getScrapYard())) {
+        if(!currentUserService.getCurrentUser().getScrapYard().equals(existingLabel.getScrapYard())) {
             throw new InvalidRequestException("Not allowed to delete this label");
         }
         labelRepository.delete(existingLabel);
@@ -82,7 +83,7 @@ public class LabelServiceImpl implements LabelService {
 
     private void validateLabelRequest(LabelRequest request, Long excludeLabelId) {
 
-        Long yardId = accountService.getCurrentUser().getScrapYard().getYardId();
+        Long yardId = currentUserService.getCurrentUser().getScrapYard().getYardId();
         Material material = materialRepository.findById(request.getMaterialId())
                 .orElseThrow(() ->
                         new ResourceNotFoundException(

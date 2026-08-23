@@ -8,7 +8,7 @@ import com.scrapDetection.exception.ResourceNotFoundException;
 import com.scrapDetection.mapper.NotificationMapper;
 import com.scrapDetection.repository.AccountRepository;
 import com.scrapDetection.repository.NotificationRepository;
-import com.scrapDetection.service.AccountService;
+import com.scrapDetection.service.CurrentUserService;
 import com.scrapDetection.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,14 +24,14 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class NotificationServiceImpl implements NotificationService {
     private final NotificationRepository notificationRepository;
-    private final AccountService accountService;
     private final NotificationMapper notificationMapper;
     private final AccountRepository accountRepository;
+    private final CurrentUserService currentUserService;
 
     @Override
     @Transactional(readOnly = true)
     public Page<NotificationResponseDTO> getMyNotifications(Pageable pageable) {
-        Page<Notification> notifications = notificationRepository.findByRecipientAccountIdOrderByCreatedAtDesc(accountService.getCurrentUser().getAccountId(), pageable);
+        Page<Notification> notifications = notificationRepository.findByRecipientAccountIdOrderByCreatedAtDesc(currentUserService.getCurrentUser().getAccountId(), pageable);
         return notifications.map(notificationMapper::toNotificationResponseDTO);
     }
 
@@ -39,7 +39,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Transactional
     public void acceptNotification(Long notificationId,AcceptInviteRequestDTO dto) {
 
-        Account recipient = accountService.getCurrentUser();
+        Account recipient = currentUserService.getCurrentUser();
 
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() ->
