@@ -46,7 +46,7 @@ public class Notification {
     private Account recipient;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "bill_id", referencedColumnName = "bill_id")
+    @JoinColumn(name = "bill_id")
     private Bill bill;
 
     @Column(name = "expired_at")
