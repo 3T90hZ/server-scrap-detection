@@ -17,8 +17,7 @@ public class AccountUpdateRequestDTO {
     private String accountName;
 
     @Pattern(regexp = "^[0-9\\s]*$", message = "Invalid phone number")
-    @Min(value = 10, message = "Invalid phone number")
-    @Max(value = 12, message = "Invalid phone number")
+    @Size(min = 10, max = 12, message = "Invalid phone number length")
     private String phoneNumbers;
 
     @Email
