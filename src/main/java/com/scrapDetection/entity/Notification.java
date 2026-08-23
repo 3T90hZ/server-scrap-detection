@@ -32,6 +32,8 @@ public class Notification {
     @Builder.Default
     private Boolean isRead = false;
 
+    private Boolean isAccepted;
+
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
@@ -46,4 +48,7 @@ public class Notification {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bill_id", referencedColumnName = "bill_id")
     private Bill bill;
+
+    @Column(name = "expired_at")
+    private LocalDateTime expiredAt;
 }
