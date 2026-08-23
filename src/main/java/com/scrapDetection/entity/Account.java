@@ -65,4 +65,10 @@ public class Account {
 
     @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
     private Set<Bill> staffTransactions = new HashSet<>();
+
+    @OneToMany(mappedBy = "recipient", cascade = CascadeType.ALL)
+    private Set<Notification> recipientNotifications = new HashSet<>();
+
+    @OneToMany(mappedBy = "sender")
+    private Set<Notification> sentNotifications = new HashSet<>();
 }
