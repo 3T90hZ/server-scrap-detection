@@ -50,7 +50,7 @@ public class AccountServiceImpl implements AccountService {
 
         Account account = accountMapper.toEntity(request);
         account.setRole(Role.CUSTOMER);
-        account.setStatus("ACTIVE");
+        account.setStatus(AccountStatus.ACTIVE);
         account.setPasswordHash(passwordEncoder.encode(request.getPassword()));
         if(yardId != null) {
             account.setScrapYard(scrapYardRepository.getReferenceById(yardId));
@@ -69,14 +69,14 @@ public class AccountServiceImpl implements AccountService {
                 .orElseThrow(() -> new ResourceNotFoundException("Account", "phoneNumbers", request.getPhoneNumbers()));
 
         if(account.getScrapYard() != null && account.getRole() != Role.CUSTOMER){
-            if( !account.getScrapYard().getStatus().equals("ACTIVE")){
+            if( !account.getScrapYard().getStatus().equals(YardStatus.ACTIVE)){
                 throw new InvalidRequestException("Yard is not activated");
             }
         }
         if (!passwordEncoder.matches(request.getPassword(), account.getPasswordHash())) {
             throw new InvalidRequestException("Invalid phone number or password");
         }
-        if(account.getStatus().equals("INACTIVE")){
+        if(account.getStatus().equals(AccountStatus.INACTIVE)){
             throw new InvalidRequestException("The account is locked!");
         }
 
@@ -95,7 +95,7 @@ public class AccountServiceImpl implements AccountService {
 
         Account account = accountMapper.toEntity(request);
         account.setRole(Role.STAFF);
-        account.setStatus("ACTIVE");
+        account.setStatus(AccountStatus.ACTIVE);
         account.setPasswordHash(passwordEncoder.encode(request.getPassword()));
 
         Account currentUser = currentUserService.getCurrentUser();
@@ -112,7 +112,7 @@ public class AccountServiceImpl implements AccountService {
     public void addStaff(String phoneNumber){
         Account currentUser = currentUserService.getCurrentUser();
         if(currentUser.getScrapYard() == null
-                || currentUser.getScrapYard().getStatus().equals("INACTIVE")
+                || currentUser.getScrapYard().getStatus().equals(YardStatus.INACTIVE)
                 || !currentUser.getRole().equals(Role.YARD_OWNER)) {
             throw new InvalidRequestException("You do not have permission to add this staff");
         }
@@ -263,6 +263,33 @@ public class AccountServiceImpl implements AccountService {
         Account account = accountRepository.findByScrapYardYardIdAndRole(yardId, fromRole).getFirst();
         account.setRole(toRole);
         accountRepository.save(account);
+    }
+
+    @Override
+    public void leaveYard(Long accountId) {
+        Account currentAccount = currentUserService.getCurrentUser();
+        Account leavingAccount = accountRepository.
+                findById(accountId).
+                orElseThrow(() -> new ResourceNotFoundException("Account", accountId));
+        // Staff leave yard
+        if(currentAccount.getAccountId().equals(accountId) && currentAccount.getRole() == Role.STAFF){
+            leavingAccount.setRole(Role.CUSTOMER);
+            leavingAccount.setScrapYard(null);
+        }
+        // Yard owner remove staff
+        else if(!currentAccount.getAccountId().equals(accountId)
+                && currentAccount.getRole() == Role.YARD_OWNER
+                && leavingAccount.getRole().equals(Role.STAFF)
+                && currentAccount.getScrapYard() != null
+                && leavingAccount.getScrapYard() != null
+                && leavingAccount.getScrapYard().getYardId().equals(currentAccount.getScrapYard().getYardId())){
+            leavingAccount.setRole(Role.CUSTOMER);
+            leavingAccount.setScrapYard(null);
+        }
+        else{
+            throw new InvalidRequestException("No permission");
+        }
+        accountRepository.save(leavingAccount);
     }
 
     @Override

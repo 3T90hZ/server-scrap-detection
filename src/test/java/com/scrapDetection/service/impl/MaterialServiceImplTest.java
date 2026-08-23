@@ -4,6 +4,7 @@ import com.scrapDetection.dto.material.MaterialRequestDTO;
 import com.scrapDetection.dto.material.MaterialResponseDTO;
 import com.scrapDetection.entity.Account;
 import com.scrapDetection.entity.Material;
+import com.scrapDetection.entity.MaterialStatus;
 import com.scrapDetection.entity.ScrapYard;
 import com.scrapDetection.exception.ResourceAlreadyExistsException;
 import com.scrapDetection.mapper.MaterialMapper;
@@ -53,7 +54,7 @@ class MaterialServiceImplTest {
         Material inactiveDuplicate = Material.builder()
                 .materialId(30L)
                 .itemName(" SẮT  VỤN ")
-                .status("INACTIVE")
+                .status(MaterialStatus.INACTIVE)
                 .scrapYard(yard)
                 .build();
 
@@ -120,7 +121,7 @@ class MaterialServiceImplTest {
                 .itemName(itemName)
                 .itemPrice(10_000D)
                 .unit("kg")
-                .status("ACTIVE")
+                .status(MaterialStatus.ACTIVE)
                 .icon("icon_metal")
                 .build();
     }

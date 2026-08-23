@@ -32,8 +32,9 @@ public class ScrapYard {
     @Column(nullable = false)
     private String address;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String status;
+    private YardStatus status;
 
     @Column(name = "open_hour")
     private String openHour;

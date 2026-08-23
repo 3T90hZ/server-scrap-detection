@@ -34,6 +34,8 @@ public interface AccountService {
 
     void changeRole(Long yardId, Role fromRole, Role toRole);
 
+    void leaveYard(Long accountId);
+
     AccountInfoResponseDTO findAccountByPhoneNumber(GetPhoneNumberRequestDTO request);
 
     AuthResponseDTO getMyInfo();

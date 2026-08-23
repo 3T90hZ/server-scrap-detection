@@ -3,6 +3,7 @@ package com.scrapDetection.service.impl;
 import com.scrapDetection.dto.material.MaterialRequestDTO;
 import com.scrapDetection.dto.material.MaterialResponseDTO;
 import com.scrapDetection.entity.Material;
+import com.scrapDetection.entity.MaterialStatus;
 import com.scrapDetection.entity.Transaction;
 import com.scrapDetection.exception.InvalidRequestException;
 import com.scrapDetection.exception.ResourceAlreadyExistsException;
@@ -48,7 +49,7 @@ public class MaterialServiceImpl implements MaterialService {
         }
         // Assign material to current user's yard
         material.setScrapYard(currentUser.getScrapYard());
-        material.setStatus("ACTIVE");
+        material.setStatus(MaterialStatus.ACTIVE);
 
 
         Material savedMaterial = materialRepository.save(material);
@@ -88,7 +89,7 @@ public class MaterialServiceImpl implements MaterialService {
     }
 
     @Override
-    public List<MaterialResponseDTO> getMaterialsByYardIdAndStatus(Long yardId, String status) {
+    public List<MaterialResponseDTO> getMaterialsByYardIdAndStatus(Long yardId, MaterialStatus status) {
         List<Material> materials = materialRepository.findByScrapYardYardIdAndStatus(yardId, status);
         return materialMapper.toResponseDTOList(materials);
     }
@@ -101,7 +102,7 @@ public class MaterialServiceImpl implements MaterialService {
 
     @Override
     public List<MaterialResponseDTO> searchActiveMaterialsByName(String itemName) {
-        List<Material> materials = materialRepository.findByItemNameContainingIgnoreCaseAndStatus(itemName, "ACTIVE");
+        List<Material> materials = materialRepository.findByItemNameContainingIgnoreCaseAndStatus(itemName, MaterialStatus.ACTIVE);
         return materialMapper.toResponseDTOList(materials);
     }
 
@@ -132,7 +133,7 @@ public class MaterialServiceImpl implements MaterialService {
         }
         else{
             material.setUpdatedAt(LocalDateTime.now());
-            material.setStatus("INACTIVE");
+            material.setStatus(MaterialStatus.INACTIVE);
             materialRepository.save(material);
         }
     }

@@ -204,7 +204,7 @@ public class NotificationServiceImpl implements NotificationService {
     private ScrapYard getValidSenderScrapYard(Account sender) {
         if (sender == null ||
                 sender.getRole() != Role.YARD_OWNER ||
-                "INACTIVE".equals(sender.getStatus())) {
+                AccountStatus.INACTIVE.equals(sender.getStatus())) {
 
             throw new InvalidRequestException("Yard owner not found");
         }
@@ -212,7 +212,7 @@ public class NotificationServiceImpl implements NotificationService {
         ScrapYard scrapYard = sender.getScrapYard();
 
         if (scrapYard == null ||
-                "INACTIVE".equals(scrapYard.getStatus())) {
+            YardStatus.INACTIVE.equals(scrapYard.getStatus())) {
 
             throw new InvalidRequestException("Scrap Yard is invalid");
         }

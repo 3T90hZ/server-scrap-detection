@@ -1,5 +1,6 @@
 package com.scrapDetection.dto.material;
 
+import com.scrapDetection.entity.MaterialStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -26,7 +27,7 @@ public class MaterialRequestDTO {
     @NotBlank(message = "Unit is required")
     private String unit;
 
-    private String status; // ACTIVE/INACTIVE
+    private MaterialStatus status; // ACTIVE/INACTIVE
 
     @NotBlank
     private String icon;

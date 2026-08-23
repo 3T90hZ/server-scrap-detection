@@ -4,6 +4,7 @@ import com.scrapDetection.dto.scrapyard.ScrapYardRequestDTO;
 import com.scrapDetection.dto.scrapyard.ScrapYardResponseDTO;
 import com.scrapDetection.dto.scrapyard.ScrapYardStatusRequestDTO;
 import com.scrapDetection.dto.scrapyard.ScrapYardUpdateRequestDTO;
+import com.scrapDetection.entity.YardStatus;
 import com.scrapDetection.service.ScrapYardService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -59,7 +60,7 @@ public class ScrapYardController {
     // READ - Get scrapyards by Status
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/status/{status}")
-    public ResponseEntity<Page<ScrapYardResponseDTO>> getScrapYardsByStatus(@PathVariable String status, Pageable  pageable) {
+    public ResponseEntity<Page<ScrapYardResponseDTO>> getScrapYardsByStatus(@PathVariable YardStatus status, Pageable  pageable) {
         Page<ScrapYardResponseDTO> response = scrapYardService.getScrapYardsByStatus(status, pageable);
         return ResponseEntity.ok(response);
     }

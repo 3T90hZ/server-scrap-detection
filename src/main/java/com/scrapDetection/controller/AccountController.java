@@ -70,4 +70,9 @@ public class AccountController {
         Account currentUser = currentUserService.getCurrentUser();
         return currentUser.getAccountId();
     }
+    @DeleteMapping("/members/{accountId}")
+    public ResponseEntity<Void> leaveYard(@PathVariable Long accountId) {
+        accountService.leaveYard(accountId);
+        return ResponseEntity.noContent().build();
+    }
 }
