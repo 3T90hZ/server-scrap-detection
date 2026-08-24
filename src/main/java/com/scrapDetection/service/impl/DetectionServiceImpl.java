@@ -3,10 +3,7 @@ package com.scrapDetection.service.impl;
 import com.scrapDetection.dto.detection.DetectionRequestDTO;
 import com.scrapDetection.dto.detection.DetectionRequestDTO.DetectionItemDTO;
 import com.scrapDetection.dto.detection.DetectionResponseDTO;
-import com.scrapDetection.entity.Label;
-import com.scrapDetection.entity.Material;
-import com.scrapDetection.entity.ScrapYard;
-import com.scrapDetection.entity.YardStatus;
+import com.scrapDetection.entity.*;
 import com.scrapDetection.exception.InvalidRequestException;
 import com.scrapDetection.mapper.DetectionMapper;
 import com.scrapDetection.repository.LabelRepository;
@@ -101,9 +98,11 @@ public class DetectionServiceImpl implements DetectionService {
         );
         if (label != null) {
             Material material = label.getMaterial();
-            response.setMaterialId(material.getMaterialId());
-            response.setMaterialName(material.getItemName());
-            response.setMaterialPrice(material.getItemPrice());
+            if(material.getStatus().equals(MaterialStatus.ACTIVE)){
+                response.setMaterialId(material.getMaterialId());
+                response.setMaterialName(material.getItemName());
+                response.setMaterialPrice(material.getItemPrice());
+            }
         }
         response.setTimestamp(requestDTO.getTimestamp());
         response.setDeviceId(deviceId);
