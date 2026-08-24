@@ -58,14 +58,18 @@ public class ScrapYard {
 
     // Relationships
     @OneToMany(mappedBy = "scrapYard", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private Set<Material> materials = new HashSet<>();
 
     @OneToMany(mappedBy = "scrapYard", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private Set<Device> devices = new HashSet<>();
 
     @OneToMany(mappedBy = "scrapYard", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private Set<Account> accounts = new HashSet<>();
 
     @OneToMany(mappedBy = "scrapYard", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private Set<Label> labels = new HashSet<>();
 }

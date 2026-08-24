@@ -42,6 +42,7 @@ public class Material {
     private String unit;
 
     @Column(name = "stock", nullable = false)
+    @Builder.Default
     private Double stock = 0D;
 
     @UpdateTimestamp
@@ -49,8 +50,10 @@ public class Material {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "material")
+    @Builder.Default
     private Set<Transaction> transactions = new HashSet<>();
 
     @OneToOne(mappedBy = "material")
+    @Builder.Default
     private Set<Label> labels = new HashSet<>();
 }
