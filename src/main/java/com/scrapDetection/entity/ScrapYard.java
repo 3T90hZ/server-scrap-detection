@@ -42,6 +42,12 @@ public class ScrapYard {
     @Column(name = "close_hour")
     private String closeHour;
 
+    @Column(name = "latitude")
+    private Double latitude;
+
+    @Column(name = "longitude")
+    private Double longitude;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

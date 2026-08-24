@@ -20,6 +20,8 @@ public class ScrapYardMapper {
         scrapYard.setYardName(dto.getYardName());
         scrapYard.setAddress(dto.getAddress());
         scrapYard.setPhoneNumbers(dto.getPhoneNumbers());
+        scrapYard.setLatitude(dto.getLatitude());
+        scrapYard.setLongitude(dto.getLongitude());
         return scrapYard;
     }
 
@@ -42,7 +44,9 @@ public class ScrapYardMapper {
                 .phoneNumbers(entity.getPhoneNumbers())
                 .status(entity.getStatus())
                 .openHour(entity.getOpenHour())
-                .closeHour((entity.getCloseHour()))
+                .closeHour(entity.getCloseHour())
+                .latitude(entity.getLatitude())
+                .longitude(entity.getLongitude())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .build();
@@ -70,6 +74,12 @@ public class ScrapYardMapper {
         }
         if (dto.getCloseHour() != null) {
             entity.setCloseHour(dto.getCloseHour());
+        }
+        if (dto.getLatitude() != null) {
+            entity.setLatitude(dto.getLatitude());
+        }
+        if (dto.getLongitude() != null) {
+            entity.setLongitude(dto.getLongitude());
         }
     }
 }
