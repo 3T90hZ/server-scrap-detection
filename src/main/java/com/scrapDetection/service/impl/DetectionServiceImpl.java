@@ -3,7 +3,14 @@ package com.scrapDetection.service.impl;
 import com.scrapDetection.dto.detection.DetectionRequestDTO;
 import com.scrapDetection.dto.detection.DetectionRequestDTO.DetectionItemDTO;
 import com.scrapDetection.dto.detection.DetectionResponseDTO;
+import com.scrapDetection.entity.Label;
+import com.scrapDetection.entity.Material;
+import com.scrapDetection.entity.ScrapYard;
+import com.scrapDetection.entity.YardStatus;
+import com.scrapDetection.exception.InvalidRequestException;
 import com.scrapDetection.mapper.DetectionMapper;
+import com.scrapDetection.repository.LabelRepository;
+import com.scrapDetection.service.CurrentUserService;
 import com.scrapDetection.service.DetectionService;
 import com.scrapDetection.service.detection.LatestDetectionStore;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +48,8 @@ import java.time.Instant;
 public class DetectionServiceImpl implements DetectionService {
     private final DetectionMapper detectionMapper;
     private final LatestDetectionStore latestDetectionStore;
+    private final LabelRepository  labelRepository;
+    private final CurrentUserService currentUserService;
 
     @Override
     public DetectionResponseDTO processDetection(Long deviceId, DetectionRequestDTO requestDTO) {
@@ -77,12 +86,25 @@ public class DetectionServiceImpl implements DetectionService {
         log.info("  weight_above_ref: {} g", requestDTO.getWeightAboveRefG());
         log.info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 
+        ScrapYard yard = currentUserService.getCurrentUser().getScrapYard();
+        if(yard == null || !yard.getStatus().equals(YardStatus.ACTIVE)){
+            throw new InvalidRequestException("User is is required to belong to an active yard");
+        }
+        Label label = labelRepository
+                .findByScrapYardYardIdAndLabel(yard.getYardId(),best.getClassName())
+                .orElse(null);
         // ── 4. Build response, stamp timestamp, store as "latest" ──────────────
         DetectionResponseDTO response = detectionMapper.toReceivedResponse(
                 best.getClassName(),
                 best.getConfidence(),
                 requestDTO.getWeightG()
         );
+        if (label != null) {
+            Material material = label.getMaterial();
+            response.setMaterialId(material.getMaterialId());
+            response.setMaterialName(material.getItemName());
+            response.setMaterialPrice(material.getItemPrice());
+        }
         response.setTimestamp(requestDTO.getTimestamp());
         response.setDeviceId(deviceId);
         response.setReceivedAt(Instant.now());

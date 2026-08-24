@@ -37,6 +37,9 @@ import java.time.Instant;
 public class DetectionResponseDTO {
     private String status;          // "received" | "error"
     private String className;    // best detection class name echoed back
+    private Long materialId;
+    private String materialName;
+    private Double materialPrice;
     private Double confidence;   // best detection confidence echoed back
     private Double weightG;      // weight from the payload echoed back
     private String message;
