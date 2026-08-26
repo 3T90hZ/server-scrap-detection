@@ -36,4 +36,7 @@ public class ScrapYardRequestDTO {
 
     @NotBlank(message = "Password are required")
     private String password;
+
+    private Double latitude;
+    private Double longitude;
 }

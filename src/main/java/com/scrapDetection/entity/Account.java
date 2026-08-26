@@ -59,17 +59,22 @@ public class Account {
 
     // Relationships
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private Set<Session> sessions = new HashSet<>();
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
+    @Builder.Default
     private Set<Bill> customerTransactions = new HashSet<>();
 
     @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
+    @Builder.Default
     private Set<Bill> staffTransactions = new HashSet<>();
 
     @OneToMany(mappedBy = "recipient", cascade = CascadeType.ALL)
+    @Builder.Default
     private Set<Notification> recipientNotifications = new HashSet<>();
 
     @OneToMany(mappedBy = "sender")
+    @Builder.Default
     private Set<Notification> sentNotifications = new HashSet<>();
 }

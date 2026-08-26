@@ -42,6 +42,12 @@ public class ScrapYard {
     @Column(name = "close_hour")
     private String closeHour;
 
+    @Column(name = "latitude")
+    private Double latitude;
+
+    @Column(name = "longitude")
+    private Double longitude;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
@@ -52,14 +58,18 @@ public class ScrapYard {
 
     // Relationships
     @OneToMany(mappedBy = "scrapYard", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private Set<Material> materials = new HashSet<>();
 
     @OneToMany(mappedBy = "scrapYard", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private Set<Device> devices = new HashSet<>();
 
     @OneToMany(mappedBy = "scrapYard", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private Set<Account> accounts = new HashSet<>();
 
     @OneToMany(mappedBy = "scrapYard", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private Set<Label> labels = new HashSet<>();
 }
