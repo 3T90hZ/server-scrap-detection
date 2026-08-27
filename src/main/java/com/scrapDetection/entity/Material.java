@@ -54,6 +54,5 @@ public class Material {
     private Set<Transaction> transactions = new HashSet<>();
 
     @OneToOne(mappedBy = "material")
-    @Builder.Default
-    private Set<Label> labels = new HashSet<>();
+    private Label label;
 }
