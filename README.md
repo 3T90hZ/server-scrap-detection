@@ -60,6 +60,49 @@ GRANT ALL PRIVILEGES ON scrap.* TO 'scrap_app'@'%';
 FLUSH PRIVILEGES;
 ```
 
+## ⚠️ Xử lý lỗi schema khi nâng cấp (Migration)
+
+Hibernate dùng `ddl-auto: update` nên chỉ **thêm** cột/bảng mới, **không bao giờ tự xóa** cột cũ.
+Nếu database của bạn được tạo từ phiên bản code cũ, một số cột thừa vẫn tồn tại với ràng buộc `NOT NULL`, gây lỗi khi insert.
+
+### Lỗi: `Field 'customer' doesn't have a default value` khi tạo giao dịch
+
+Bảng `transactions` phiên bản cũ có cột `customer` (lưu trực tiếp customer ID). Phiên bản mới đã chuyển thông tin customer sang bảng `bills`, nên Entity `Transaction.java` không còn map cột này nữa.
+
+**Cách sửa — chạy 1 trong 2 câu SQL sau trên database:**
+
+```sql
+-- Cách 1: Cho phép NULL (an toàn, giữ lại dữ liệu cũ)
+ALTER TABLE transactions MODIFY COLUMN customer BIGINT NULL DEFAULT NULL;
+
+-- Cách 2: Xóa cột luôn (sạch sẽ hơn, mất dữ liệu cũ của cột này)
+ALTER TABLE transactions DROP COLUMN customer;
+```
+
+### Lỗi: `Referencing column 'bill_id' and referenced column 'bill_id' are incompatible`
+
+Xảy ra khi cột `bill_id` trong bảng `transactions` có kiểu `VARCHAR(36)` (từ schema cũ dùng UUID), nhưng Entity mới dùng `BIGINT` (auto-increment). Hibernate không thể tạo foreign key vì kiểu dữ liệu không khớp.
+
+**Cách sửa:**
+
+```sql
+-- Bước 1: Xóa foreign key cũ (nếu có)
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- Bước 2: Đổi kiểu dữ liệu
+ALTER TABLE transactions MODIFY COLUMN bill_id BIGINT NULL DEFAULT NULL;
+
+SET FOREIGN_KEY_CHECKS = 1;
+```
+
+> **Mẹo chung:** Nếu gặp nhiều lỗi kiểu dữ liệu không tương thích, cách nhanh nhất là **xóa toàn bộ database và tạo lại** (Hibernate sẽ tự sinh schema đúng). Chỉ áp dụng khi dữ liệu hiện tại là dữ liệu test và không cần giữ lại:
+> ```sql
+> DROP DATABASE pos_db;
+> CREATE DATABASE pos_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+> ```
+
+---
+
 ## Jenkins
 
 Jenkins đọc secret từ `/opt/scrap-smart/.env`, build image (bao gồm test), kiểm
