@@ -37,13 +37,11 @@ public class BillServiceImpl implements BillService {
     public BillResponseDTO createBill(BillRequestDTO requestDTO) {
         Account currentUser = currentUserService.getCurrentUser();
 
-        // Resolve customer (fallback to id=1 for detection API compatibility)
-        Account customer;
+        // Resolve customer (can be null for guest)
+        Account customer = null;
         if (requestDTO.getCustomerId() != null) {
             customer = accountRepository.findById(requestDTO.getCustomerId())
                     .orElseThrow(() -> new ResourceNotFoundException("Customer", requestDTO.getCustomerId()));
-        } else {
-            customer = accountRepository.getReferenceById(1L);
         }
 
         Bill bill = Bill.builder()
@@ -75,7 +73,11 @@ public class BillServiceImpl implements BillService {
             totalWorth += lineWorth;
 
             // Update stock
-            material.setStock(material.getStock() + itemDto.getWeight());
+            Double currentStock = material.getStock();
+            if (currentStock == null) {
+                currentStock = 0.0;
+            }
+            material.setStock(currentStock + itemDto.getWeight());
             materialRepository.save(material);
         }
 
@@ -89,7 +91,7 @@ public class BillServiceImpl implements BillService {
             notificationService.createBillNotification(yardOwner, savedBill);
         }
         notificationService.createBillNotification(currentUser, savedBill);
-        if (!customer.getAccountId().equals(currentUser.getAccountId())) {
+        if (customer != null && !customer.getAccountId().equals(currentUser.getAccountId())) {
             notificationService.createBillNotification(customer, savedBill);
         }
         return billMapper.toResponseDTO(savedBill);

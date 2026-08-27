@@ -39,8 +39,13 @@ public class ResaleServiceImpl implements ResaleService {
             throw new InvalidRequestException("You can only create resales for materials in your yard");
         }
 
-        if (material.getStock() < requestDTO.getWeight()) {
-            throw new InvalidRequestException("Insufficient stock. Available: " + material.getStock());
+        Double currentStock = material.getStock();
+        if (currentStock == null) {
+            currentStock = 0.0;
+        }
+
+        if (currentStock < requestDTO.getWeight()) {
+            throw new InvalidRequestException("Insufficient stock. Available: " + currentStock);
         }
 
         Resale resale = resaleMapper.toEntity(requestDTO);
@@ -56,7 +61,7 @@ public class ResaleServiceImpl implements ResaleService {
         Resale savedResale = resaleRepository.save(resale);
 
         // Decrease stock
-        material.setStock(material.getStock() - requestDTO.getWeight());
+        material.setStock(currentStock - requestDTO.getWeight());
         materialRepository.save(material);
 
         return resaleMapper.toResponseDTO(savedResale);
