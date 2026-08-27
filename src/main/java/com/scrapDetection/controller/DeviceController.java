@@ -65,6 +65,7 @@ public class DeviceController {
     }
 
     // Get device by id
+    @PreAuthorize("hasAnyRole('ADMIN', 'YARD_OWNER')")
     @GetMapping("/{deviceId}")
     @SecurityRequirement(name = OpenApiConfig.BEARER_AUTH)
     public ResponseEntity<DeviceResponseDTO> getDeviceById(@PathVariable Long deviceId) {
