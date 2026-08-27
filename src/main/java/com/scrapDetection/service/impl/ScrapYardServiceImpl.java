@@ -43,9 +43,6 @@ public class ScrapYardServiceImpl implements ScrapYardService {
         requestDTO.setEmail(normalize.normalizeEmailAndPhoneNumber(requestDTO.getEmail()));
 
         Account account = accountRepository.findByPhoneNumbers(normalize.normalizeEmailAndPhoneNumber(requestDTO.getPhoneNumbers())).orElse(null);
-        if (checkYardNameDuplicate(requestDTO.getYardName())) {
-            throw new ResourceAlreadyExistsException("Scrap Yard", "yardName", requestDTO.getYardName());
-        }
 
         if (scrapYardRepository.existsByPhoneNumbers(requestDTO.getPhoneNumbers())) {
             ScrapYard scrapYard = scrapYardRepository.findByPhoneNumbers(requestDTO.getPhoneNumbers()).orElse(null);
@@ -59,6 +56,10 @@ public class ScrapYardServiceImpl implements ScrapYardService {
                 return scrapYardMapper.toResponseDTO(scrapYardRepository.save(scrapYard));
             }
             throw new ResourceAlreadyExistsException("Scrap Yard", "phoneNumbers", requestDTO.getPhoneNumbers());
+        }
+
+        if (checkYardNameDuplicate(requestDTO.getYardName())) {
+            throw new ResourceAlreadyExistsException("Scrap Yard", "yardName", requestDTO.getYardName());
         }
 
         if(scrapYardRepository.existsByAddress(requestDTO.getAddress())) {

@@ -70,6 +70,7 @@ public class AccountController {
         Account currentUser = currentUserService.getCurrentUser();
         return currentUser.getAccountId();
     }
+    @PreAuthorize("hasAnyRole('STAFF', 'YARD_OWNER')")
     @DeleteMapping("/members/{accountId}")
     public ResponseEntity<Void> leaveYard(@PathVariable Long accountId) {
         accountService.leaveYard(accountId);
