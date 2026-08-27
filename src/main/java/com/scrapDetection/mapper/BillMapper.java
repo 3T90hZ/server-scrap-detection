@@ -28,8 +28,8 @@ public class BillMapper {
 
         return BillResponseDTO.builder()
                 .billId(bill.getBillId())
-                .customerId(bill.getCustomer().getAccountId())
-                .customerName(bill.getCustomer().getAccountName())
+                .customerId(bill.getCustomer() != null ? bill.getCustomer().getAccountId() : null)
+                .customerName(bill.getCustomer() != null ? bill.getCustomer().getAccountName() : "Khách vãng lai")
                 .createdById(bill.getCreatedBy() != null ? bill.getCreatedBy().getAccountId() : null)
                 .createdByName(bill.getCreatedBy() != null ? bill.getCreatedBy().getAccountName() : null)
                 .createdAt(bill.getCreatedAt())
@@ -49,7 +49,7 @@ public class BillMapper {
 
         return BillSummaryDTO.builder()
                 .billId(bill.getBillId())
-                .customerName(bill.getCustomer().getAccountName())
+                .customerName(bill.getCustomer() != null ? bill.getCustomer().getAccountName() : "Khách vãng lai")
                 .createdByName(bill.getCreatedBy() != null ? bill.getCreatedBy().getAccountName() : null)
                 .totalWorth(bill.getTotalWorth())
                 .itemCount(bill.getTransactions().size())
