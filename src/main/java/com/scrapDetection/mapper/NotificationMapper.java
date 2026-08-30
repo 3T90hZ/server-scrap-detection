@@ -12,11 +12,15 @@ public class NotificationMapper {
         return NotificationResponseDTO.builder()
                 .notificationId(entity.getNotificationId())
                 .title(entity.getTitle())
-                .type(NotificationType.BILL_CREATED)
+                .type(entity.getType())
                 .message(entity.getMessage())
                 .isRead(entity.getIsRead())
+                .isAccepted(entity.getIsAccepted())
                 .createdAt(entity.getCreatedAt())
-                .billId(entity.getBill().getBillId())
+                .expiredAt(entity.getExpiredAt())
+                .billId(entity.getBill() != null ? entity.getBill().getBillId() : null)
+                .senderName(entity.getSender() != null ? entity.getSender().getAccountName() : null)
+                .senderPhone(entity.getSender() != null ? entity.getSender().getPhoneNumbers() : null)
                 .build();
     }
 }

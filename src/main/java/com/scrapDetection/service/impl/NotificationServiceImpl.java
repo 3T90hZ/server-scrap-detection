@@ -219,4 +219,37 @@ public class NotificationServiceImpl implements NotificationService {
 
         return scrapYard;
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long getUnreadCount() {
+        return notificationRepository.countByRecipientAccountIdAndIsReadFalse(
+                currentUserService.getCurrentUser().getAccountId()
+        );
+    }
+
+    @Override
+    @Transactional
+    public void markAsRead(Long notificationId) {
+        Account currentUser = currentUserService.getCurrentUser();
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Notification " + notificationId));
+
+        if (!notification.getRecipient().getAccountId().equals(currentUser.getAccountId())) {
+            throw new InvalidRequestException("No permission on this notification");
+        }
+
+        notification.setIsRead(true);
+        notificationRepository.save(notification);
+    }
+
+    @Override
+    @Transactional
+    public void markAllAsRead() {
+        Account currentUser = currentUserService.getCurrentUser();
+        List<Notification> unreadList = notificationRepository.findByRecipientAccountIdAndIsReadFalse(currentUser.getAccountId());
+        
+        unreadList.forEach(n -> n.setIsRead(true));
+        notificationRepository.saveAll(unreadList);
+    }
 }

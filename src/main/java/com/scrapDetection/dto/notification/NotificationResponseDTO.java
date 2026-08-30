@@ -29,4 +29,8 @@ public class NotificationResponseDTO {
     private LocalDateTime expiredAt;
 
     private Long billId;
+
+    private String senderName;
+
+    private String senderPhone;
 }
