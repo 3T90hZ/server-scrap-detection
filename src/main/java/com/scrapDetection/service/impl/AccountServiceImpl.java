@@ -69,14 +69,14 @@ public class AccountServiceImpl implements AccountService {
                 .orElseThrow(() -> new ResourceNotFoundException("Account", "phoneNumbers", request.getPhoneNumbers()));
 
         if(account.getScrapYard() != null && account.getRole() != Role.CUSTOMER){
-            if( !account.getScrapYard().getStatus().equals(YardStatus.ACTIVE)){
+            if( !YardStatus.ACTIVE.equals(account.getScrapYard().getStatus())){
                 throw new InvalidRequestException("Yard is not activated");
             }
         }
         if (!passwordEncoder.matches(request.getPassword(), account.getPasswordHash())) {
             throw new InvalidRequestException("Invalid phone number or password");
         }
-        if(account.getStatus().equals(AccountStatus.INACTIVE)){
+        if(AccountStatus.INACTIVE.equals(account.getStatus())){
             throw new InvalidRequestException("The account is locked!");
         }
 
@@ -132,14 +132,14 @@ public class AccountServiceImpl implements AccountService {
         request.setEmail(normalize.normalizeEmailAndPhoneNumber(request.getEmail()));
         request.setPhoneNumbers(normalize.normalizeEmailAndPhoneNumber(request.getPhoneNumbers()));
         if (request.getPhoneNumbers() != null &&
-                !existing.getPhoneNumbers().equals(request.getPhoneNumbers()) &&
+                !request.getPhoneNumbers().equals(existing.getPhoneNumbers()) &&
                 accountRepository.existsByPhoneNumbers(request.getPhoneNumbers())) {
 
             throw new ResourceAlreadyExistsException("Account", "phoneNumbers", request.getPhoneNumbers());
         }
 
         if (request.getEmail() != null &&
-                !existing.getEmail().equals(request.getEmail()) &&
+                !request.getEmail().equals(existing.getEmail()) &&
                 accountRepository.existsByEmail(request.getEmail())) {
 
             throw new ResourceAlreadyExistsException("Account", "phoneNumbers", request.getPhoneNumbers());
