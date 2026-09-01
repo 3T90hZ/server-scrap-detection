@@ -44,7 +44,7 @@ public class MaterialServiceImpl implements MaterialService {
         }
 
         Material material = materialMapper.toEntity(requestDTO);
-        if(CheckMaterialNameDuplicate(material.getItemName(), currentUser.getScrapYard().getYardId())){
+        if(checkMaterialNameDuplicate(material.getItemName(), currentUser.getScrapYard().getYardId())){
             throw new ResourceAlreadyExistsException("Material", "materialName", material.getItemName());
         }
         // Assign material to current user's yard
@@ -64,8 +64,10 @@ public class MaterialServiceImpl implements MaterialService {
         // Yard Ownership Check
         validateYardOwnership(existingMaterial);
 
-        if(CheckMaterialNameDuplicate(requestDTO.getItemName(), existingMaterial.getScrapYard().getYardId())){
-            throw new ResourceAlreadyExistsException("Material", "itemName", requestDTO.getItemName());
+        if (!existingMaterial.getItemName().equalsIgnoreCase(requestDTO.getItemName())) {
+            if (checkMaterialNameDuplicate(requestDTO.getItemName(), existingMaterial.getScrapYard().getYardId())) {
+                throw new ResourceAlreadyExistsException("Material", "itemName", requestDTO.getItemName());
+            }
         }
 
         materialMapper.updateEntityFromDTO(requestDTO, existingMaterial);
@@ -157,7 +159,7 @@ public class MaterialServiceImpl implements MaterialService {
         }
     }
 
-    private Boolean CheckMaterialNameDuplicate(String name, Long yardId) {
+    private Boolean checkMaterialNameDuplicate(String name, Long yardId) {
         String normalized = normalize.normalizeName(name);
 
         return materialRepository.existsByScrapYardYardIdAndItemNameIgnoreCase(yardId, normalized);
