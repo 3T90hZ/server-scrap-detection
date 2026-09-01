@@ -65,7 +65,9 @@ public class MaterialServiceImpl implements MaterialService {
         validateYardOwnership(existingMaterial);
 
         if(CheckMaterialNameDuplicate(requestDTO.getItemName(), existingMaterial.getScrapYard().getYardId())){
-            throw new ResourceAlreadyExistsException("Material", "itemName", requestDTO.getItemName());
+            if(!existingMaterial.getItemName().equals(requestDTO.getItemName())) {
+                throw new ResourceAlreadyExistsException("Material", "itemName", requestDTO.getItemName());
+            }
         }
 
         materialMapper.updateEntityFromDTO(requestDTO, existingMaterial);

@@ -232,19 +232,11 @@ public class AccountServiceImpl implements AccountService {
                 .orElseThrow(() -> new ResourceNotFoundException("Account", dto.getAccountId()));
         Account currentAccount = accountRepository.findById(currentAccountId)
                 .orElseThrow(() -> new ResourceNotFoundException("Account", currentAccountId));
-
-        if(currentAccount.getRole() == Role.YARD_OWNER){
-            if(!Objects.equals(account.getScrapYard().getYardId(), currentAccount.getScrapYard().getYardId())){
-                throw new InvalidRequestException("No permission");
-            }
+        if(currentAccount.getRole() != Role.ADMIN && !dto.getAccountId().equals(currentAccountId)){
+            throw new InvalidRequestException("No permission");
         }
-        else {
-            if(currentAccount.getRole() != Role.ADMIN && !dto.getAccountId().equals(currentAccountId)){
-                throw new InvalidRequestException("No permission");
-            }
-            if(currentAccount.getRole() == Role.ADMIN && dto.getAccountId().equals(currentAccountId)){
-                throw new InvalidRequestException("No permission");
-            }
+        if(currentAccount.getRole() == Role.ADMIN && dto.getAccountId().equals(currentAccountId)){
+            throw new InvalidRequestException("No permission");
         }
         account.setStatus(dto.getStatus());
         return accountMapper.toAccountInfoResponse(accountRepository.save(account));
