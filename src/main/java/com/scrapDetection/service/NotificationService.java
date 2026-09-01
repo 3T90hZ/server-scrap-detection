@@ -20,4 +20,12 @@ public interface NotificationService {
 
     @Transactional
     void createInviteNotification(Long recipientId, Long senderId);
+
+    long getUnreadCount();
+
+    @Transactional
+    void markAsRead(Long notificationId);
+
+    @Transactional
+    void markAllAsRead();
 }

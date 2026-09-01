@@ -24,6 +24,10 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
             NotificationType type
     );
 
+    long countByRecipientAccountIdAndIsReadFalse(Long recipientId);
+
+    List<Notification> findByRecipientAccountIdAndIsReadFalse(Long recipientId);
+
     @Query("""
         SELECT n
         FROM Notification n
