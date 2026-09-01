@@ -2,7 +2,6 @@ package com.scrapDetection.mapper;
 
 import com.scrapDetection.dto.notification.NotificationResponseDTO;
 import com.scrapDetection.entity.Notification;
-import com.scrapDetection.entity.NotificationType;
 import org.springframework.stereotype.Component;
 
 @Component
