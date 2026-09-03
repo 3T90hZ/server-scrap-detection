@@ -81,6 +81,11 @@ public class DetectionServiceImpl implements DetectionService {
         log.info("  best class      : {}", best.getClassName());
         log.info("  best confidence : {}", best.getConfidence());
         log.info("  weight_above_ref: {} g", requestDTO.getWeightAboveRefG());
+        if (best.getBbox() != null) {
+            log.info("  best bbox       : ({},{}) → ({},{})",
+                    best.getBbox().getX1(), best.getBbox().getY1(),
+                    best.getBbox().getX2(), best.getBbox().getY2());
+        }
         log.info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 
         Device device = deviceRepository.findById(deviceId).orElse(null);
@@ -94,11 +99,20 @@ public class DetectionServiceImpl implements DetectionService {
         Label label = labelRepository
                 .findByScrapYardYardIdAndLabel(yard.getYardId(),best.getClassName())
                 .orElse(null);
+
+        // Extract bbox from the best detection (may be null)
+        DetectionItemDTO.BBox bbox = best.getBbox();
+        Integer bx1 = bbox != null ? bbox.getX1() : null;
+        Integer by1 = bbox != null ? bbox.getY1() : null;
+        Integer bx2 = bbox != null ? bbox.getX2() : null;
+        Integer by2 = bbox != null ? bbox.getY2() : null;
+
         // ── 4. Build response, stamp timestamp, store as "latest" ──────────────
         DetectionResponseDTO response = detectionMapper.toReceivedResponse(
                 best.getClassName(),
                 best.getConfidence(),
-                requestDTO.getWeightG()
+                requestDTO.getWeightG(),
+                bx1, by1, bx2, by2
         );
         if (label != null) {
             Material material = label.getMaterial();
