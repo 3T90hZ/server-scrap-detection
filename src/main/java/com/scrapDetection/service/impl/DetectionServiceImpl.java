@@ -107,8 +107,8 @@ public class DetectionServiceImpl implements DetectionService {
         response.setTimestamp(requestDTO.getTimestamp());
         response.setDeviceId(deviceId);
         response.setReceivedAt(Instant.now());
+        log.info("deviceId: " + deviceId);
         latestDetectionStore.set(deviceId, response);
-
         // ── 5. Return success — no DB write ───────────────────────────────────
         return response;
     }
