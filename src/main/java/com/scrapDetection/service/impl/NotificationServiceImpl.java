@@ -248,7 +248,6 @@ public class NotificationServiceImpl implements NotificationService {
     public void markAllAsRead() {
         Account currentUser = currentUserService.getCurrentUser();
         List<Notification> unreadList = notificationRepository.findByRecipientAccountIdAndIsReadFalse(currentUser.getAccountId());
-        
         unreadList.forEach(n -> n.setIsRead(true));
         notificationRepository.saveAll(unreadList);
     }
