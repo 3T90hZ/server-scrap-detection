@@ -20,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -287,8 +286,15 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public AccountInfoResponseDTO findAccountByPhoneNumber(GetPhoneNumberRequestDTO request){
         Account account = accountRepository.findByPhoneNumbers(request.getPhoneNumber()).orElse(null);
-
-        return accountMapper.toAccountInfoResponse(Objects.requireNonNullElseGet(account, () -> accountRepository.getReferenceById(1L)));
+        if(account == null){
+            return AccountInfoResponseDTO.builder()
+                    .accountId(null)
+                    .accountName("Khách vãng lai")
+                    .phoneNumbers(null)
+                    .status(null)
+                    .build();
+        }
+        return accountMapper.toAccountInfoResponse(account);
     }
 
     @Override

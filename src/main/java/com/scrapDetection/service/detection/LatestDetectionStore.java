@@ -32,11 +32,9 @@ public class LatestDetectionStore {
     public DetectionResponseDTO get(Long deviceId, Instant after) {
         DetectionResponseDTO latest = latestByDevice.get(deviceId);
         if (latest == null) {
-            System.out.println("No latest detection found for device id: " + deviceId);
             return null;
         }
         if (after != null && (latest.getReceivedAt() == null || !latest.getReceivedAt().isAfter(after))) {
-            System.out.println("No new latest detection for device id: " + deviceId);
             return null;
         }
         return latest;

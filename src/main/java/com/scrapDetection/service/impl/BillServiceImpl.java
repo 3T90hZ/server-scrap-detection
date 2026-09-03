@@ -43,7 +43,7 @@ public class BillServiceImpl implements BillService {
             customer = accountRepository.findById(requestDTO.getCustomerId())
                     .orElseThrow(() -> new ResourceNotFoundException("Customer", requestDTO.getCustomerId()));
         } else {
-            customer = accountRepository.getReferenceById(1L);
+            customer = null;
         }
 
         Bill bill = Bill.builder()
@@ -89,7 +89,7 @@ public class BillServiceImpl implements BillService {
             notificationService.createBillNotification(yardOwner, savedBill);
         }
         notificationService.createBillNotification(currentUser, savedBill);
-        if (!customer.getAccountId().equals(currentUser.getAccountId())) {
+        if (customer != null && !customer.getAccountId().equals(currentUser.getAccountId())) {
             notificationService.createBillNotification(customer, savedBill);
         }
         return billMapper.toResponseDTO(savedBill);
