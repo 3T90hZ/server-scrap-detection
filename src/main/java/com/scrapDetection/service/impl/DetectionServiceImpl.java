@@ -8,7 +8,6 @@ import com.scrapDetection.exception.InvalidRequestException;
 import com.scrapDetection.mapper.DetectionMapper;
 import com.scrapDetection.repository.DeviceRepository;
 import com.scrapDetection.repository.LabelRepository;
-import com.scrapDetection.service.CurrentUserService;
 import com.scrapDetection.service.DetectionService;
 import com.scrapDetection.service.detection.LatestDetectionStore;
 import lombok.RequiredArgsConstructor;
