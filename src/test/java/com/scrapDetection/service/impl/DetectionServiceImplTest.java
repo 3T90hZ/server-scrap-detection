@@ -4,9 +4,11 @@ import com.scrapDetection.dto.detection.DetectionRequestDTO;
 import com.scrapDetection.dto.detection.DetectionRequestDTO.DetectionItemDTO;
 import com.scrapDetection.dto.detection.DetectionResponseDTO;
 import com.scrapDetection.entity.Account;
+import com.scrapDetection.entity.Device;
 import com.scrapDetection.entity.ScrapYard;
 import com.scrapDetection.entity.YardStatus;
 import com.scrapDetection.mapper.DetectionMapper;
+import com.scrapDetection.repository.DeviceRepository;
 import com.scrapDetection.repository.LabelRepository;
 import com.scrapDetection.service.CurrentUserService;
 import com.scrapDetection.service.detection.LatestDetectionStore;
@@ -28,16 +30,20 @@ import static org.mockito.Mockito.when;
 class DetectionServiceImplTest {
 
     @Mock
-    private CurrentUserService currentUserService;
-    @Mock
     private DetectionMapper detectionMapper;
+
     @Mock
     private LatestDetectionStore latestDetectionStore;
 
     @Mock
     private LabelRepository labelRepository;
+
     @Mock
-    private Account account;
+    private DeviceRepository deviceRepository;
+
+    @Mock
+    private Device device;
+
     @Mock
     private ScrapYard yard;
 
@@ -54,10 +60,8 @@ class DetectionServiceImplTest {
         request.setWeightG(1250.0);
         request.setDetections(List.of(item));
         DetectionResponseDTO response = DetectionResponseDTO.received("paper", 0.9, 1250.0);
-
-        when(currentUserService.getCurrentUser()).thenReturn(account);
-        when(account.getScrapYard()).thenReturn(yard);
-
+        when(deviceRepository.findById(42L)).thenReturn(Optional.of(device));
+        when(device.getScrapYard()).thenReturn(yard);
         when(yard.getYardId()).thenReturn(1L);
 
         when(yard.getStatus()).thenReturn(YardStatus.ACTIVE);
