@@ -3,14 +3,12 @@ package com.scrapDetection.service.impl;
 import com.scrapDetection.dto.detection.DetectionRequestDTO;
 import com.scrapDetection.dto.detection.DetectionRequestDTO.DetectionItemDTO;
 import com.scrapDetection.dto.detection.DetectionResponseDTO;
-import com.scrapDetection.entity.Account;
 import com.scrapDetection.entity.Device;
 import com.scrapDetection.entity.ScrapYard;
 import com.scrapDetection.entity.YardStatus;
 import com.scrapDetection.mapper.DetectionMapper;
 import com.scrapDetection.repository.DeviceRepository;
 import com.scrapDetection.repository.LabelRepository;
-import com.scrapDetection.service.CurrentUserService;
 import com.scrapDetection.service.detection.LatestDetectionStore;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -59,7 +57,7 @@ class DetectionServiceImplTest {
         request.setTimestamp("2026-08-07T08:00:00Z");
         request.setWeightG(1250.0);
         request.setDetections(List.of(item));
-        DetectionResponseDTO response = DetectionResponseDTO.received("paper", 0.9, 1250.0);
+        DetectionResponseDTO response = DetectionResponseDTO.received("paper", 0.9, 1250.0, null, null, null, null);
         when(deviceRepository.findById(42L)).thenReturn(Optional.of(device));
         when(device.getScrapYard()).thenReturn(yard);
         when(yard.getYardId()).thenReturn(1L);
@@ -72,7 +70,8 @@ class DetectionServiceImplTest {
         when(detectionMapper.toReceivedResponse(
                 "paper",
                 0.9,
-                1250.0
+                1250.0,
+                null, null, null, null
         )).thenReturn(response);
         DetectionResponseDTO result =
                 detectionService.processDetection(42L, request);
