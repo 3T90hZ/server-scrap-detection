@@ -20,7 +20,11 @@ import java.time.Instant;
     "weightG"     : 312.5,
     "timestamp"   : "2025-07-01T14:32:01.123456",
     "deviceId"    : 12,
-    "receivedAt"  : "2026-08-07T08:00:00.123Z"
+    "receivedAt"  : "2026-08-07T08:00:00.123Z",
+    "bboxX1"      : 10,
+    "bboxY1"      : 20,
+    "bboxX2"      : 200,
+    "bboxY2"      : 300
   }
 
   On error (bad payload):
@@ -47,14 +51,28 @@ public class DetectionResponseDTO {
     private Long deviceId;       // authenticated device that submitted the result
     private Instant receivedAt;  // server receipt time used to reject stale scans
 
+    // Bounding box of the best detection (Pi lores coordinates: 640×480)
+    private Integer bboxX1;
+    private Integer bboxY1;
+    private Integer bboxX2;
+    private Integer bboxY2;
+
     public static DetectionResponseDTO received(String className,
                                                 Double confidence,
-                                                Double weightG) {
+                                                Double weightG,
+                                                Integer bboxX1,
+                                                Integer bboxY1,
+                                                Integer bboxX2,
+                                                Integer bboxY2) {
         return DetectionResponseDTO.builder()
                 .status("received")
                 .className(className)
                 .confidence(confidence)
                 .weightG(weightG)
+                .bboxX1(bboxX1)
+                .bboxY1(bboxY1)
+                .bboxX2(bboxX2)
+                .bboxY2(bboxY2)
                 .build();
     }
 

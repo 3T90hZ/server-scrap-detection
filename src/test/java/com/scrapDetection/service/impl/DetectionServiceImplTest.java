@@ -53,7 +53,7 @@ class DetectionServiceImplTest {
         request.setTimestamp("2026-08-07T08:00:00Z");
         request.setWeightG(1250.0);
         request.setDetections(List.of(item));
-        DetectionResponseDTO response = DetectionResponseDTO.received("paper", 0.9, 1250.0);
+        DetectionResponseDTO response = DetectionResponseDTO.received("paper", 0.9, 1250.0, null, null, null, null);
 
         when(currentUserService.getCurrentUser()).thenReturn(account);
         when(account.getScrapYard()).thenReturn(yard);
@@ -68,7 +68,8 @@ class DetectionServiceImplTest {
         when(detectionMapper.toReceivedResponse(
                 "paper",
                 0.9,
-                1250.0
+                1250.0,
+                null, null, null, null
         )).thenReturn(response);
         DetectionResponseDTO result =
                 detectionService.processDetection(42L, request);
