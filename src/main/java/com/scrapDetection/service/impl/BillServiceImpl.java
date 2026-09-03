@@ -37,11 +37,13 @@ public class BillServiceImpl implements BillService {
     public BillResponseDTO createBill(BillRequestDTO requestDTO) {
         Account currentUser = currentUserService.getCurrentUser();
 
-        // Resolve customer (can be null for guest)
-        Account customer = null;
+        // Resolve customer (fallback to ID 1 for guest if not provided)
+        Account customer;
         if (requestDTO.getCustomerId() != null) {
             customer = accountRepository.findById(requestDTO.getCustomerId())
                     .orElseThrow(() -> new ResourceNotFoundException("Customer", requestDTO.getCustomerId()));
+        } else {
+            customer = accountRepository.getReferenceById(1L);
         }
 
         Bill bill = Bill.builder()

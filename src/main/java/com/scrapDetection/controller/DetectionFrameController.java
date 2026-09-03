@@ -10,6 +10,12 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import com.scrapDetection.entity.Device;
+import com.scrapDetection.entity.Account;
 
 /*
   Receives the annotated inference JPEG from the Raspberry Pi.
@@ -26,9 +32,8 @@ import java.time.format.DateTimeFormatter;
 @RequestMapping("/api/detections/frame")
 public class DetectionFrameController {
     // ── In-memory latest frame ─────────────────────────────────────────────
-
-    private volatile byte[]  latestFrame     = null;
-    private volatile String  latestTimestamp = null;
+    private final Map<Long, byte[]> latestFrames = new ConcurrentHashMap<>();
+    private final Map<Long, String> latestTimestamps = new ConcurrentHashMap<>();
 
     private static final DateTimeFormatter FMT =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -48,10 +53,12 @@ public class DetectionFrameController {
             byte[] bytes = file.getBytes();
             String ts    = LocalDateTime.now().format(FMT);
 
-            synchronized (this) {
-                latestFrame     = bytes;
-                latestTimestamp = ts;
-            }
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            Device device = (Device) auth.getPrincipal();
+            Long yardId = device.getScrapYard().getYardId();
+
+            latestFrames.put(yardId, bytes);
+            latestTimestamps.put(yardId, ts);
 
             log.info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
             log.info("[DetectionFrameController] Inference frame received");
@@ -79,13 +86,17 @@ public class DetectionFrameController {
     @GetMapping(produces = "image/jpeg")
     @SecurityRequirement(name = OpenApiConfig.BEARER_AUTH)
     public ResponseEntity<byte[]> getLatestFrame() {
-        byte[] frame = latestFrame;   // read volatile once
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Account account = (Account) auth.getPrincipal();
+        Long yardId = account.getScrapYard().getYardId();
+
+        byte[] frame = latestFrames.get(yardId);
         if (frame == null) {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok()
                 .header("Cache-Control", "no-cache")
-                .header("X-Frame-Timestamp", latestTimestamp)
+                .header("X-Frame-Timestamp", latestTimestamps.get(yardId))
                 .body(frame);
     }
 }
