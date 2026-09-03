@@ -67,13 +67,14 @@ public class DetectionController {
     public ResponseEntity<DetectionResponseDTO> getLatestDetection(
             @RequestParam Long deviceId,
             @RequestParam(required = false) Instant after) {
+        log.info("deviceId:" + deviceId);
         deviceService.getViewerAccess(deviceId);
         DetectionResponseDTO latest = latestDetectionStore.get(deviceId, after);
         if (latest == null) {
             log.info("No detection results!");
             return ResponseEntity.noContent().build();
         }
-        log.info("Lastest result: ",latest.toString());
+        log.info(latest.toString());
         return ResponseEntity.ok(latest);
     }
 }
