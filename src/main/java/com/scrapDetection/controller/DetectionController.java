@@ -70,8 +70,10 @@ public class DetectionController {
         deviceService.getViewerAccess(deviceId);
         DetectionResponseDTO latest = latestDetectionStore.get(deviceId, after);
         if (latest == null) {
+            log.info("No detection results!");
             return ResponseEntity.noContent().build();
         }
+        log.info("Lastest result: ",latest.toString());
         return ResponseEntity.ok(latest);
     }
 }
