@@ -45,7 +45,8 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/api/scrap-yards/request",
                                 "/api/scrap-yards/**",
-                                "/api/materials/**"
+                                "/api/materials/**",
+                                "/api/detection"
                         ).permitAll()
 
                         .requestMatchers(HttpMethod.GET, "/api/detections", "/api/detections/frame")
