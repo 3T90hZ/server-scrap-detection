@@ -284,8 +284,8 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public AccountInfoResponseDTO findAccountByPhoneNumber(GetPhoneNumberRequestDTO request){
-        Account account = accountRepository.findByPhoneNumbers(request.getPhoneNumber()).orElse(null);
+    public AccountInfoResponseDTO findAccountByPhoneNumber(String phoneNumber){
+        Account account = accountRepository.findByPhoneNumbers(phoneNumber).orElse(null);
         if(account == null){
             return AccountInfoResponseDTO.builder()
                     .accountId(null)

@@ -36,7 +36,7 @@ public interface AccountService {
 
     void leaveYard(Long accountId);
 
-    AccountInfoResponseDTO findAccountByPhoneNumber(GetPhoneNumberRequestDTO request);
+    AccountInfoResponseDTO findAccountByPhoneNumber(String phoneNumber);
 
     AuthResponseDTO getMyInfo();
 }
