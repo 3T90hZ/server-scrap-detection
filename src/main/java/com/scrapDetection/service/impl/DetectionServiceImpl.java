@@ -7,7 +7,7 @@ import com.scrapDetection.entity.*;
 import com.scrapDetection.exception.InvalidRequestException;
 import com.scrapDetection.mapper.DetectionMapper;
 import com.scrapDetection.repository.LabelRepository;
-import com.scrapDetection.service.CurrentUserService;
+import com.scrapDetection.repository.DeviceRepository;
 import com.scrapDetection.service.DetectionService;
 import com.scrapDetection.service.detection.LatestDetectionStore;
 import lombok.RequiredArgsConstructor;
@@ -46,7 +46,7 @@ public class DetectionServiceImpl implements DetectionService {
     private final DetectionMapper detectionMapper;
     private final LatestDetectionStore latestDetectionStore;
     private final LabelRepository  labelRepository;
-    private final CurrentUserService currentUserService;
+    private final DeviceRepository deviceRepository;
 
     @Override
     public DetectionResponseDTO processDetection(Long deviceId, DetectionRequestDTO requestDTO) {
@@ -88,7 +88,9 @@ public class DetectionServiceImpl implements DetectionService {
         }
         log.info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 
-        ScrapYard yard = currentUserService.getCurrentUser().getScrapYard();
+        Device device = deviceRepository.findById(deviceId)
+                .orElseThrow(() -> new InvalidRequestException("Device not found"));
+        ScrapYard yard = device.getScrapYard();
         if(yard == null || !yard.getStatus().equals(YardStatus.ACTIVE)){
             throw new InvalidRequestException("User is is required to belong to an active yard");
         }
