@@ -120,9 +120,12 @@ public class DetectionServiceImpl implements DetectionService {
                 response.setMaterialId(material.getMaterialId());
                 response.setMaterialName(material.getItemName());
                 response.setMaterialPrice(material.getItemPrice());
-                log.info("Label name: " + label.getLabel() + " - material: " + material.getItemName());
             }
-            log.info("Label: " + label.getLabel() + " - material: " + label.getMaterial().toString());
+            log.info("Label name: " + response.getClassName());
+            log.info("Material name: " + response.getMaterialName());
+            log.info("Material price: " + response.getMaterialPrice());
+            log.info("Material Id: " + response.getMaterialId());
+
         }
         log.info("label is null");
         response.setTimestamp(requestDTO.getTimestamp());
