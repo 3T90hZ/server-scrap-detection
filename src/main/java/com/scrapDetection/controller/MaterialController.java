@@ -74,6 +74,14 @@ public class MaterialController {
         return ResponseEntity.ok(materials);
     }
 
+    @PreAuthorize("hasAnyRole('YARD_OWNER','STAFF')")
+    @GetMapping("/my-yard-inactive")
+    public ResponseEntity<List<MaterialResponseDTO>> getMyYardInactiveMaterials() {
+        Long yardId = getCurrentUserYardId();
+        List<MaterialResponseDTO> materials = materialService.getMaterialsByYardIdAndStatus(yardId, MaterialStatus.INACTIVE);
+        return ResponseEntity.ok(materials);
+    }
+
     /**
      * PUBLIC - Get active Materials by Yard ID (for customers)
      */
