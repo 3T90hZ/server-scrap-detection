@@ -204,12 +204,12 @@ public class ScrapYardServiceImpl implements ScrapYardService {
 
     private void seedDefaultMaterialsAndLabels(ScrapYard yard) {
         String[][] defaults = {
-                {"Lon bia", "lon_bia", "https://cdn-icons-png.flaticon.com/512/931/931949.png"},
-                {"Chai nhựa", "chai_nhua", "https://cdn-icons-png.flaticon.com/512/3003/3003986.png"},
-                {"Giấy carton", "carton", "https://cdn-icons-png.flaticon.com/512/10008/10008620.png"},
-                {"Sắt", "sat", "https://cdn-icons-png.flaticon.com/512/3712/3712168.png"},
-                {"Đồng", "dong", "https://cdn-icons-png.flaticon.com/512/7657/7657989.png"},
-                {"Nhôm", "nhom", "https://cdn-icons-png.flaticon.com/512/8201/8201201.png"}
+                {"Lon bia", "lon_bia", "icon_can"},
+                {"Chai nhựa", "chai_nhua", "icon_plastic"},
+                {"Giấy carton", "carton", "icon_paper"},
+                {"Sắt", "sat", "icon_metal"},
+                {"Đồng", "dong", "icon_copper"},
+                {"Nhôm", "nhom", "icon_zinc"}
         };
         for (String[] def : defaults) {
             Material material = new Material();
