@@ -10,6 +10,7 @@ import com.scrapDetection.exception.ResourceAlreadyExistsException;
 import com.scrapDetection.exception.ResourceNotFoundException;
 import com.scrapDetection.mapper.ScrapYardMapper;
 import com.scrapDetection.repository.AccountRepository;
+import com.scrapDetection.repository.LabelRepository;
 import com.scrapDetection.repository.MaterialRepository;
 import com.scrapDetection.repository.ScrapYardRepository;
 import com.scrapDetection.service.AccountService;
@@ -32,6 +33,7 @@ public class ScrapYardServiceImpl implements ScrapYardService {
     private final ScrapYardRepository scrapYardRepository;
     private final AccountRepository accountRepository;
     private final MaterialRepository materialRepository;
+    private final LabelRepository labelRepository;
     private final ScrapYardMapper scrapYardMapper;
     private final AccountService accountService;
     private final Normalize normalize;
@@ -151,6 +153,7 @@ public class ScrapYardServiceImpl implements ScrapYardService {
                 && requestDTO.getStatus().equals(YardStatus.ACTIVE)
                 && currentUserService.getCurrentUser().getRole() ==  Role.ADMIN) {
             accountService.changeRole(existingYard.getYardId(), Role.CUSTOMER, Role.YARD_OWNER);
+            seedDefaultMaterialsAndLabels(existingYard);
         }
 
         existingYard.setStatus(requestDTO.getStatus());
@@ -195,9 +198,35 @@ public class ScrapYardServiceImpl implements ScrapYardService {
         return scrapYardMapper.toResponseDTOList(yards);
     }
 
-    private Boolean checkYardNameDuplicate(String yardName) {
-        String normalized = normalize.normalizeName(yardName);
-        return scrapYardRepository.existsByYardNameIgnoreCase(normalized);
+    private Boolean checkYardNameDuplicate(String name) {
+        return scrapYardRepository.existsByYardNameIgnoreCase(normalize.normalizeName(name));
+    }
+
+    private void seedDefaultMaterialsAndLabels(ScrapYard yard) {
+        String[][] defaults = {
+                {"Lon bia", "lon_bia", "https://cdn-icons-png.flaticon.com/512/931/931949.png"},
+                {"Chai nhựa", "chai_nhua", "https://cdn-icons-png.flaticon.com/512/3003/3003986.png"},
+                {"Giấy carton", "carton", "https://cdn-icons-png.flaticon.com/512/10008/10008620.png"},
+                {"Sắt", "sat", "https://cdn-icons-png.flaticon.com/512/3712/3712168.png"},
+                {"Đồng", "dong", "https://cdn-icons-png.flaticon.com/512/7657/7657989.png"},
+                {"Nhôm", "nhom", "https://cdn-icons-png.flaticon.com/512/8201/8201201.png"}
+        };
+        for (String[] def : defaults) {
+            Material material = new Material();
+            material.setItemName(def[0]);
+            material.setItemPrice(0.0);
+            material.setUnit("kg");
+            material.setIcon(def[2]);
+            material.setStatus(MaterialStatus.ACTIVE);
+            material.setScrapYard(yard);
+            Material saved = materialRepository.save(material);
+
+            Label label = new Label();
+            label.setLabel(def[1]);
+            label.setMaterial(saved);
+            label.setScrapYard(yard);
+            labelRepository.save(label);
+        }
     }
 
     private void checkYardOwnership(Long yardId){
