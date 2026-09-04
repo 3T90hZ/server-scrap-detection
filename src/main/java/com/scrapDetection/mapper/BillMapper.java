@@ -20,6 +20,10 @@ public class BillMapper {
                 .itemName(tx.getMaterial().getItemName())
                 .weight(tx.getWeight())
                 .lineWorth(tx.getLineWorth())
+                .isOverridden(tx.getIsOverridden())
+                .originalMaterialId(tx.getOriginalMaterial() != null ? tx.getOriginalMaterial().getMaterialId() : null)
+                .originalMaterialName(tx.getOriginalMaterial() != null ? tx.getOriginalMaterial().getItemName() : null)
+                .originalWeight(tx.getOriginalWeight())
                 .build();
     }
 
@@ -54,6 +58,7 @@ public class BillMapper {
                 .totalWorth(bill.getTotalWorth())
                 .itemCount(bill.getTransactions().size())
                 .createdAt(bill.getCreatedAt())
+                .hasOverridden(bill.getTransactions().stream().anyMatch(t -> Boolean.TRUE.equals(t.getIsOverridden())))
                 .build();
     }
 

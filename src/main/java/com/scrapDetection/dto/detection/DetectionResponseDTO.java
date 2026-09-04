@@ -52,18 +52,18 @@ public class DetectionResponseDTO {
     private Instant receivedAt;  // server receipt time used to reject stale scans
 
     // Bounding box of the best detection (Pi lores coordinates: 640×480)
-    private Integer bboxX1;
-    private Integer bboxY1;
-    private Integer bboxX2;
-    private Integer bboxY2;
+    private Double bboxX1;
+    private Double bboxY1;
+    private Double bboxX2;
+    private Double bboxY2;
 
     public static DetectionResponseDTO received(String className,
                                                 Double confidence,
                                                 Double weightG,
-                                                Integer bboxX1,
-                                                Integer bboxY1,
-                                                Integer bboxX2,
-                                                Integer bboxY2) {
+                                                Double bboxX1,
+                                                Double bboxY1,
+                                                Double bboxX2,
+                                                Double bboxY2) {
         return DetectionResponseDTO.builder()
                 .status("received")
                 .className(className)

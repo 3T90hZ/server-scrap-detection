@@ -8,10 +8,10 @@ public class DetectionMapper {
     public DetectionResponseDTO toReceivedResponse(String className,
                                                    Double confidence,
                                                    Double weightG,
-                                                   Integer bboxX1,
-                                                   Integer bboxY1,
-                                                   Integer bboxX2,
-                                                   Integer bboxY2) {
+                                                   Double bboxX1,
+                                                   Double bboxY1,
+                                                   Double bboxX2,
+                                                   Double bboxY2) {
         return DetectionResponseDTO.received(className, confidence, weightG,
                 bboxX1, bboxY1, bboxX2, bboxY2);
     }
