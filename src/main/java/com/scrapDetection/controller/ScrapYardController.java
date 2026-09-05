@@ -111,18 +111,4 @@ public class ScrapYardController {
         scrapYardService.deleteScrapYard(yardId);
         return ResponseEntity.noContent().build();
     }
-
-    @PreAuthorize("hasAnyRole('YARD_OWNER','ADMIN')")
-    @DeleteMapping("/{yardId}/images/{imageId}")
-    public ResponseEntity<Void> deleteYardImage(@PathVariable Long yardId, @PathVariable Long imageId) {
-        scrapYardService.deleteYardImage(yardId, imageId);
-        return ResponseEntity.noContent().build();
-    }
-    
-    @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/sync-default-materials")
-    public ResponseEntity<String> syncDefaultMaterials() {
-        scrapYardService.syncAllActiveYardsDefaultMaterials();
-        return ResponseEntity.ok("Successfully synchronized default materials for all active scrap yards.");
-    }
 }

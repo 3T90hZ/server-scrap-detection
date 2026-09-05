@@ -185,31 +185,6 @@ public class ScrapYardServiceImpl implements ScrapYardService {
     }
 
     @Override
-    public ScrapYardResponseDTO updateScrapYardStatus(Long yardId, String status) {
-        ScrapYard yard = scrapYardRepository.findById(yardId)
-                .orElseThrow(() -> new InvalidRequestException("Scrap Yard not found"));
-        YardStatus oldStatus = yard.getStatus();
-        YardStatus newStatus = YardStatus.valueOf(status.toUpperCase());
-        yard.setStatus(newStatus);
-        
-        // Auto-seed default materials if yard is newly activated
-        if (oldStatus != YardStatus.ACTIVE && newStatus == YardStatus.ACTIVE) {
-            seedDefaultMaterialsAndLabels(yard);
-        }
-        
-        ScrapYard updated = scrapYardRepository.save(yard);
-        return scrapYardMapper.toResponseDTO(updated);
-    }
-
-    @Override
-    public void syncAllActiveYardsDefaultMaterials() {
-        List<ScrapYard> activeYards = scrapYardRepository.findByStatus(YardStatus.ACTIVE);
-        for (ScrapYard yard : activeYards) {
-            seedDefaultMaterialsAndLabels(yard);
-        }
-    }
-
-    @Override
     public ScrapYardResponseDTO getScrapYardByName(String yardName) {
         ScrapYard scrapYard = scrapYardRepository.findByYardName(yardName)
                 .orElseThrow(() -> new ResourceNotFoundException("Scrap Yard", "yardName", yardName));
@@ -237,11 +212,6 @@ public class ScrapYardServiceImpl implements ScrapYardService {
                 {"Đồng", "copper", "icon_copper"}
         };
         for (String[] def : defaults) {
-            boolean exists = labelRepository.findByScrapYardYardIdAndLabel(yard.getYardId(), def[1]).isPresent();
-            if (exists) {
-                continue; // Skip if label already exists for this yard
-            }
-            
             Material material = new Material();
             material.setItemName(def[0]);
             material.setItemPrice(0.0);
