@@ -37,7 +37,6 @@ public class BillServiceImpl implements BillService {
     public BillResponseDTO createBill(BillRequestDTO requestDTO) {
         Account currentUser = currentUserService.getCurrentUser();
 
-        // Resolve customer (fallback to id=1 for detection API compatibility)
         Account customer;
         if (requestDTO.getCustomerId() != null) {
             customer = accountRepository.findById(requestDTO.getCustomerId())
@@ -108,7 +107,7 @@ public class BillServiceImpl implements BillService {
         Account currentUser = currentUserService.getCurrentUser();
         Bill bill = billRepository.findById(billId)
                 .orElseThrow(() -> new ResourceNotFoundException("Bill", billId));
-        if(currentUser.getRole().equals(Role.CUSTOMER) && !bill.getCustomer().equals(currentUser)){
+        if(currentUser.getRole().equals(Role.CUSTOMER) && bill.getCustomer() != null && !bill.getCustomer().equals(currentUser)){
             throw new InvalidRequestException("You can only get your bill as a customer!");
         }else if(currentUser.getRole().equals(Role.STAFF) && !bill.getCreatedBy().equals(currentUser)){
             throw new InvalidRequestException("You can only get the bills you created!");
