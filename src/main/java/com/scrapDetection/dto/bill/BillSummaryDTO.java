@@ -19,4 +19,5 @@ public class BillSummaryDTO {
     private Double totalWorth;
     private Integer itemCount;
     private LocalDateTime createdAt;
+    private Boolean hasOverridden;
 }

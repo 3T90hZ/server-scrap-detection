@@ -102,10 +102,10 @@ public class DetectionServiceImpl implements DetectionService {
 
         // Extract bbox from the best detection (may be null)
         DetectionItemDTO.BBox bbox = best.getBbox();
-        Integer bx1 = bbox != null ? bbox.getX1() : null;
-        Integer by1 = bbox != null ? bbox.getY1() : null;
-        Integer bx2 = bbox != null ? bbox.getX2() : null;
-        Integer by2 = bbox != null ? bbox.getY2() : null;
+        Double bx1 = bbox != null ? bbox.getX1() : null;
+        Double by1 = bbox != null ? bbox.getY1() : null;
+        Double bx2 = bbox != null ? bbox.getX2() : null;
+        Double by2 = bbox != null ? bbox.getY2() : null;
 
         // ── 4. Build response, stamp timestamp, store as "latest" ──────────────
         DetectionResponseDTO response = detectionMapper.toReceivedResponse(
@@ -127,11 +127,9 @@ public class DetectionServiceImpl implements DetectionService {
             log.info("Material Id: " + response.getMaterialId());
 
         }
-        log.info("label is null");
         response.setTimestamp(requestDTO.getTimestamp());
         response.setDeviceId(deviceId);
         response.setReceivedAt(Instant.now());
-        log.info("deviceId: " + deviceId);
         latestDetectionStore.set(deviceId, response);
         // ── 5. Return success — no DB write ───────────────────────────────────
         return response;

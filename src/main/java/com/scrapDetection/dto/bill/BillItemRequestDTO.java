@@ -19,4 +19,8 @@ public class BillItemRequestDTO {
     @NotNull(message = "Weight is required")
     @Positive(message = "Weight must be positive")
     private Double weight;
+
+    private Boolean isOverridden;
+    private Long originalMaterialId;
+    private Double originalWeight;
 }

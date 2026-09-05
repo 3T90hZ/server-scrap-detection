@@ -69,7 +69,15 @@ public class BillServiceImpl implements BillService {
                     .material(material)
                     .weight(itemDto.getWeight())
                     .lineWorth(lineWorth)
+                    .isOverridden(itemDto.getIsOverridden() != null ? itemDto.getIsOverridden() : false)
+                    .originalWeight(itemDto.getOriginalWeight())
                     .build();
+
+            if (itemDto.getOriginalMaterialId() != null) {
+                Material originalMaterial = materialRepository.findById(itemDto.getOriginalMaterialId())
+                        .orElse(null);
+                transaction.setOriginalMaterial(originalMaterial);
+            }
 
             bill.addTransaction(transaction);
             totalWorth += lineWorth;

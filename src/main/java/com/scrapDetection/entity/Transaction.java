@@ -30,4 +30,15 @@ public class Transaction {
     /** Snapshot of worth at the time of the sale (weight × price) */
     @Column(name = "line_worth", nullable = false)
     private Double lineWorth;
+
+    @Column(name = "is_overridden", nullable = false)
+    @Builder.Default
+    private Boolean isOverridden = false;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "original_material_id")
+    private Material originalMaterial;
+
+    @Column(name = "original_weight")
+    private Double originalWeight;
 }

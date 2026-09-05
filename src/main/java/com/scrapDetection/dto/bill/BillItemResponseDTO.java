@@ -16,4 +16,9 @@ public class BillItemResponseDTO {
     private String itemName;
     private Double weight;
     private Double lineWorth;
+
+    private Boolean isOverridden;
+    private Long originalMaterialId;
+    private String originalMaterialName;
+    private Double originalWeight;
 }
