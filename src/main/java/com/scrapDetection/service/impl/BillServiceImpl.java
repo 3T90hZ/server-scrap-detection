@@ -43,7 +43,7 @@ public class BillServiceImpl implements BillService {
             customer = accountRepository.findById(requestDTO.getCustomerId())
                     .orElseThrow(() -> new ResourceNotFoundException("Customer", requestDTO.getCustomerId()));
         } else {
-            customer = accountRepository.getReferenceById(1L);
+            customer = null; // Walk-in guest (khách vãng lai)
         }
 
         Bill bill = Bill.builder()
