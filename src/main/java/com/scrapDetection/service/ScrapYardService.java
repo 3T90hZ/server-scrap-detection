@@ -17,6 +17,8 @@ public interface ScrapYardService {
     // Update an existing ScrapYard
     ScrapYardResponseDTO updateScrapYard(Long yardId, ScrapYardUpdateRequestDTO requestDTO);
 
+    void syncAllActiveYardsDefaultMaterials();
+
     // Find ScrapYard by ID
     ScrapYardResponseDTO getScrapYardById(Long yardId);
 
