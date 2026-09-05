@@ -32,7 +32,7 @@ public class BillMapper {
 
         return BillResponseDTO.builder()
                 .billId(bill.getBillId())
-                .customerId(bill.getCustomer().getAccountId())
+                .customerId(bill.getCustomer() != null? bill.getCustomer().getAccountId() : null)
                 .customerName(bill.getCustomer().getAccountName())
                 .createdById(bill.getCreatedBy() != null ? bill.getCreatedBy().getAccountId() : null)
                 .createdByName(bill.getCreatedBy() != null ? bill.getCreatedBy().getAccountName() : null)
