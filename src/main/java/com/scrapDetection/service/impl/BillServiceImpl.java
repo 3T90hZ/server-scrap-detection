@@ -95,10 +95,10 @@ public class BillServiceImpl implements BillService {
 
         Bill savedBill = billRepository.save(bill);
         if(currentUser.getRole().equals(Role.STAFF)) {
-            Account yardOwner = accountRepository.
-                    findByScrapYardYardIdAndRole(currentUser.getScrapYard().getYardId(),Role.YARD_OWNER)
-                    .getFirst();
-            notificationService.createBillNotification(yardOwner, savedBill);
+            accountRepository
+                    .findByScrapYardYardIdAndRole(currentUser.getScrapYard().getYardId(), Role.YARD_OWNER)
+                    .stream().findFirst()
+                    .ifPresent(yardOwner -> notificationService.createBillNotification(yardOwner, savedBill));
         }
         notificationService.createBillNotification(currentUser, savedBill);
         if (customer != null && !customer.getAccountId().equals(currentUser.getAccountId())) {
