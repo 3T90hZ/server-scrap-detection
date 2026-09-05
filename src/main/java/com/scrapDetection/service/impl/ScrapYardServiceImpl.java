@@ -204,12 +204,12 @@ public class ScrapYardServiceImpl implements ScrapYardService {
 
     private void seedDefaultMaterialsAndLabels(ScrapYard yard) {
         String[][] defaults = {
-                {"Lon bia", "lon_bia", "icon_can"},
-                {"Chai nhựa", "chai_nhua", "icon_plastic"},
-                {"Giấy carton", "carton", "icon_paper"},
-                {"Sắt", "sat", "icon_metal"},
-                {"Đồng", "dong", "icon_copper"},
-                {"Nhôm", "nhom", "icon_zinc"}
+                {"Lon nhôm (Lon bia)", "aluminum-can", "icon_can"},
+                {"Chai nhựa", "plastic-bottle", "icon_plastic"},
+                {"Giấy carton", "paper", "icon_paper"},
+                {"Sắt", "scrap_metal", "icon_metal"},
+                {"Thuỷ tinh", "glass_bottle", "icon_glass"},
+                {"Đồng", "copper", "icon_copper"}
         };
         for (String[] def : defaults) {
             Material material = new Material();
