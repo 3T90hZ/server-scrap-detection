@@ -20,10 +20,11 @@ public class EmailServiceImpl implements EmailService {
 
         String resetLink = frontendBaseUrl + "/reset-password?token=" + resetToken;
 
+        message.setFrom("noreply@scrapsmart.io.vn");
         message.setTo(to);
-        message.setSubject("Reset Your Password");
-        message.setText("Click the link to reset your password: " + resetLink +
-                "\n\nThis link expires in 1 hour.");
+        message.setSubject("Đặt lai mật khẩu");
+        message.setText("Nhấn vào đường dẫn để tới trang đổi mật khẩu: " + resetLink +
+                "\n\nĐường dẫn sẽ hết hạn sau 1 giờ.");
 
         javaMailSender.send(message);
     }

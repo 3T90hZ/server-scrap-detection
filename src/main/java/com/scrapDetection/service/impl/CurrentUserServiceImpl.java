@@ -17,16 +17,16 @@ public class CurrentUserServiceImpl implements CurrentUserService {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || !authentication.isAuthenticated()) {
-            throw new InvalidRequestException("User not authenticated");
+            throw new InvalidRequestException("Tài khoản chưa xác thực!");
         }
 
         Object principal = authentication.getPrincipal();
 
         if (principal instanceof Account principalAccount) {
             return accountRepository.findById(principalAccount.getAccountId())
-                    .orElseThrow(() -> new InvalidRequestException("User not authenticated"));
+                    .orElseThrow(() -> new InvalidRequestException("Tài khoản chưa xác thực!"));
         }
 
-        throw new InvalidRequestException("User not authenticated");
+        throw new InvalidRequestException("Tài khoản chưa xác thực!");
     }
 }

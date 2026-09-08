@@ -40,13 +40,13 @@ public class AuthenticationController {
     @PostMapping("/password-reset/request")
     public ResponseEntity<String> requestPasswordReset(@Valid @RequestBody PasswordResetRequestDTO request) {
         accountService.requestPasswordReset(request);
-        return ResponseEntity.ok("Password reset instructions sent.");
+        return ResponseEntity.ok("Đã gửi email đặt lại mật khẩu!");
     }
 
     @PostMapping("/password-reset/confirm")
     public ResponseEntity<String> resetPassword(@Valid @RequestBody PasswordResetConfirmDTO request) {
         accountService.resetPassword(request);
-        return ResponseEntity.ok("Password has been reset successfully.");
+        return ResponseEntity.ok("Mật khẩu đã được thay đổi!");
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'YARD_OWNER', 'STAFF', 'CUSTOMER')")
@@ -56,6 +56,6 @@ public class AuthenticationController {
             String token = authorizationHeader.substring(7);
             accountService.logout(token);
         }
-        return ResponseEntity.ok("Logged out successfully.");
+        return ResponseEntity.ok("Đã đăng xuất thành công!");
     }
 }

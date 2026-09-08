@@ -39,7 +39,7 @@ public class DeviceServiceImpl implements DeviceService {
         var currentUser = currentUserService.getCurrentUser();
 
         if (currentUser.getScrapYard() == null) {
-            throw new InvalidRequestException("You must be assigned to a scrap yard to manage devices");
+            throw new InvalidRequestException("Bạn phải là chủ của một vựa!");
         }
 
         device.setScrapYard(currentUser.getScrapYard());
@@ -62,7 +62,7 @@ public class DeviceServiceImpl implements DeviceService {
     @Override
     public DeviceResponseDTO updateDevice(Long deviceId, DeviceRequestDTO requestDTO) {
         Device existingDevice = deviceRepository.findById(deviceId)
-                .orElseThrow(() -> new ResourceNotFoundException("Device", deviceId));
+                .orElseThrow(() -> new ResourceNotFoundException("Thiết bị", deviceId));
 
         // Ownership validation
         validateYardOwnership(existingDevice);
@@ -76,7 +76,7 @@ public class DeviceServiceImpl implements DeviceService {
     @Override
     public DeviceResponseDTO getDeviceById(Long deviceId) {
         Device device = deviceRepository.findById(deviceId)
-                .orElseThrow(() -> new ResourceNotFoundException("Device", deviceId));
+                .orElseThrow(() -> new ResourceNotFoundException("Thiết bị", deviceId));
         return deviceMapper.toResponseDTO(device);
     }
 
@@ -85,7 +85,7 @@ public class DeviceServiceImpl implements DeviceService {
         var currentUser = currentUserService.getCurrentUser();
 
         if (currentUser.getScrapYard() == null) {
-            throw new InvalidRequestException("You are not assigned to any scrap yard");
+            throw new InvalidRequestException("Bạn đang không thuộc về một vựa nào!");
         }
 
         List<Device> devices = deviceRepository.findByScrapYardYardId(currentUser.getScrapYard().getYardId());
@@ -107,7 +107,7 @@ public class DeviceServiceImpl implements DeviceService {
     @Override
     public void deleteDevice(Long deviceId) {
         Device device = deviceRepository.findById(deviceId)
-                .orElseThrow(() -> new ResourceNotFoundException("Device", deviceId));
+                .orElseThrow(() -> new ResourceNotFoundException("Thiết bị", deviceId));
 
         validateYardOwnership(device);
 
@@ -122,7 +122,7 @@ public class DeviceServiceImpl implements DeviceService {
     @Override
     public DeviceResponseDTO regenerateApiKey(Long deviceId) {
         Device device = deviceRepository.findById(deviceId)
-                .orElseThrow(() -> new ResourceNotFoundException("Device", deviceId));
+                .orElseThrow(() -> new ResourceNotFoundException("Thiết bị", deviceId));
 
         validateYardOwnership(device);
 
@@ -144,7 +144,7 @@ public class DeviceServiceImpl implements DeviceService {
     @Override
     public DeviceResponseDTO updateStatus(Long deviceId, DeviceStatus status) {
         Device device = deviceRepository.findById(deviceId)
-                .orElseThrow(() -> new ResourceNotFoundException("Device", deviceId));
+                .orElseThrow(() -> new ResourceNotFoundException("Thiết bị", deviceId));
 
         validateYardOwnership(device);
 
@@ -159,24 +159,24 @@ public class DeviceServiceImpl implements DeviceService {
         Account currentUser = currentUserService.getCurrentUser();
 
         if (!AccountStatus.ACTIVE.equals(currentUser.getStatus())) {
-            throw new ForbiddenException("Account is not active");
+            throw new ForbiddenException("Tài khoản đang bị khoá!");
         }
         if (currentUser.getRole() != Role.STAFF && currentUser.getRole() != Role.YARD_OWNER) {
-            throw new ForbiddenException("Only staff and yard owners can view cameras");
+            throw new ForbiddenException("Chỉ chủ vựa hoặc nhân viên có thể xem camera");
         }
         if (currentUser.getScrapYard() == null) {
-            throw new ForbiddenException("Account is not assigned to a scrap yard");
+            throw new ForbiddenException("Tài khoản không thuộc về vựa!");
         }
 
         Device device = deviceRepository.findById(deviceId)
-                .orElseThrow(() -> new ResourceNotFoundException("Device", deviceId));
+                .orElseThrow(() -> new ResourceNotFoundException("Thiết bị", deviceId));
 
         if (device.getStatus() != DeviceStatus.ACTIVE) {
-            throw new ForbiddenException("Device is not active");
+            throw new ForbiddenException("Thiết bị không hoạt động");
         }
         if (device.getScrapYard() == null ||
                 !device.getScrapYard().getYardId().equals(currentUser.getScrapYard().getYardId())) {
-            throw new ForbiddenException("Device does not belong to your scrap yard");
+            throw new ForbiddenException("Thiết bị không thuộc về vựa của bạn!");
         }
 
         return DeviceViewerAccessDTO.builder()
@@ -192,13 +192,13 @@ public class DeviceServiceImpl implements DeviceService {
         var currentUser = currentUserService.getCurrentUser();
 
         if (currentUser.getScrapYard() == null) {
-            throw new InvalidRequestException("You are not assigned to any scrap yard");
+            throw new InvalidRequestException("Bạn không thuộc về vựa nào!");
         }
 
         if (device.getScrapYard() == null ||
                 !device.getScrapYard().getYardId().equals(currentUser.getScrapYard().getYardId())) {
 
-            throw new InvalidRequestException("You can only manage devices in your own scrap yard");
+            throw new InvalidRequestException("Bạn chỉ có thể quản lý thiết bị thuộc vựa của bạn!");
         }
     }
 }

@@ -109,7 +109,7 @@ public class StatisticsServiceImpl implements StatisticsService {
             Instant endDate
     ) {
         if (startDate != null && endDate != null && startDate.isAfter(endDate)) {
-            throw new InvalidRequestException("Start date must not be after end date");
+            throw new InvalidRequestException("Sai trình tự thời gian!");
         }
 
         LocalDateTime localStartDate = toLocalDateTime(startDate);

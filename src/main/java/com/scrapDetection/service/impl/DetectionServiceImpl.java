@@ -90,11 +90,11 @@ public class DetectionServiceImpl implements DetectionService {
 
         Device device = deviceRepository.findById(deviceId).orElse(null);
         if (device == null) {
-            throw new InvalidRequestException("Device not found");
+            throw new InvalidRequestException("Không tìm thấy thiết bị");
         }
         ScrapYard yard = device.getScrapYard();
         if(yard == null || !yard.getStatus().equals(YardStatus.ACTIVE)){
-            throw new InvalidRequestException("Device is required to belong to an active yard");
+            throw new InvalidRequestException("Vựa của thiết bị này phải dang hoạt động!");
         }
         Label label = labelRepository
                 .findByScrapYardYardIdAndLabel(yard.getYardId(),best.getClassName())

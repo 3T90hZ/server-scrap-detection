@@ -44,7 +44,7 @@ public class NotificationServiceImpl implements NotificationService {
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
-                                "Notification " + notificationId
+                                "Thông báo " + notificationId
                         ));
 
         // Make sure this notification belongs to the current user
@@ -52,21 +52,21 @@ public class NotificationServiceImpl implements NotificationService {
                 .equals(recipient.getAccountId())) {
 
             throw new InvalidRequestException(
-                    "No permission on this notification"
+                    "Không có quyền"
             );
         }
 
         // Make sure it is an invitation
         if (notification.getType() != NotificationType.STAFF_INVITATION) {
             throw new InvalidRequestException(
-                    "This notification is not a staff invitation"
+                    "Không phải lời mơi làm nhân viên!"
             );
         }
 
         // Already answered
         if (notification.getIsAccepted() != null) {
             throw new InvalidRequestException(
-                    "This invitation has already been answered"
+                    "Lời mời này đã được phản hồi"
             );
         }
 
@@ -75,7 +75,7 @@ public class NotificationServiceImpl implements NotificationService {
                 !notification.getExpiredAt().isAfter(LocalDateTime.now())) {
 
             throw new InvalidRequestException(
-                    "Notification has expired"
+                    "Lời mời đã hết hạn"
             );
         }
 
@@ -88,7 +88,7 @@ public class NotificationServiceImpl implements NotificationService {
                 recipient.getScrapYard() != null) {
 
             throw new InvalidRequestException(
-                    "You already belong to a yard"
+                    "Bạn đã thuộc vè một vựa"
             );
         }
 
@@ -145,11 +145,11 @@ public class NotificationServiceImpl implements NotificationService {
 
         Account recipient = accountRepository.findById(recipientId)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Account " + recipientId));
+                        new ResourceNotFoundException("Tài khoản " + recipientId));
 
         Account sender = accountRepository.findById(senderId)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Account " + senderId));
+                        new ResourceNotFoundException("Tài khoản " + senderId));
 
         ScrapYard scrapYard = getValidSenderScrapYard(sender);
 
@@ -157,7 +157,7 @@ public class NotificationServiceImpl implements NotificationService {
                 recipient.getScrapYard() != null) {
 
             throw new InvalidRequestException(
-                    "This account cannot become staff"
+                    "Tài khoản này không thể trở thành nhân viên"
             );
         }
 
@@ -179,7 +179,7 @@ public class NotificationServiceImpl implements NotificationService {
                     invitation.getExpiredAt().isAfter(now)) {
 
                 throw new InvalidRequestException(
-                        "Already invited this account"
+                        "Tài khoản này đã được mời!"
                 );
             }
         }
@@ -206,7 +206,7 @@ public class NotificationServiceImpl implements NotificationService {
                 sender.getRole() != Role.YARD_OWNER ||
                 AccountStatus.INACTIVE.equals(sender.getStatus())) {
 
-            throw new InvalidRequestException("Yard owner not found");
+            throw new InvalidRequestException("Không tìm thấy chủ vựa");
         }
 
         ScrapYard scrapYard = sender.getScrapYard();
@@ -214,7 +214,7 @@ public class NotificationServiceImpl implements NotificationService {
         if (scrapYard == null ||
             YardStatus.INACTIVE.equals(scrapYard.getStatus())) {
 
-            throw new InvalidRequestException("Scrap Yard is invalid");
+            throw new InvalidRequestException("Vựa không hợp lệ!");
         }
 
         return scrapYard;
@@ -233,10 +233,10 @@ public class NotificationServiceImpl implements NotificationService {
     public void markAsRead(Long notificationId) {
         Account currentUser = currentUserService.getCurrentUser();
         Notification notification = notificationRepository.findById(notificationId)
-                .orElseThrow(() -> new ResourceNotFoundException("Notification " + notificationId));
+                .orElseThrow(() -> new ResourceNotFoundException("Thông báo " + notificationId));
 
         if (!notification.getRecipient().getAccountId().equals(currentUser.getAccountId())) {
-            throw new InvalidRequestException("No permission on this notification");
+            throw new InvalidRequestException("Không có quyền xem thông báo này");
         }
 
         notification.setIsRead(true);

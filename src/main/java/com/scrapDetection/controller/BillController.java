@@ -60,7 +60,7 @@ public class BillController {
     }
 
     // Get all bills of a specific customer
-    @PreAuthorize("hasAnyRole('CUSTOMER')")
+    @PreAuthorize("hasAnyRole('CUSTOMER','STAFF','YARD_OWNER')")
     @GetMapping("/customer")
     public ResponseEntity<List<BillSummaryDTO>> getBillsByCustomer() {
         List<BillSummaryDTO> response = billService.getBillsByCustomer();

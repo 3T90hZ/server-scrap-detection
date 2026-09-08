@@ -52,14 +52,14 @@ public class LabelServiceImpl implements LabelService {
     public LabelResponse updateLabel(LabelRequest request, Long id) {
         Label existingLabel = labelRepository.findById(id)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Label", id));
+                        new ResourceNotFoundException("Nhãn", id));
 
         if (!currentUserService.getCurrentUser()
                 .getScrapYard()
                 .equals(existingLabel.getScrapYard())) {
 
             throw new InvalidRequestException(
-                    "Not allowed to update this label"
+                    "Không có quyền cập nhật"
             );
         }
 
@@ -74,9 +74,9 @@ public class LabelServiceImpl implements LabelService {
     public void deleteLabel(Long labelId) {
         Label existingLabel = labelRepository.findById(labelId)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Label", labelId));
+                        new ResourceNotFoundException("Nhãn", labelId));
         if(!currentUserService.getCurrentUser().getScrapYard().equals(existingLabel.getScrapYard())) {
-            throw new InvalidRequestException("Not allowed to delete this label");
+            throw new InvalidRequestException("Không được phép xoá nhãn này!");
         }
         labelRepository.delete(existingLabel);
     }
@@ -87,31 +87,31 @@ public class LabelServiceImpl implements LabelService {
         Material material = materialRepository.findById(request.getMaterialId())
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
-                                "Material",
+                                "Vật liệu",
                                 request.getMaterialId()
                         ));
 
         if (!material.getScrapYard().getYardId().equals(yardId)) {
             throw new InvalidRequestException(
-                    "Material does not belong to your scrap yard"
+                    "Vật liệu này không thuộc về vựa của bạn!"
             );
         }
         labelRepository.findByScrapYardYardIdAndLabel(yardId, request.getLabelName())
                 .filter(label -> !label.getLabelId().equals(excludeLabelId))
                 .ifPresent(label -> {
-                    throw new ResourceAlreadyExistsException("Label already exists");
+                    throw new ResourceAlreadyExistsException("Nhãn đã tồn tại!");
                 });
 
         labelRepository.findByScrapYardYardIdAndMaterialMaterialId(yardId, request.getMaterialId())
                 .filter(label -> !label.getLabelId().equals(excludeLabelId))
                 .ifPresent(label -> {
                     throw new ResourceAlreadyExistsException(
-                            "Label with this material already exists"
+                            "Vật liệu này đã được gắn nhãn!"
                     );
                 });
 
         if (!materialRepository.existsById(request.getMaterialId())) {
-            throw new ResourceNotFoundException("Material", request.getMaterialId());
+            throw new ResourceNotFoundException("Vật liệu", request.getMaterialId());
         }
     }
 }

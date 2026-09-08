@@ -40,7 +40,7 @@ public class BillServiceImpl implements BillService {
         Account customer;
         if (requestDTO.getCustomerId() != null) {
             customer = accountRepository.findById(requestDTO.getCustomerId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Customer", requestDTO.getCustomerId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Khách hàng", requestDTO.getCustomerId()));
         } else {
             customer = null;
         }
@@ -55,11 +55,11 @@ public class BillServiceImpl implements BillService {
 
         for (BillItemRequestDTO itemDto : requestDTO.getItems()) {
             Material material = materialRepository.findById(itemDto.getMaterialId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Material", itemDto.getMaterialId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Vật liệu", itemDto.getMaterialId()));
 
             if (!material.getScrapYard().getYardId().equals(currentUser.getScrapYard().getYardId())) {
                 throw new InvalidRequestException(
-                        "You can only create bills for materials in your yard (materialId=" + itemDto.getMaterialId() + ")");
+                        "Bạn chỉ có thể tạo giao dịch với vật liệu thuộc vựa của bạn (mã vật liệu: " + itemDto.getMaterialId() + ")");
             }
 
             double lineWorth = itemDto.getWeight() * material.getItemPrice();
@@ -108,11 +108,11 @@ public class BillServiceImpl implements BillService {
         Bill bill = billRepository.findById(billId)
                 .orElseThrow(() -> new ResourceNotFoundException("Bill", billId));
         if(currentUser.getRole().equals(Role.CUSTOMER) && bill.getCustomer() != null && !bill.getCustomer().equals(currentUser)){
-            throw new InvalidRequestException("You can only get your bill as a customer!");
+            throw new InvalidRequestException("Bạn chỉ có thể xem hoá đơn của bạn!");
         }else if(currentUser.getRole().equals(Role.STAFF) && !bill.getCreatedBy().equals(currentUser)){
-            throw new InvalidRequestException("You can only get the bills you created!");
+            throw new InvalidRequestException("Bạn chỉ có thể xem hoá đơn mà bạn đã tạo!");
         }else if(currentUser.getRole().equals(Role.YARD_OWNER) && !bill.getCreatedBy().getScrapYard().equals(currentUser.getScrapYard())){
-            throw new InvalidRequestException("You can only get the bills of your yard!");
+            throw new InvalidRequestException("Bạn chỉ có thể xem hoá đơn của thuộc về vưa của bạn!");
         }
         return billMapper.toResponseDTO(bill);
     }

@@ -131,7 +131,7 @@ public class MaterialController {
         var currentUser = currentUserService.getCurrentUser();
 
         if (currentUser.getScrapYard() == null) {
-            throw new com.scrapDetection.exception.InvalidRequestException("You are not assigned to any scrap yard");
+            throw new com.scrapDetection.exception.InvalidRequestException("Bạn đang không thuộc vựa nào!");
         }
 
         return currentUser.getScrapYard().getYardId();

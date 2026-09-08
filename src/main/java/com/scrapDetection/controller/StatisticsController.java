@@ -43,7 +43,7 @@ public class StatisticsController {
     ) {
         var currentUser = currentUserService.getCurrentUser();
         if (currentUser.getScrapYard() == null) {
-            throw new InvalidRequestException("You are not assigned to any scrap yard");
+            throw new InvalidRequestException("Bạn đang không thuộc vựa nào");
         }
 
         return ResponseEntity.ok(statisticsService.getOwnerProfitStatistics(

@@ -33,14 +33,14 @@ public class ResaleServiceImpl implements ResaleService {
         Account currentUser = currentUserService.getCurrentUser();
 
         Material material = materialRepository.findById(requestDTO.getMaterialId())
-                .orElseThrow(() -> new ResourceNotFoundException("Material", requestDTO.getMaterialId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Vật liệu", requestDTO.getMaterialId()));
 
         if (!material.getScrapYard().getYardId().equals(currentUser.getScrapYard().getYardId())) {
-            throw new InvalidRequestException("You can only create resales for materials in your yard");
+            throw new InvalidRequestException("Bạn chỉ có thể tạo giao dịch với vật liệu thuộc vựa của bạn!");
         }
 
         if (material.getStock() < requestDTO.getWeight()) {
-            throw new InvalidRequestException("Insufficient stock. Available: " + material.getStock());
+            throw new InvalidRequestException("Tòn kho không đủ. hiện tại: " + material.getStock());
         }
 
         Resale resale = resaleMapper.toEntity(requestDTO);
@@ -65,12 +65,12 @@ public class ResaleServiceImpl implements ResaleService {
     @Override
     public ResaleResponseDTO getResaleById(Long resaleId) {
         Resale resale = resaleRepository.findById(resaleId)
-                .orElseThrow(() -> new ResourceNotFoundException("Resale", resaleId));
+                .orElseThrow(() -> new ResourceNotFoundException("Giao dịch bán", resaleId));
 
         Long currentYardId = currentUserService.getCurrentUser().getScrapYard().getYardId();
         Long resaleYardId = resale.getMaterial().getScrapYard().getYardId();
         if (!currentYardId.equals(resaleYardId)) {
-            throw new InvalidRequestException("No permission to retrieve resale");
+            throw new InvalidRequestException("Không có quyền xem!");
         }
         return resaleMapper.toResponseDTO(resale);
     }

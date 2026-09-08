@@ -65,18 +65,18 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public AuthResponseDTO login(LoginRequestDTO request) {
         Account account = accountRepository.findByPhoneNumbers(request.getPhoneNumbers())
-                .orElseThrow(() -> new ResourceNotFoundException("Account", "phoneNumbers", request.getPhoneNumbers()));
+                .orElseThrow(() -> new ResourceNotFoundException("Tài khoản", "số điện thoại", request.getPhoneNumbers()));
 
         if(account.getScrapYard() != null && account.getRole() != Role.CUSTOMER){
             if( !YardStatus.ACTIVE.equals(account.getScrapYard().getStatus())){
-                throw new InvalidRequestException("Yard is not activated");
+                throw new InvalidRequestException("Vựa của bạn đang bị khoá hoặc chưa được duyệt");
             }
         }
         if (!passwordEncoder.matches(request.getPassword(), account.getPasswordHash())) {
-            throw new InvalidRequestException("Invalid phone number or password");
+            throw new InvalidRequestException("Số điện thoại hoặc mật khẩu không đúng!");
         }
         if(AccountStatus.INACTIVE.equals(account.getStatus())){
-            throw new InvalidRequestException("The account is locked!");
+            throw new InvalidRequestException("Tài khoản đã bị khoá!");
         }
 
         String token = jwtService.generateToken(account);
@@ -99,7 +99,7 @@ public class AccountServiceImpl implements AccountService {
 
         Account currentUser = currentUserService.getCurrentUser();
         if (currentUser.getScrapYard() == null) {
-            throw new InvalidRequestException("Yard owner must be assigned to a scrap yard");
+            throw new InvalidRequestException("Chủ vựa phải thuộc về một vựa");
         }
         account.setScrapYard(currentUser.getScrapYard());
 
@@ -113,11 +113,11 @@ public class AccountServiceImpl implements AccountService {
         if(currentUser.getScrapYard() == null
                 || currentUser.getScrapYard().getStatus().equals(YardStatus.INACTIVE)
                 || !currentUser.getRole().equals(Role.YARD_OWNER)) {
-            throw new InvalidRequestException("You do not have permission to add this staff");
+            throw new InvalidRequestException("Không có quyền thêm tài khoản này làm nhân viên!");
         }
         Account staff = accountRepository.findByPhoneNumbers(phoneNumber).orElse(null);
         if(staff == null || staff.getRole() != Role.CUSTOMER || staff.getScrapYard() != null) {
-            throw new InvalidRequestException("Can not add this user as your staff!");
+            throw new InvalidRequestException("Không thể thêm tài khoản này làm nhân viên!");
         }
 
         notificationService.createInviteNotification(staff.getAccountId(), currentUser.getAccountId());
@@ -126,7 +126,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public AuthResponseDTO updateAccount(Long accountId, AccountUpdateRequestDTO request) {
         Account existing = accountRepository.findById(accountId)
-                .orElseThrow(() -> new ResourceNotFoundException("Account", accountId));
+                .orElseThrow(() -> new ResourceNotFoundException("Tài khoản", accountId));
 
         request.setEmail(normalize.normalizeEmailAndPhoneNumber(request.getEmail()));
         request.setPhoneNumbers(normalize.normalizeEmailAndPhoneNumber(request.getPhoneNumbers()));
@@ -134,14 +134,14 @@ public class AccountServiceImpl implements AccountService {
                 !request.getPhoneNumbers().equals(existing.getPhoneNumbers()) &&
                 accountRepository.existsByPhoneNumbers(request.getPhoneNumbers())) {
 
-            throw new ResourceAlreadyExistsException("Account", "phoneNumbers", request.getPhoneNumbers());
+            throw new ResourceAlreadyExistsException("Tài khoản", "số điện thoại", request.getPhoneNumbers());
         }
 
         if (request.getEmail() != null &&
                 !request.getEmail().equals(existing.getEmail()) &&
                 accountRepository.existsByEmail(request.getEmail())) {
 
-            throw new ResourceAlreadyExistsException("Account", "phoneNumbers", request.getPhoneNumbers());
+            throw new ResourceAlreadyExistsException("Tài khoản", "số điện thoại", request.getPhoneNumbers());
         }
         if(request.getPassword()!=null){
             request.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -159,7 +159,7 @@ public class AccountServiceImpl implements AccountService {
         if (isEmail(value)) {
             // Email-based password reset
             Account account = accountRepository.findByEmail(value)
-                    .orElseThrow(() -> new ResourceNotFoundException("No account found with email: " + value));
+                    .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy tài khoản với email: " + value));
 
             // Invalidate old tokens
             tokenRepository.deleteByAccount(account);
@@ -176,9 +176,9 @@ public class AccountServiceImpl implements AccountService {
 
             emailService.sendPasswordResetEmail(account.getEmail(), token);
         } else if (isPhoneNumber(value)) {
-            throw new InvalidRequestException("Sending OTP with phone number is currently not available");
+            throw new InvalidRequestException("Chức năng gửi mã OTP bằng số điện thoại hiện tại không khả dụng!");
         } else {
-            throw new InvalidRequestException("Invalid email or phone number format");
+            throw new InvalidRequestException("Sai định dạng số điện thoại hoặc email");
         }
     }
 
@@ -195,11 +195,11 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public void resetPassword(PasswordResetConfirmDTO request) {
         PasswordResetToken resetToken = tokenRepository.findByToken(request.getResetToken())
-                .orElseThrow(() -> new InvalidTokenException("Invalid or expired reset token"));
+                .orElseThrow(() -> new InvalidTokenException("Yêu cầu đã hết hạn hoặc không hợp lệ"));
 
         if (resetToken.isExpired()) {
             tokenRepository.delete(resetToken);
-            throw new InvalidTokenException("Reset token has expired. Please request a new one.");
+            throw new InvalidTokenException("Yêu cầu đã hết hạn, vui lòng tạo yêu cầu mới!");
         }
 
         Account account = resetToken.getAccount();
@@ -219,7 +219,7 @@ public class AccountServiceImpl implements AccountService {
     public List<AccountInfoResponseDTO> getAllStaffByYardOwner() {
         Account current = currentUserService.getCurrentUser();
         if (current.getScrapYard() == null) {
-            throw new InvalidRequestException("Current user is not associated with any scrap yard");
+            throw new InvalidRequestException("Bạn không thuộc một vựa nào!");
         }
         List<Account> accounts = accountRepository.findByScrapYardYardIdAndRole(current.getScrapYard().getYardId(), Role.STAFF);
         return accountMapper.toAccountInfoResponseList(accounts);
@@ -228,14 +228,14 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public AccountInfoResponseDTO updateAccountStatus(Long currentAccountId,ChangeAccountStatusRequestDTO dto) {
         Account account = accountRepository.findById(dto.getAccountId())
-                .orElseThrow(() -> new ResourceNotFoundException("Account", dto.getAccountId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Tài khoản", dto.getAccountId()));
         Account currentAccount = accountRepository.findById(currentAccountId)
-                .orElseThrow(() -> new ResourceNotFoundException("Account", currentAccountId));
+                .orElseThrow(() -> new ResourceNotFoundException("Tài khoản", currentAccountId));
         if(currentAccount.getRole() != Role.ADMIN && !dto.getAccountId().equals(currentAccountId)){
-            throw new InvalidRequestException("No permission");
+            throw new InvalidRequestException("Không có quyền!");
         }
         if(currentAccount.getRole() == Role.ADMIN && dto.getAccountId().equals(currentAccountId)){
-            throw new InvalidRequestException("No permission");
+            throw new InvalidRequestException("Không có quyền!");
         }
         account.setStatus(dto.getStatus());
         return accountMapper.toAccountInfoResponse(accountRepository.save(account));
@@ -261,7 +261,7 @@ public class AccountServiceImpl implements AccountService {
         Account currentAccount = currentUserService.getCurrentUser();
         Account leavingAccount = accountRepository.
                 findById(accountId).
-                orElseThrow(() -> new ResourceNotFoundException("Account", accountId));
+                orElseThrow(() -> new ResourceNotFoundException("Tài khoản", accountId));
         // Staff leave yard
         if(currentAccount.getAccountId().equals(accountId) && currentAccount.getRole() == Role.STAFF){
             leavingAccount.setRole(Role.CUSTOMER);
@@ -278,7 +278,7 @@ public class AccountServiceImpl implements AccountService {
             leavingAccount.setScrapYard(null);
         }
         else{
-            throw new InvalidRequestException("No permission");
+            throw new InvalidRequestException("Không có quyền!");
         }
         accountRepository.save(leavingAccount);
     }
@@ -305,10 +305,10 @@ public class AccountServiceImpl implements AccountService {
 
     private void validateUniqueFields(String phone, String email) {
         if (accountRepository.existsByPhoneNumbers(phone)) {
-            throw new ResourceAlreadyExistsException("Account", "phoneNumbers", phone);
+            throw new ResourceAlreadyExistsException("Tài khoản", "số điện thoại", phone);
         }
         if (email != null && accountRepository.existsByEmail(email)) {
-            throw new ResourceAlreadyExistsException("Account", "email", email);
+            throw new ResourceAlreadyExistsException("Tài khoản", "email", email);
         }
     }
 }

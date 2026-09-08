@@ -40,12 +40,12 @@ public class MaterialServiceImpl implements MaterialService {
         var currentUser = currentUserService.getCurrentUser();
 
         if (currentUser.getScrapYard() == null) {
-            throw new InvalidRequestException("You must be assigned to a scrap yard to manage materials");
+            throw new InvalidRequestException("Bạn chưa thuộc về vựa nào!");
         }
 
         Material material = materialMapper.toEntity(requestDTO);
         if(checkMaterialNameDuplicate(material.getItemName(), currentUser.getScrapYard().getYardId())){
-            throw new ResourceAlreadyExistsException("Material", "materialName", material.getItemName());
+            throw new ResourceAlreadyExistsException("Vật liệu", "tên", material.getItemName());
         }
         // Assign material to current user's yard
         material.setScrapYard(currentUser.getScrapYard());
@@ -59,13 +59,13 @@ public class MaterialServiceImpl implements MaterialService {
     @Override
     public MaterialResponseDTO updateMaterial(Long materialId, MaterialRequestDTO requestDTO) {
         Material existingMaterial = materialRepository.findById(materialId)
-                .orElseThrow(() -> new ResourceNotFoundException("Material", materialId));
+                .orElseThrow(() -> new ResourceNotFoundException("Vật liệu", materialId));
 
         // Yard Ownership Check
         validateYardOwnership(existingMaterial);
         if(!existingMaterial.getItemName().equals(requestDTO.getItemName())) {
             if(checkMaterialNameDuplicate(requestDTO.getItemName(), existingMaterial.getScrapYard().getYardId())){
-                throw new ResourceAlreadyExistsException("Material", "itemName", requestDTO.getItemName());
+                throw new ResourceAlreadyExistsException("Vật liệu", "tên", requestDTO.getItemName());
             }
         }
 
@@ -78,7 +78,7 @@ public class MaterialServiceImpl implements MaterialService {
     @Override
     public MaterialResponseDTO getMaterialById(Long materialId) {
         Material material = materialRepository.findById(materialId)
-                .orElseThrow(() -> new ResourceNotFoundException("Material", materialId));
+                .orElseThrow(() -> new ResourceNotFoundException("Vật liệu", materialId));
 
         return materialMapper.toResponseDTO(material);
     }
@@ -122,7 +122,7 @@ public class MaterialServiceImpl implements MaterialService {
     @Override
     public void deleteMaterial(Long id) {
         Material material = materialRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Material", id));
+                .orElseThrow(() -> new ResourceNotFoundException("Vật liệu", id));
 
         // Yard Ownership Check
         validateYardOwnership(material);
@@ -148,13 +148,13 @@ public class MaterialServiceImpl implements MaterialService {
         var currentUser = currentUserService.getCurrentUser();
 
         if (currentUser.getScrapYard() == null) {
-            throw new InvalidRequestException("You are not assigned to any scrap yard");
+            throw new InvalidRequestException("Bạn chưa thuộc về vựa nào!");
         }
 
         if (material.getScrapYard() == null ||
                 !material.getScrapYard().getYardId().equals(currentUser.getScrapYard().getYardId())) {
 
-            throw new InvalidRequestException("You can only manage materials in your own scrap yard");
+            throw new InvalidRequestException("Bạn chỉ có thể thao tác với vật liệu thuộc vựa của bạn!");
         }
     }
 

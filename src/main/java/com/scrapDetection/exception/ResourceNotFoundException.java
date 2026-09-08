@@ -10,10 +10,10 @@ public class ResourceNotFoundException extends BaseException {
 
     // Convenience constructors
     public ResourceNotFoundException(String resourceName, Long id) {
-        super(String.format("%s not found with id: %d", resourceName, id), HttpStatus.NOT_FOUND);
+        super(String.format("%s không tồn tại với id: %d", resourceName, id), HttpStatus.NOT_FOUND);
     }
 
     public ResourceNotFoundException(String resourceName, String field, String value) {
-        super(String.format("%s not found with %s: %s", resourceName, field, value), HttpStatus.NOT_FOUND);
+        super(String.format("%s Không tồn tại với %s: %s", resourceName, field, value), HttpStatus.NOT_FOUND);
     }
 }

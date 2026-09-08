@@ -9,6 +9,6 @@ public class ResourceAlreadyExistsException extends BaseException {
     }
 
     public ResourceAlreadyExistsException(String resourceName, String field, String value) {
-        super(String.format("%s already exists with %s: %s", resourceName, field, value), HttpStatus.CONFLICT);
+        super(String.format("%s đã tồn tại %s: %s", resourceName, field, value), HttpStatus.CONFLICT);
     }
 }
