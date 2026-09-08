@@ -18,7 +18,7 @@ public class EmailServiceImpl implements EmailService {
     public void sendPasswordResetEmail(String to, String resetToken) {
         SimpleMailMessage message = new SimpleMailMessage();
 
-        String resetLink = frontendBaseUrl + "/reset-password?token=" + resetToken;
+        String resetLink = frontendBaseUrl + "auth/reset-password?token=" + resetToken;
 
         message.setFrom("noreply@scrapsmart.io.vn");
         message.setTo(to);
